@@ -1,11 +1,18 @@
 import { supabase } from '../lib/supabaseClient';
 
+// 현재 사이트 origin 기반 리다이렉트 URL 생성
+function getRedirectUrl(hash = '') {
+  const origin = window.location.origin;
+  const pathname = window.location.pathname;
+  return hash ? `${origin}${pathname}#${hash}` : `${origin}${pathname}`;
+}
+
 // Google OAuth 로그인
 export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin + window.location.pathname,
+      redirectTo: getRedirectUrl('/admin'),
     },
   });
   if (error) throw error;
@@ -17,7 +24,7 @@ export async function signInWithKakao() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'kakao',
     options: {
-      redirectTo: window.location.origin + window.location.pathname,
+      redirectTo: getRedirectUrl('/admin'),
     },
   });
   if (error) throw error;
@@ -41,6 +48,7 @@ export async function signUp(email, password, displayName) {
     password,
     options: {
       data: { full_name: displayName },
+      emailRedirectTo: getRedirectUrl('/login'),
     },
   });
   if (error) throw error;
@@ -56,7 +64,7 @@ export async function signOut() {
 // 비밀번호 재설정 이메일 발송
 export async function resetPassword(email) {
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + window.location.pathname + '#/login',
+    redirectTo: getRedirectUrl('/login'),
   });
   if (error) throw error;
   return data;
