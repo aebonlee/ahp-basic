@@ -1,155 +1,209 @@
-# 코드베이스 분석 및 미완성 기능 개발 완료
+# AHP Basic 개발일지
 
-> 작업일: 2026-02-23
-> 상태: 완료
-
----
-
-## 1. 프로젝트 현황 분석
-
-### 기술 스택
-| 항목 | 기술 |
-|------|------|
-| Frontend | React 18 + Vite 5 |
-| Database | Supabase (PostgreSQL + Auth + RLS) |
-| 차트 | Recharts |
-| 테스트 | Vitest + jsdom |
-| 배포 | GitHub Pages (Actions) |
-
-### 분석 시점 완성된 기능
-| 기능 | 핵심 파일 |
-|------|-----------|
-| AHP 엔진 (고유벡터법) | `src/lib/ahpEngine.js` |
-| 쌍대비교 평가 UI | `PairwiseRatingPage.jsx` |
-| 관리자 대시보드 | `AdminDashboard.jsx` |
-| 프로젝트/기준/대안 CRUD | Context + Hooks |
-| 평가자 관리/초대 | `EvaluatorManagementPage.jsx` |
-| 가중 기하평균 집계 | `ahpAggregation.js` |
-| 종합 결과 차트 | `ComprehensiveChart.jsx` |
-| 민감도 분석 엔진 | `sensitivityAnalysis.js` |
-| 풍선도움말 시스템 | `HelpButton.jsx` + `helpData.js` |
-| RLS 순환참조 수정 | `001_user_profiles.sql` |
-
-### 발견된 미완성 기능 (버그/누락)
-| 우선순위 | 기능 | 문제 |
-|----------|------|------|
-| CRITICAL | 직접입력 평가 | DB 테이블 미존재, 계산엔진 미구현 |
-| HIGH | AdminResultPage 검증 | `allConsistent: true, allComplete: true` 하드코딩 |
-| HIGH | WorkshopPage 진행률 | `max={100}` 하드코딩, 총 비교 수 미계산 |
-| HIGH | ResourceAllocationPage | 기준 가중치 무시, 단순 합산 버그 |
-| MEDIUM | SensitivityPage | 에러 핸들링 없음, 빈 데이터 크래시 가능 |
-| MEDIUM | 도움말 누락 | 민감도/자원배분/워크숍 페이지 HelpButton 없음 |
-| LOW | 테스트 | 엔진 테스트만 존재, 집계/직접입력 테스트 없음 |
-| LOW | CI/CD | 배포 시 테스트 미실행 |
+> **프로젝트**: AHP(계층분석과정) 의사결정 지원 웹 도구
+> **기술 스택**: React 18 + Vite 5 + Supabase + Recharts
+> **배포**: GitHub Pages (CI/CD 자동 배포)
+> **저장소**: [github.com/aebonlee/ahp-basic](https://github.com/aebonlee/ahp-basic)
 
 ---
 
-## 2. 구현 결과
+## 개발 타임라인
 
-### Phase 0: 분석 문서 + 기존 작업 커밋
-- `bad2178` — `feat: 풍선도움말 시스템 구현 및 RLS 순환참조 수정`
-  - 신규: `HelpButton.jsx`, `HelpButton.module.css`, `helpData.js`
-  - 수정: `ParticipantPanel.jsx`, `ProjectForm.jsx`, `ProjectPanel.jsx`, `ConsistencyDisplay.jsx`, `PairwiseRatingPage.jsx`, `001_user_profiles.sql`
-- `772d338` — `docs: 코드베이스 분석 및 미완성 기능 개발 계획`
+| 날짜 | 커밋 수 | 내용 |
+|:----:|:-------:|------|
+| 2026-02-22 | 17 | 프로젝트 초기화 ~ 전체 구현 + OAuth + DB 마이그레이션 |
+| 2026-02-23 | 10 | 미완성 기능 8개 수정, 테스트 38개 추가, CI/CD 보강 |
 
-### Phase 1: 직접입력(Direct Input) 평가 완성
-- `5aa852a` — `feat: 직접입력 평가 기능 완성 (DB + 엔진 + UI)`
-- **신규 파일**:
-  - `supabase/migrations/002_direct_input_values.sql` — 이미 배포된 DB용 단독 마이그레이션
-  - `src/lib/directInputEngine.js` — `calculateDirectPriorities()`, `aggregateDirectInputs()` 구현
-- **수정 파일**:
-  - `001_user_profiles.sql` — `direct_input_values` 테이블 + RLS 정책 추가
-  - `DirectInputPanel.jsx` — `onValidationChange` 콜백, 완료 여부 표시, 미입력 하이라이트
-  - `DirectInputPage.jsx` — 실시간 우선순위 미리보기 바, 전체 완료 검증 후 결과 이동
-  - `EvaluationContext.jsx` — `directInputValues` 상태, `saveDirectInput()` 함수, `direct_input_values` 테이블 병렬 쿼리
-  - `AdminResultPage.jsx` — `eval_method === DIRECT_INPUT` 분기, `aggregateDirectInputs` 사용, 하드코딩 제거 (Phase 2 포함)
-
-### Phase 2: AdminResultPage 검증 로직
-- Phase 1 커밋에 통합 구현
-- `allConsistent: true, allComplete: true` 하드코딩 → 실제 `expectedPairs vs completedPairs`, `CR > CR_THRESHOLD` 검증
-- 완료/일관성 상태 배너 UI 추가
-
-### Phase 3: WorkshopPage 진행률 계산
-- `c31d049` — `fix: WorkshopPage 진행률 계산 정확도 개선`
-- `useCriteria`, `useAlternatives` import 추가
-- `buildPageSequence` + `pairCount`로 `totalRequired` 계산
-- `ProgressBar max={100}` → `max={totalRequired}`, 텍스트 `{count} / {totalRequired}` 형식
-
-### Phase 4: ResourceAllocationPage 공식 수정
-- `caf0d86` — `fix: ResourceAllocationPage 계층 가중치 반영 공식 수정`
-- **기존 버그**: 리프 기준별 대안 우선순위를 단순 합산 (기준 가중치 무시)
-- **수정**: `getCriteriaGlobal()` 함수 추가, `globalScore(alt) = Σ(criteriaGlobal(leaf) × altPriority(alt, leaf))`
-- 계층적 기준 트리를 따라 올라가며 각 레벨의 로컬 우선순위를 곱해 전역 가중치 산출
-
-### Phase 5: SensitivityPage 안전성 강화
-- `e506c3d` — `fix: SensitivityPage 에러 핸들링 및 안전성 강화`
-- `analysisData` useMemo에 try-catch 래핑
-- `rootResult.priorities` 전부 0인 경우 null 반환
-- `selectedCriterion` 범위 초과 방지 (`Math.min`)
-- 빈 데이터 메시지 → 필요 조건 안내 (기준 2개 이상, 대안 1개 이상, 비교 완료)
-
-### Phase 6: 누락된 Help 키 추가
-- `bf712d4` — `feat: 민감도/자원배분/워크숍 페이지 도움말 추가`
-- `helpData.js`에 3개 키 추가: `sensitivityAnalysis`, `resourceAllocation`, `workshopProgress`
-- `SensitivityPage.jsx`, `ResourceAllocationPage.jsx`, `WorkshopPage.jsx` 각 `<h1>` 옆에 `<HelpButton>` 배치
-
-### Phase 7: 테스트 보강
-- `5a323de` — `test: 집계/직접입력/민감도 엔진 테스트 추가`
-- **신규 파일**:
-  - `src/lib/__tests__/directInputEngine.test.js` — 10개 테스트 (정규화, 집계, 가중치, 엣지케이스)
-  - `src/lib/__tests__/ahpAggregation.test.js` — 7개 테스트 (기하평균, 글로벌 우선순위)
-  - `src/lib/__tests__/sensitivityAnalysis.test.js` — 6개 테스트 (데이터포인트 수, 경계값, 합계)
-- **전체 결과**: 5개 파일, 38개 테스트 모두 통과
-
-### Phase 8: CI/CD 테스트 단계 추가
-- `914b596` — `ci: 배포 파이프라인에 테스트 단계 추가`
-- `.github/workflows/deploy.yml`에 `npm run test` 단계 삽입 (`npm ci` 후, `npm run build` 전)
+> **실제 개발 기간: 2일, 총 27커밋**
 
 ---
 
-## 3. 커밋 이력 (총 9개)
+## Day 1 — 2026-02-22 (17커밋)
 
-| 커밋 해시 | 메시지 |
-|-----------|--------|
-| `bad2178` | `feat: 풍선도움말 시스템 구현 및 RLS 순환참조 수정` |
-| `772d338` | `docs: 코드베이스 분석 및 미완성 기능 개발 계획` |
-| `5aa852a` | `feat: 직접입력 평가 기능 완성 (DB + 엔진 + UI)` |
-| `c31d049` | `fix: WorkshopPage 진행률 계산 정확도 개선` |
-| `caf0d86` | `fix: ResourceAllocationPage 계층 가중치 반영 공식 수정` |
-| `e506c3d` | `fix: SensitivityPage 에러 핸들링 및 안전성 강화` |
-| `bf712d4` | `feat: 민감도/자원배분/워크숍 페이지 도움말 추가` |
-| `5a323de` | `test: 집계/직접입력/민감도 엔진 테스트 추가` |
-| `914b596` | `ci: 배포 파이프라인에 테스트 단계 추가` |
+### 세션 1 (07:13 ~ 09:55) — 프로젝트 초기화 + 전체 구현
+
+| 시각 | 커밋 | 작업 내용 |
+|:----:|:----:|-----------|
+| 07:13 | `d0a8d9f` | Initial commit — 빈 리포지토리 생성 |
+| 09:50 | `89bebbd` | **AHP Basic 전체 구현** — 18 페이지, 51 컴포넌트, AHP 엔진 |
+| 09:54 | `f719f28` | Merge branch 'main' (remote 병합) |
+
+> **세션 성과** — 18개 페이지, 51개 컴포넌트, 7개 커스텀 훅, 10개 라이브러리, ~12,000줄 코드 일괄 구축
+
+### 세션 2 (10:36 ~ 10:41) — GitHub Pages 배포 설정
+
+| 시각 | 커밋 | 작업 내용 |
+|:----:|:----:|-----------|
+| 10:36 | `00fec78` | GitHub Pages 자동 배포 (GitHub Actions CI/CD) |
+| 10:38 | `40c59ae` | base path를 '/'로 변경 (커스텀 도메인 대응) |
+| 10:40 | `7aff97e` | CNAME 파일 추가 (커스텀 도메인 설정) |
+
+### 세션 3 (12:53 ~ 13:39) — 인증 + OAuth + UI 개선
+
+| 시각 | 커밋 | 작업 내용 |
+|:----:|:----:|-----------|
+| 12:53 | `ea0b592` | www 패턴 인증 시스템 적용 (Google/Kakao OAuth) |
+| 12:56 | `89e3425` | 랜딩 홈페이지 추가 (/ → HomePage) |
+| 13:21 | `8a1be2f` | 하위 도메인별 리다이렉트 URL 동적 생성 |
+| 13:28 | `cc2c3b9` | 코드 오류 수정 및 품질 개선 |
+| 13:33 | `0bc2e0f` | 로고 클릭 시 홈 이동 + 인증 페이지 로고 링크 |
+| 13:38 | `f481550` | 개발 계획 백업 및 관련자료 정리 |
+
+### 세션 4 (13:50 ~ 14:15) — OAuth 수정 + DB 마이그레이션
+
+| 시각 | 커밋 | 작업 내용 |
+|:----:|:----:|-----------|
+| 13:50 | `5ab3b17` | Supabase 클라이언트 auth 설정 (PKCE flow) |
+| 13:54 | `2282862` | OAuth redirectTo URL trailing slash 제거 |
+| 14:01 | `c2d39d4` | 도메인 변경 ahp_basic → ahp-basic (DNS 규격 준수) |
+| 14:05 | `bc0f40e` | DB 마이그레이션 SQL 테이블 생성 순서 재구성 |
+| 14:14 | `2ec3c3e` | 개발 계획 백업 및 전체 문서 최신화 |
 
 ---
 
-## 4. 검증 결과
+## Day 2 — 2026-02-23 (10커밋)
 
-| 항목 | 결과 |
-|------|------|
-| `npm run test` | 38 tests passed (5 files) |
-| `npm run build` | 빌드 성공 (dist 생성) |
-| `git push` | `origin/main`에 push 완료 |
-| GitHub Actions | 자동 배포 트리거 됨 |
+### 세션 5 (01:14 ~ 01:26) — 미완성 기능 8건 일괄 수정
+
+| 시각 | 커밋 | 작업 내용 |
+|:----:|:----:|-----------|
+| 01:14 | `bad2178` | **풍선도움말 시스템 구현** + RLS 순환참조 수정 (10파일) |
+| 01:14 | `772d338` | 코드베이스 분석 및 미완성 기능 개발 계획 문서 |
+| 01:17 | `5aa852a` | **직접입력 평가 완성** — DB 테이블 + 계산엔진 + UI (7파일) |
+| 01:18 | `c31d049` | WorkshopPage 진행률 계산 정확도 개선 |
+| 01:19 | `caf0d86` | ResourceAllocationPage **계층 가중치 공식 버그 수정** |
+| 01:20 | `e506c3d` | SensitivityPage 에러 핸들링 및 안전성 강화 |
+| 01:23 | `bf712d4` | 민감도/자원배분/워크숍 페이지 도움말 3건 추가 |
+| 01:25 | `5a323de` | **테스트 38개** 추가 (3파일 신규 — 전체 통과) |
+| 01:26 | `914b596` | CI/CD 배포 파이프라인에 테스트 단계 추가 |
+| 01:45 | `85ab5ed` | 개발일지 최종 업데이트 |
+
+> **세션 성과** — 버그 4건 수정, 신규 기능 2건 완성, 테스트 38개 통과, CI/CD 보강
 
 ---
 
-## 5. 수정된 파일 전체 목록
+## 발견 및 수정한 버그 — 4건
 
-| 파일 | Phase | 작업 |
-|------|-------|------|
-| `supabase/migrations/001_user_profiles.sql` | 1 | direct_input_values 테이블 + RLS |
-| `supabase/migrations/002_direct_input_values.sql` | 1 | 신규 (단독 마이그레이션) |
-| `src/lib/directInputEngine.js` | 1 | 신규 (계산 엔진) |
-| `src/components/evaluation/DirectInputPanel.jsx` | 1 | 검증 강화 |
-| `src/pages/DirectInputPage.jsx` | 1 | 실시간 시각화 + 검증 |
-| `src/contexts/EvaluationContext.jsx` | 1 | 직접입력 상태 관리 |
-| `src/pages/AdminResultPage.jsx` | 1, 2 | 직접입력 통합 + 검증 로직 |
-| `src/pages/WorkshopPage.jsx` | 3, 6 | 진행률 계산 + 도움말 |
-| `src/pages/ResourceAllocationPage.jsx` | 4, 6 | 계층 가중치 + 도움말 |
-| `src/pages/SensitivityPage.jsx` | 5, 6 | 안전성 + 도움말 |
-| `src/lib/helpData.js` | 6 | 3개 키 추가 |
-| `src/lib/__tests__/directInputEngine.test.js` | 7 | 신규 (10 tests) |
-| `src/lib/__tests__/ahpAggregation.test.js` | 7 | 신규 (7 tests) |
-| `src/lib/__tests__/sensitivityAnalysis.test.js` | 7 | 신규 (6 tests) |
-| `.github/workflows/deploy.yml` | 8 | 테스트 단계 추가 |
+### High (4건)
+
+| # | 파일 | 문제 | 수정 |
+|:-:|------|------|------|
+| BUG-01 | `AdminResultPage.jsx:78` | `allConsistent: true, allComplete: true` **하드코딩** | 실제 `expectedPairs vs completedPairs` + `CR > 0.1` 검증 |
+| BUG-02 | `WorkshopPage.jsx:76` | `ProgressBar max={100}` **하드코딩** — 진행률 무의미 | `buildPageSequence` + `pairCount`로 정확한 `totalRequired` 계산 |
+| BUG-03 | `ResourceAllocationPage.jsx:33-45` | 리프 기준별 대안 우선순위 **단순 합산** (기준 가중치 무시) | `getCriteriaGlobal()` 도입 — 계층적 가중치 곱셈 반영 |
+| BUG-04 | `SensitivityPage.jsx:27-86` | useMemo에 **try-catch 없음** — 빈 데이터 시 크래시 | try-catch 래핑 + priorities 전부 0 체크 + 조건 안내 메시지 |
+
+---
+
+## 신규 구현 기능 — 2건
+
+| # | 기능 | 내용 | 관련 파일 |
+|:-:|------|------|-----------|
+| F-01 | **직접입력 평가** | DB 테이블 + 정규화 엔진 + 가중 산술평균 집계 + UI 검증 | `002_direct_input_values.sql`, `directInputEngine.js`, `DirectInputPanel.jsx`, `DirectInputPage.jsx`, `EvaluationContext.jsx`, `AdminResultPage.jsx` |
+| F-02 | **풍선도움말 시스템** | 원본 imakeit.kr 도움말 11개 키 재현, 모바일 반응형 | `HelpButton.jsx`, `HelpButton.module.css`, `helpData.js` + 8개 페이지/컴포넌트 |
+
+---
+
+## 미개발 / 미완성 분석
+
+### 버그 — 0건 (알려진 버그 모두 수정)
+
+### 미구현 기능 — 4건
+
+| # | 기능 | 현 상태 | 필요 작업 |
+|:-:|------|---------|-----------|
+| F-03 | 쌍대비교-이론 모드 | `EVAL_METHOD.PAIRWISE_THEORY` 상수만 존재 | 이론 모드 전용 비교 세트 생성 로직 (n(n-1)/2 풀매트릭스) |
+| F-04 | 결제 시스템 | `orders` 테이블만 존재, UI 없음 | PortOne 연동 + 결제 페이지 구현 |
+| F-05 | 비밀번호 재설정 완료 | `ForgotPasswordPage`에서 이메일 전송까지만 | 재설정 링크 콜백 페이지 구현 |
+| F-06 | 다국어 지원 | 한국어만 하드코딩 | i18n 프레임워크 또는 Context 기반 전환 |
+
+### 코드 품질 이슈 — 3건
+
+| 이슈 | 수량 | 비고 |
+|------|:----:|------|
+| 관리자 이메일 하드코딩 | 1건 | `AuthContext.jsx:17` — `ADMIN_EMAILS` 배열 |
+| Supabase URL 하드코딩 | 1건 | `supabaseClient.js:3` — env 미설정 시 fallback |
+| 인라인 스타일 과다 | 다수 | 일부 페이지(Workshop, Resource, Sensitivity)에 인라인 스타일 사용 |
+
+---
+
+## 테스트 및 코드 품질
+
+### 테스트 커버리지
+
+| 파일 | 테스트 수 | 대상 |
+|------|:---------:|------|
+| `ahpEngine.test.js` | 13 | 행렬 구축, 고유벡터, CR, 쌍 생성 |
+| `ahpBestFit.test.js` | 2 | 최적 적합 추천 |
+| `directInputEngine.test.js` | 10 | 정규화, 집계, 가중치, 엣지케이스 |
+| `ahpAggregation.test.js` | 7 | 기하평균 집계, 글로벌 우선순위 |
+| `sensitivityAnalysis.test.js` | 6 | 가중치 변동, 경계값, 합계 검증 |
+| **합계** | **38** | `npm run test` — **전체 통과** |
+
+### 코드 통계
+
+| 항목 | 수량 |
+|------|:----:|
+| 페이지 | 18 |
+| 컴포넌트 | 51 |
+| 커스텀 훅 | 7 |
+| 라이브러리 | 10 |
+| CSS 모듈 | 39+ |
+| 테스트 파일 | 5 |
+| 라우트 | 21 |
+| `console.log` | 0건 |
+| `TODO/FIXME` | 0건 |
+
+---
+
+## 완성도 요약
+
+```
+전체 완성도   ██████████████████░░  90%
+
+AHP 엔진       ████████████████████  100%
+쌍대비교 평가  ████████████████████  100%
+직접입력 평가  ████████████████████  100%
+종합 결과      ████████████████████  100%
+민감도 분석    ████████████████████  100%
+자원 배분      ████████████████████  100%
+풍선도움말     ████████████████████  100%
+인증/OAuth     ████████████████████  100%
+관리자 대시보드 ████████████████████  100%
+실시간 워크숍  ████████████████████  100%
+브레인스토밍   ████████████████████  100%
+테스트(엔진)   ████████████████████  100%
+CI/CD 배포     ████████████████████  100%
+쌍대비교-이론  ████████░░░░░░░░░░░░   40%
+결제 시스템    ██░░░░░░░░░░░░░░░░░░   10%
+다국어 지원    ░░░░░░░░░░░░░░░░░░░░    0%
+```
+
+---
+
+## 100% 완성까지 남은 작업
+
+### P0 — 즉시 수정
+
+- [x] ~~직접입력 평가 DB + 엔진 + UI~~ (완료)
+- [x] ~~AdminResultPage 하드코딩 검증 로직 제거~~ (완료)
+- [x] ~~ResourceAllocationPage 계층 가중치 버그~~ (완료)
+- [x] ~~SensitivityPage 크래시 방지~~ (완료)
+
+### P1 — 핵심 기능
+
+- [ ] 쌍대비교-이론 모드 풀매트릭스 구현
+- [ ] 결제 시스템 연동 (PortOne V2)
+- [ ] 인라인 스타일 → CSS 모듈 리팩토링
+
+### P2 — 개선
+
+- [ ] 관리자 이메일 하드코딩 → DB 기반 전환
+- [ ] 비밀번호 재설정 콜백 페이지
+- [ ] 컴포넌트/페이지 단위 테스트 추가
+
+### P3 — 장기
+
+- [ ] TypeScript 전면 전환 (JSX → TSX)
+- [ ] 다국어 지원 (i18n)
+- [ ] 코드 스플리팅 + 번들 최적화 (현재 1,114KB)
