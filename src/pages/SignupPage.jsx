@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/common/Button';
 import styles from './AuthPage.module.css';
@@ -16,8 +16,7 @@ export default function SignupPage() {
   const [success, setSuccess] = useState(false);
 
   if (isLoggedIn) {
-    navigate('/', { replace: true });
-    return null;
+    return <Navigate to="/" replace />;
   }
 
   const handleSubmit = async (e) => {

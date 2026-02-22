@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -7,17 +7,12 @@ import Button from '../components/common/Button';
 
 export default function InviteLandingPage() {
   const { token } = useParams();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [status, setStatus] = useState('loading');
   const [project, setProject] = useState(null);
 
-  useEffect(() => {
-    checkInvite();
-  }, [token, user]);
-
-  const checkInvite = async () => {
+  const checkInvite = useCallback(async () => {
     // Token is the project ID
     const { data, error } = await supabase
       .from('projects')
@@ -49,7 +44,11 @@ export default function InviteLandingPage() {
     } else {
       setStatus('need_login');
     }
-  };
+  }, [token, user]);
+
+  useEffect(() => {
+    checkInvite();
+  }, [checkInvite]);
 
   if (status === 'loading') return <LoadingSpinner message="초대 확인 중..." />;
 

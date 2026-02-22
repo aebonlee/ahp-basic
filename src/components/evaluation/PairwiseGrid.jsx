@@ -23,7 +23,7 @@ export default function PairwiseGrid({ pageData, projectId, evaluatorId }) {
       </div>
 
       {/* Comparison rows */}
-      {pageData.pairs.map((pair, idx) => (
+      {(pageData.pairs || []).map((pair, idx) => (
         <PairwiseRow
           key={`${pair.left.id}-${pair.right.id}`}
           pair={pair}

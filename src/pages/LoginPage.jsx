@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/common/Button';
 import styles from './AuthPage.module.css';
@@ -18,8 +18,7 @@ export default function LoginPage() {
 
   // 이미 로그인 상태면 리다이렉트
   if (isLoggedIn) {
-    navigate(from, { replace: true });
-    return null;
+    return <Navigate to={from} replace />;
   }
 
   const handleGoogleLogin = async () => {

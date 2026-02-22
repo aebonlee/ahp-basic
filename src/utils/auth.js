@@ -1,10 +1,17 @@
 import { supabase } from '../lib/supabaseClient';
 
 // 현재 사이트 origin 기반 리다이렉트 URL 생성
-function getRedirectUrl(hash = '') {
+// OAuth용: hash fragment를 포함하면 Supabase의 #access_token과 충돌하므로
+// OAuth에서는 baseUrl만 사용하고, 이메일 리다이렉트에서만 hash 포함
+function getBaseUrl() {
   const origin = window.location.origin;
   const pathname = window.location.pathname;
-  return hash ? `${origin}${pathname}#${hash}` : `${origin}${pathname}`;
+  return `${origin}${pathname}`;
+}
+
+function getRedirectUrl(hash = '') {
+  const base = getBaseUrl();
+  return hash ? `${base}#${hash}` : base;
 }
 
 // Google OAuth 로그인
@@ -12,7 +19,7 @@ export async function signInWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: getRedirectUrl('/admin'),
+      redirectTo: getBaseUrl(),
     },
   });
   if (error) throw error;
@@ -24,7 +31,7 @@ export async function signInWithKakao() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'kakao',
     options: {
-      redirectTo: getRedirectUrl('/admin'),
+      redirectTo: getBaseUrl(),
     },
   });
   if (error) throw error;
