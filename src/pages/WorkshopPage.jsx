@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useProject } from '../hooks/useProjects';
 import { useEvaluators } from '../hooks/useEvaluators';
+import { useCriteria } from '../hooks/useCriteria';
+import { useAlternatives } from '../hooks/useAlternatives';
+import { buildPageSequence } from '../lib/pairwiseUtils';
+import { pairCount } from '../lib/ahpEngine';
 import PageLayout from '../components/layout/PageLayout';
 import ProgressBar from '../components/common/ProgressBar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -11,6 +15,8 @@ export default function WorkshopPage() {
   const { id } = useParams();
   const { currentProject, loading: projLoading } = useProject(id);
   const { evaluators } = useEvaluators(id);
+  const { criteria } = useCriteria(id);
+  const { alternatives } = useAlternatives(id);
   const [progress, setProgress] = useState({});
 
   useEffect(() => {
@@ -22,8 +28,7 @@ export default function WorkshopPage() {
         schema: 'public',
         table: 'pairwise_comparisons',
         filter: `project_id=eq.${id}`,
-      }, (payload) => {
-        // Refresh progress
+      }, () => {
         loadProgress();
       })
       .subscribe();
@@ -48,6 +53,13 @@ export default function WorkshopPage() {
     setProgress(counts);
   };
 
+  // Calculate total required comparisons
+  const totalRequired = useMemo(() => {
+    if (criteria.length === 0) return 0;
+    const pages = buildPageSequence(criteria, alternatives);
+    return pages.reduce((sum, page) => sum + pairCount(page.items.length), 0);
+  }, [criteria, alternatives]);
+
   if (projLoading) return <PageLayout><LoadingSpinner /></PageLayout>;
 
   return (
@@ -63,21 +75,24 @@ export default function WorkshopPage() {
           <p style={{ color: 'var(--color-text-muted)' }}>등록된 평가자가 없습니다.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {evaluators.map(ev => (
-              <div key={ev.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{ev.name}</span>
-                  <span style={{ fontSize: '0.8rem', color: ev.completed ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
-                    {ev.completed ? '완료' : `${progress[ev.user_id] || 0}개 응답`}
-                  </span>
+            {evaluators.map(ev => {
+              const count = progress[ev.user_id] || 0;
+              return (
+                <div key={ev.id}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{ev.name}</span>
+                    <span style={{ fontSize: '0.8rem', color: ev.completed ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+                      {ev.completed ? '완료' : `${count} / ${totalRequired}`}
+                    </span>
+                  </div>
+                  <ProgressBar
+                    value={count}
+                    max={totalRequired || 1}
+                    color={ev.completed ? 'var(--color-success)' : 'var(--color-primary)'}
+                  />
                 </div>
-                <ProgressBar
-                  value={progress[ev.user_id] || 0}
-                  max={100}
-                  color={ev.completed ? 'var(--color-success)' : 'var(--color-primary)'}
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
