@@ -3,7 +3,7 @@
 > 작성일: 2026-02-22
 > 최종 수정: 2026-02-22
 > 프로젝트: AHP Basic
-> 배포: https://ahp_basic.dreamitbiz.com
+> 배포: https://ahp-basic.dreamitbiz.com
 
 ---
 
@@ -19,7 +19,7 @@
 - ahpBestFit.test.js: 2 테스트
 
 ### 배포
-- GitHub Pages + 커스텀 도메인 (`ahp_basic.dreamitbiz.com`)
+- GitHub Pages + 커스텀 도메인 (`ahp-basic.dreamitbiz.com`)
 - GitHub Actions 자동 배포 (main 브랜치 push 시)
 - 총 11개 커밋, 170+ 파일
 
@@ -94,7 +94,7 @@
 ## 남은 작업 (사용자 설정)
 
 1. Supabase DB 마이그레이션 SQL 실행
-2. Supabase Redirect URLs 추가 (ahp_basic.dreamitbiz.com)
+2. Supabase Redirect URLs 추가 (ahp-basic.dreamitbiz.com)
 3. Google OAuth provider 활성화
 4. Kakao OAuth provider 활성화
 5. PortOne Store ID / Channel Key 설정

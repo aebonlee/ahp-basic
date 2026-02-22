@@ -2,7 +2,7 @@
 
 > 작성일: 2026-02-22
 > 프로젝트: AHP Basic
-> 도메인: https://ahp_basic.dreamitbiz.com
+> 도메인: https://ahp-basic.dreamitbiz.com
 
 ---
 
@@ -83,8 +83,8 @@ const ADMIN_EMAILS = ['aebon@kakao.com', 'aebon@kyonggi.ac.kr', 'ryuwebpd@gmail.
 ```
 Site URL: https://www.dreamitbiz.com
 Redirect URLs:
-  - https://ahp_basic.dreamitbiz.com
-  - https://ahp_basic.dreamitbiz.com/**
+  - https://ahp-basic.dreamitbiz.com
+  - https://ahp-basic.dreamitbiz.com/**
   - https://www.dreamitbiz.com
   - https://www.dreamitbiz.com/**
 ```
@@ -136,7 +136,7 @@ cc2c3b9 fix: 코드 오류 수정 및 품질 개선
 8a1be2f fix: 하위 도메인별 리다이렉트 URL 동적 생성
 89e3425 feat: 랜딩 홈페이지 추가 (/ → HomePage)
 ea0b592 feat: www 패턴 인증 시스템 적용 (Google/Kakao OAuth, PortOne 결제)
-7aff97e fix: CNAME 파일 추가 (커스텀 도메인 ahp_basic.dreamitbiz.com)
+7aff97e fix: CNAME 파일 추가 (커스텀 도메인 ahp-basic.dreamitbiz.com)
 40c59ae fix: base path를 '/'로 변경 (커스텀 도메인 대응)
 00fec78 ci: trigger GitHub Pages deployment
 f719f28 Merge branch 'main' of github.com/aebonlee/ahp_basic
