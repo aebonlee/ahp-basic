@@ -6,13 +6,19 @@ import styles from './AuthPage.module.css';
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { isLoggedIn, signUp } = useAuth();
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  if (isLoggedIn) {
+    navigate('/', { replace: true });
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +35,7 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      await signUp(email, password);
+      await signUp(email, password, displayName);
       setSuccess(true);
     } catch (err) {
       setError(err.message || '회원가입에 실패했습니다.');
@@ -65,6 +71,18 @@ export default function SignupPage() {
           {error && <div className={styles.error}>{error}</div>}
 
           <label className={styles.field}>
+            <span>이름</span>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="이름 입력"
+              required
+              autoFocus
+            />
+          </label>
+
+          <label className={styles.field}>
             <span>이메일</span>
             <input
               type="email"
@@ -72,7 +90,6 @@ export default function SignupPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="email@example.com"
               required
-              autoFocus
             />
           </label>
 

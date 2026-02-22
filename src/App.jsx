@@ -7,6 +7,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 // Pages
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ModelBuilderPage from './pages/ModelBuilderPage';
 import BrainstormingPage from './pages/BrainstormingPage';
@@ -32,6 +33,8 @@ export default function App() {
               {/* Public */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
+              <Route path="/register" element={<SignupPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/eval/invite/:token" element={<InviteLandingPage />} />
 
               {/* Admin */}

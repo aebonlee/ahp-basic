@@ -1,12 +1,25 @@
 import { createContext, useReducer, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { USER_MODE } from '../lib/constants';
+import {
+  signInWithEmail,
+  signInWithGoogle,
+  signInWithKakao,
+  signUp as authSignUp,
+  signOut as authSignOut,
+  resetPassword as authResetPassword,
+  getProfile,
+  updateProfile as authUpdateProfile,
+} from '../utils/auth';
 
 export const AuthContext = createContext(null);
+
+const ADMIN_EMAILS = ['aebon@kakao.com', 'aebon@kyonggi.ac.kr', 'ryuwebpd@gmail.com'];
 
 const initialState = {
   user: null,
   session: null,
+  profile: null,
   mode: USER_MODE.ADMIN,
   loading: true,
   error: null,
@@ -22,6 +35,8 @@ function authReducer(state, action) {
         loading: false,
         error: null,
       };
+    case 'SET_PROFILE':
+      return { ...state, profile: action.payload };
     case 'SET_MODE':
       return { ...state, mode: action.payload };
     case 'SET_LOADING':
@@ -38,23 +53,37 @@ function authReducer(state, action) {
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // 프로필 로드
+  const loadProfile = useCallback(async (userId) => {
+    try {
+      const profile = await getProfile(userId);
+      dispatch({ type: 'SET_PROFILE', payload: profile });
+    } catch {
+      dispatch({ type: 'SET_PROFILE', payload: null });
+    }
+  }, []);
+
   useEffect(() => {
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       dispatch({ type: 'SET_SESSION', payload: session });
+      if (session?.user) loadProfile(session.user.id);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         dispatch({ type: 'SET_SESSION', payload: session });
+        if (session?.user) {
+          loadProfile(session.user.id);
+        } else {
+          dispatch({ type: 'SET_PROFILE', payload: null });
+        }
       }
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [loadProfile]);
 
-  // Restore saved mode
+  // 저장된 모드 복원
   useEffect(() => {
     const savedMode = localStorage.getItem('ahp_mode');
     if (savedMode && Object.values(USER_MODE).includes(savedMode)) {
@@ -67,35 +96,96 @@ export function AuthProvider({ children }) {
     localStorage.setItem('ahp_mode', mode);
   }, []);
 
+  // 이메일 로그인
   const signIn = useCallback(async (email, password) => {
     dispatch({ type: 'SET_LOADING', payload: true });
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
+    try {
+      await signInWithEmail(email, password);
+    } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
       throw error;
     }
   }, []);
 
-  const signUp = useCallback(async (email, password) => {
+  // Google 로그인
+  const loginWithGoogle = useCallback(async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
       throw error;
     }
   }, []);
 
+  // Kakao 로그인
+  const loginWithKakao = useCallback(async () => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      await signInWithKakao();
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message });
+      throw error;
+    }
+  }, []);
+
+  // 회원가입
+  const signUp = useCallback(async (email, password, displayName) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      await authSignUp(email, password, displayName);
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: error.message });
+      throw error;
+    }
+  }, []);
+
+  // 로그아웃
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    await authSignOut();
     dispatch({ type: 'SIGN_OUT' });
   }, []);
 
+  // 비밀번호 재설정
+  const resetPassword = useCallback(async (email) => {
+    try {
+      await authResetPassword(email);
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  // 프로필 새로고침
+  const refreshProfile = useCallback(async () => {
+    if (state.user) {
+      await loadProfile(state.user.id);
+    }
+  }, [state.user, loadProfile]);
+
+  // 프로필 업데이트
+  const updateProfile = useCallback(async (updates) => {
+    if (!state.user) throw new Error('로그인이 필요합니다.');
+    const updated = await authUpdateProfile(state.user.id, updates);
+    dispatch({ type: 'SET_PROFILE', payload: updated });
+    return updated;
+  }, [state.user]);
+
+  const isLoggedIn = !!state.user;
+  const isAdmin = isLoggedIn && ADMIN_EMAILS.includes(state.user?.email);
+
   const value = {
     ...state,
+    isLoggedIn,
+    isAdmin,
     setMode,
     signIn,
+    loginWithGoogle,
+    loginWithKakao,
     signUp,
     signOut,
+    resetPassword,
+    refreshProfile,
+    updateProfile,
   };
 
   return (
