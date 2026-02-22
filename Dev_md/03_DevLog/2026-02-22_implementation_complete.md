@@ -3,6 +3,7 @@
 > 작성일: 2026-02-22
 > 최종 수정: 2026-02-22
 > 프로젝트: AHP Basic
+> GitHub: https://github.com/aebonlee/ahp-basic
 > 배포: https://ahp-basic.dreamitbiz.com
 
 ---
@@ -21,7 +22,7 @@
 ### 배포
 - GitHub Pages + 커스텀 도메인 (`ahp-basic.dreamitbiz.com`)
 - GitHub Actions 자동 배포 (main 브랜치 push 시)
-- 총 11개 커밋, 170+ 파일
+- 총 16개 커밋 (d0a8d9f ~ bc0f40e), 170+ 파일
 
 ---
 
@@ -91,10 +92,24 @@
 - [x] 전체 코드 감사 및 버그 수정 (15개 검토, 7개 수정)
 - [x] 로고/네비게이션 클릭 동작
 
+## 배포 후 수정 이력
+
+| 커밋 | 내용 |
+|------|------|
+| `ea0b592` | www 패턴 인증 시스템 적용 (Google/Kakao OAuth, PortOne 결제) |
+| `89e3425` | 랜딩 홈페이지 추가 |
+| `8a1be2f` | 하위 도메인별 리다이렉트 URL 동적 생성 |
+| `cc2c3b9` | 코드 오류 수정 및 품질 개선 (7개 수정) |
+| `0bc2e0f` | 로고 클릭 시 홈으로 이동 |
+| `5ab3b17` | Supabase PKCE flow 설정 |
+| `2282862` | OAuth redirectTo trailing slash 제거 |
+| `c2d39d4` | 도메인 변경 ahp_basic → ahp-basic (DNS 규격) |
+| `bc0f40e` | DB 마이그레이션 SQL 테이블 순서 재구성 |
+
 ## 남은 작업 (사용자 설정)
 
-1. Supabase DB 마이그레이션 SQL 실행
-2. Supabase Redirect URLs 추가 (ahp-basic.dreamitbiz.com)
-3. Google OAuth provider 활성화
-4. Kakao OAuth provider 활성화
-5. PortOne Store ID / Channel Key 설정
+1. Supabase SQL Editor에서 마이그레이션 실행 (`supabase/migrations/001_user_profiles.sql`)
+2. Supabase Redirect URLs: `https://ahp-basic.dreamitbiz.com`, `https://ahp-basic.dreamitbiz.com/**`
+3. Google OAuth provider 활성화 (Client ID/Secret)
+4. Kakao OAuth provider 활성화 (REST API Key)
+5. PortOne Store ID / Channel Key 설정 (결제 기능)

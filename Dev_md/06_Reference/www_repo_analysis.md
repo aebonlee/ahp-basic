@@ -40,9 +40,15 @@ www/
 5. **디자인 시스템**: 컬러, 타이포그래피, 레이아웃
 6. **반응형 디자인**: 미디어 쿼리, 모바일 메뉴
 
-## AHP에서 추가 구현 필요 항목
-1. **Supabase Auth**: 로그인/회원가입/소셜 로그인
-2. **AuthContext**: 인증 상태 관리
-3. **Protected Routes**: 인증 필요 페이지 보호
-4. **AHP 전용 페이지/컴포넌트**: 쌍대비교, 결과 등
-5. **Supabase DB**: 프로젝트, 기준, 대안 데이터 저장
+## AHP에서 추가 구현 완료 항목
+1. **Supabase Auth**: 이메일/비밀번호 + Google + Kakao OAuth (PKCE flow)
+2. **AuthContext**: 인증 상태 + profile + isAdmin 관리
+3. **Protected Routes**: ProtectedRoute + AdminGuard 컴포넌트
+4. **AHP 전용 페이지/컴포넌트**: 18 페이지, 47 컴포넌트
+5. **Supabase DB**: 9개 테이블 + RLS 정책 + 트리거
+6. **PortOne V2 SDK**: 결제 유틸 (portone.js)
+7. **관리자 이메일 목록**: aebon@kakao.com, aebon@kyonggi.ac.kr, ryuwebpd@gmail.com
+
+## 배포
+- GitHub: https://github.com/aebonlee/ahp-basic
+- 도메인: https://ahp-basic.dreamitbiz.com

@@ -128,15 +128,69 @@ Redirect URLs:
 
 ---
 
-## 7. 커밋 히스토리
+## 7. Supabase 클라이언트 auth 설정
+
+### 7.1 수정
+- **커밋**: `5ab3b17` fix: Supabase 클라이언트 auth 설정 추가 (PKCE flow)
+- `supabaseClient.js`에 명시적 auth 옵션 추가
+- `flowType: 'pkce'`, `detectSessionInUrl: true`, `persistSession: true`
+
+---
+
+## 8. OAuth redirectTo URL trailing slash
+
+### 8.1 문제
+- **커밋**: `2282862` fix: OAuth redirectTo URL trailing slash 제거
+- `getBaseUrl()`이 `origin + pathname`을 반환 → trailing slash 포함
+- Supabase allowlist와 불일치
+
+### 8.2 해결
+- `getBaseUrl()`을 `window.location.origin`만 반환하도록 변경
+
+---
+
+## 9. 도메인 변경 (DNS 규격 준수)
+
+### 9.1 문제
+- **커밋**: `c2d39d4` fix: 도메인 변경 ahp_basic → ahp-basic (DNS 규격 준수)
+- `ahp_basic.dreamitbiz.com`의 언더스코어(_)가 RFC 952 DNS 규격 위반
+- Supabase가 OAuth redirect URL 검증 시 언더스코어 포함 도메인을 거부
+
+### 9.2 해결
+- DNS 레코드: `ahp-basic.dreamitbiz.com`으로 변경
+- `public/CNAME`: `ahp-basic.dreamitbiz.com`으로 업데이트
+- GitHub 리포지토리명: `ahp_basic` → `ahp-basic`으로 변경
+- Git remote URL: `https://github.com/aebonlee/ahp-basic.git`
+
+---
+
+## 10. DB 마이그레이션 SQL 재구성
+
+### 10.1 문제
+- **커밋**: `bc0f40e` fix: DB 마이그레이션 SQL 테이블 생성 순서 재구성
+- 기존 SQL: 각 테이블마다 `CREATE TABLE → RLS → POLICY`를 순서대로 실행
+- `projects_evaluator_select` 정책이 아직 생성되지 않은 `evaluators` 테이블 참조
+
+### 10.2 해결
+- SQL 재구성: 1.모든 테이블(9개) → 2.RLS 활성화 → 3.모든 정책 → 4.트리거
+- 교차 참조 문제 완전 해결
+
+---
+
+## 11. 커밋 히스토리 (전체)
 
 ```
+bc0f40e fix: DB 마이그레이션 SQL 테이블 생성 순서 재구성
+c2d39d4 fix: 도메인 변경 ahp_basic → ahp-basic (DNS 규격 준수)
+2282862 fix: OAuth redirectTo URL trailing slash 제거
+5ab3b17 fix: Supabase 클라이언트 auth 설정 추가 (PKCE flow)
+f481550 docs: 개발 계획 백업 및 관련자료 정리
 0bc2e0f fix: 로고 클릭 시 홈으로 이동 + 인증 페이지 로고 링크 추가
 cc2c3b9 fix: 코드 오류 수정 및 품질 개선
 8a1be2f fix: 하위 도메인별 리다이렉트 URL 동적 생성
 89e3425 feat: 랜딩 홈페이지 추가 (/ → HomePage)
 ea0b592 feat: www 패턴 인증 시스템 적용 (Google/Kakao OAuth, PortOne 결제)
-7aff97e fix: CNAME 파일 추가 (커스텀 도메인 ahp-basic.dreamitbiz.com)
+7aff97e fix: CNAME 파일 추가 (커스텀 도메인)
 40c59ae fix: base path를 '/'로 변경 (커스텀 도메인 대응)
 00fec78 ci: trigger GitHub Pages deployment
 f719f28 Merge branch 'main' of github.com/aebonlee/ahp_basic
@@ -146,20 +200,24 @@ d0a8d9f Initial commit
 
 ---
 
-## 8. 현재 상태 및 남은 작업
+## 12. 현재 상태 및 남은 작업
 
 ### 완료
 - 전체 11 Phase 구현 (130 tasks)
-- GitHub Pages 배포 (커스텀 도메인)
-- www 패턴 인증 시스템 적용
+- GitHub Pages 배포 (커스텀 도메인: ahp-basic.dreamitbiz.com)
+- www 패턴 인증 시스템 적용 (Google/Kakao OAuth + 이메일)
 - 랜딩 홈페이지
-- 하위 도메인 리다이렉트
+- 하위 도메인 리다이렉트 (동적 URL 생성)
 - 코드 오류 수정 (15개 검토, 7개 수정)
 - 로고/네비게이션 개선
+- Supabase PKCE flow 설정
+- OAuth redirect URL 수정 (trailing slash, hash fragment 제거)
+- 도메인 변경 (ahp_basic → ahp-basic, DNS RFC 952 준수)
+- DB 마이그레이션 SQL 재구성 (테이블 교차 참조 해결)
 
 ### 사용자 설정 필요
-1. Supabase Redirect URLs 추가
-2. Google OAuth provider 활성화 (Client ID/Secret)
-3. Kakao OAuth provider 활성화 (REST API Key)
-4. DB 마이그레이션 SQL 실행 (`supabase/migrations/001_user_profiles.sql`)
+1. Supabase SQL Editor에서 마이그레이션 실행 (`supabase/migrations/001_user_profiles.sql`)
+2. Supabase Redirect URLs: `https://ahp-basic.dreamitbiz.com`, `https://ahp-basic.dreamitbiz.com/**`
+3. Google OAuth provider 활성화 (Client ID/Secret)
+4. Kakao OAuth provider 활성화 (REST API Key)
 5. PortOne Store ID / Channel Key 설정 (결제 기능)

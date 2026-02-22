@@ -48,9 +48,10 @@
 | 4 | 개발일지 | `Dev_md/03_DevLog/2026-02-22_source_analysis_complete.md` | 9개 페이지 소스 분석 완료 보고 |
 | 5 | 개발일지 | `Dev_md/03_DevLog/2026-02-22_full_development_plan.md` | 전체 11 Phase 개발 계획 |
 | 6 | 개발일지 | `Dev_md/03_DevLog/2026-02-22_implementation_complete.md` | 구현 완료 보고 (파일 현황, 테스트 결과) |
-| 7 | 개발일지 | `Dev_md/03_DevLog/2026-02-22_post_deployment_fixes.md` | 배포 후 수정 기록 (인증, 리다이렉트, 버그 수정) |
-| 8 | 검수 | `Dev_md/04_Inspection/inspection_template.md` | 검수 체크리스트 템플릿 |
-| 9 | 평가 | `Dev_md/05_Evaluation/evaluation_template.md` | 평가 점수 템플릿 |
+| 7 | 개발일지 | `Dev_md/03_DevLog/2026-02-22_post_deployment_fixes.md` | 배포 후 수정 기록 (인증, 리다이렉트, 도메인, SQL) |
+| 8 | 개발계획 | `Dev_md/03_DevLog/2026-02-22_claude_plan_backup.md` | Claude 개발 계획 원본 백업 (11 Phase, 130 tasks) |
+| 9 | 검수 | `Dev_md/04_Inspection/inspection_template.md` | 검수 체크리스트 템플릿 |
+| 10 | 평가 | `Dev_md/05_Evaluation/evaluation_template.md` | 평가 점수 템플릿 |
 
 ---
 
@@ -106,6 +107,10 @@
 | 3 | 리다이렉트 수정 | `8a1be2f` | 하위 도메인별 동적 리다이렉트 |
 | 4 | 코드 감사 | `cc2c3b9` | 15개 이슈 분석, 7개 수정 |
 | 5 | 네비게이션 | `0bc2e0f` | 로고 클릭 → 홈 이동 |
+| 6 | PKCE 설정 | `5ab3b17` | Supabase Auth PKCE flow 명시적 설정 |
+| 7 | URL 수정 | `2282862` | OAuth redirectTo trailing slash 제거 |
+| 8 | 도메인 변경 | `c2d39d4` | ahp_basic → ahp-basic (DNS RFC 952) |
+| 9 | SQL 재구성 | `bc0f40e` | DB 마이그레이션 테이블 순서 재구성 |
 
 ---
 
@@ -119,39 +124,37 @@
 
 ---
 
-## 5. copy_code/ 원본 HTML 파일 목록
+## 5. copy_code/ 파일 목록 (실제)
 
 ```
 copy_code/
 ├── README.md                                    # 전체 인덱스
 ├── 2026-02-22_imakeit_default_page/
-│   ├── default.aspx.html                        # 관리자 대시보드 HTML
+│   ├── default.aspx.html                        # ✅ 관리자 대시보드 HTML
 │   └── source_analysis.md
 ├── 2026-02-22_imakeit_model_builder/
-│   ├── model_builder.aspx.html                  # 모델 빌더 HTML
+│   ├── model_builder.aspx.html                  # ✅ 모델 빌더 HTML
 │   ├── source_analysis.md
 │   └── model_builder_full_analysis.md           # 상세 JS 분석
 ├── 2026-02-22_imakeit_brainstorming/
-│   ├── brainstorming.aspx.html                  # 브레인스토밍 HTML
+│   ├── brainstorming.aspx.html                  # ✅ 브레인스토밍 HTML
 │   ├── source_analysis.md
 │   └── brainstorming_usage_guide.md             # 6단계 사용법
 ├── 2026-02-22_imakeit_model_confirm/
-│   ├── model_confirm.aspx.html                  # 모델 확정 HTML
-│   └── source_analysis.md
+│   └── source_analysis.md                       # ❌ HTML 미저장 (분석만)
 ├── 2026-02-22_imakeit_eval_start/
-│   ├── eval_start.aspx.html                     # 평가 시작 HTML
-│   └── source_analysis.md
+│   └── source_analysis.md                       # ❌ HTML 미저장 (분석만)
 ├── 2026-02-22_imakeit_evaluator_main/
-│   ├── evaluator_main.aspx.html                 # 평가자 메인 HTML
-│   └── source_analysis.md
+│   └── source_analysis.md                       # ❌ HTML 미저장 (분석만)
 ├── 2026-02-22_imakeit_pairwise_rating/
-│   ├── pairwise_subcriteria.aspx.html           # 쌍대비교 HTML
+│   ├── pairwise_subcriteria.aspx.html           # ✅ 2차 기준 쌍대비교 HTML
 │   ├── source_analysis.md
 │   └── visual_render_analysis.md                # CSS/시각 분석
 ├── 2026-02-22_imakeit_eval_mockup/
-│   ├── eval_mockup.aspx.html                    # 평가 목업 HTML
+│   ├── eval_mockup.aspx.html                    # ✅ 평가 목업 HTML
 │   └── source_analysis.md
 └── 2026-02-22_imakeit_eval_result/
-    ├── eval_result.aspx.html                    # 평가 결과 HTML
-    └── source_analysis.md
+    └── source_analysis.md                       # ❌ HTML 미저장 (분석만)
 ```
+
+> HTML 원본 5개 보유, 분석 메모만 4개 (model_confirm, eval_start, evaluator_main, eval_result)

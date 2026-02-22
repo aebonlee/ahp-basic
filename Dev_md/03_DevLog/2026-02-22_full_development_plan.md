@@ -17,8 +17,8 @@ copy_code/에 9개 페이지 분석 완료 (~85% 커버리지). 전체 기능을
 - 대시보드: https://supabase.com/dashboard/project/hcmgdztsgjvzcyxyayaj
 
 ### GitHub 저장소
-- URL: https://github.com/aebonlee/ahp_basic
-- 배포: GitHub Pages (`/ahp_basic/`)
+- URL: https://github.com/aebonlee/ahp-basic
+- 배포: https://ahp-basic.dreamitbiz.com (GitHub Pages + 커스텀 도메인)
 
 ---
 
@@ -393,6 +393,8 @@ Phase 4 → 5 (브레인스토밍은 모델구축 이후)
 | 10 | 고급 기능 | ✅ 완료 |
 | 11 | 마무리 + 배포 | ✅ 완료 |
 
-- **빌드**: `npx vite build` 성공 (1094KB 번들)
+- **빌드**: `npx vite build` 성공 (~1,105KB 번들)
 - **테스트**: `npx vitest run` 15/15 통과
-- **총 파일 수**: ~80+ 파일 (컴포넌트, 페이지, 훅, 라이브러리, 스타일, 테스트)
+- **총 파일 수**: 170+ 파일 (페이지 18, 컴포넌트 47, 훅 7, 라이브러리 8, 유틸 4, CSS 41, 테스트 2)
+- **배포**: https://ahp-basic.dreamitbiz.com (GitHub Pages + 커스텀 도메인)
+- **총 커밋 수**: 16 (d0a8d9f ~ bc0f40e)
