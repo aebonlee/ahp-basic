@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useProjects } from '../../contexts/ProjectContext';
 import { EVAL_METHOD, EVAL_METHOD_LABELS } from '../../lib/constants';
 import Button from '../common/Button';
+import HelpButton from '../common/HelpButton';
 import styles from './ProjectForm.module.css';
 
 export default function ProjectForm({ project, onClose }) {
@@ -38,7 +39,7 @@ export default function ProjectForm({ project, onClose }) {
       {error && <div className={styles.error}>{error}</div>}
 
       <label className={styles.field}>
-        <span>프로젝트 이름</span>
+        <span>프로젝트 이름 <HelpButton helpKey="projectName" /></span>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -48,7 +49,7 @@ export default function ProjectForm({ project, onClose }) {
       </label>
 
       <label className={styles.field}>
-        <span>설명</span>
+        <span>설명 <HelpButton helpKey="projectDesc" /></span>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -58,7 +59,7 @@ export default function ProjectForm({ project, onClose }) {
       </label>
 
       <label className={styles.field}>
-        <span>평가방법</span>
+        <span>평가방법 <HelpButton helpKey="evalMethod" /></span>
         <select value={evalMethod} onChange={(e) => setEvalMethod(Number(e.target.value))}>
           {Object.entries(EVAL_METHOD).map(([key, val]) => (
             <option key={val} value={val}>{EVAL_METHOD_LABELS[val]}</option>

@@ -12,6 +12,7 @@ import PageNavigator from '../components/evaluation/PageNavigator';
 import EvaluationProgress from '../components/evaluation/EvaluationProgress';
 import AhpIntroduction from '../components/evaluation/AhpIntroduction';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import HelpButton from '../components/common/HelpButton';
 import { usePairwiseComparison } from '../hooks/usePairwiseComparison';
 import { CR_THRESHOLD } from '../lib/constants';
 import styles from './PairwiseRatingPage.module.css';
@@ -67,7 +68,10 @@ export default function PairwiseRatingPage() {
               ({currentPageData.type === 'criteria' ? '기준 비교' : '대안 비교'})
             </span>
           </h2>
-          <span className={styles.pageNum}>{currentPage + 1}/{pageSequence.length}</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <span className={styles.pageNum}>{currentPage + 1}/{pageSequence.length}</span>
+            <HelpButton helpKey="evalProgress" />
+          </span>
         </div>
 
         <PairwiseGrid

@@ -5,6 +5,7 @@ import ProjectForm from './ProjectForm';
 import ProjectCard from './ProjectCard';
 import Button from '../common/Button';
 import LoadingSpinner from '../common/LoadingSpinner';
+import HelpButton from '../common/HelpButton';
 import styles from './ProjectPanel.module.css';
 
 export default function ProjectPanel({ projects, loading, selectedProjectId, onSelect }) {
@@ -41,9 +42,12 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
     <div className={styles.panel}>
       <div className={styles.header}>
         <h2 className={styles.title}>프로젝트</h2>
-        <Button size="sm" onClick={() => { setEditProject(null); setShowForm(true); }}>
-          + 시작하기
-        </Button>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Button size="sm" onClick={() => { setEditProject(null); setShowForm(true); }}>
+            + 시작하기
+          </Button>
+          <HelpButton helpKey="projectStart" />
+        </span>
       </div>
 
       <div className={styles.filters}>

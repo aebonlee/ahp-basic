@@ -129,6 +129,31 @@ ALTER TABLE public.evaluation_signatures ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
+-- 2.5. RLS 순환참조 방지 헬퍼 함수
+-- projects ↔ evaluators 간 상호참조를 SECURITY DEFINER로 끊음
+-- ============================================
+
+CREATE OR REPLACE FUNCTION public.is_project_owner(p_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql SECURITY DEFINER STABLE
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM projects WHERE id = p_id AND owner_id = auth.uid()
+  );
+$$;
+
+CREATE OR REPLACE FUNCTION public.is_project_evaluator(p_id UUID)
+RETURNS BOOLEAN
+LANGUAGE sql SECURITY DEFINER STABLE
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM evaluators WHERE project_id = p_id AND user_id = auth.uid()
+  );
+$$;
+
+-- ============================================
 -- 3. RLS 정책 (모든 테이블 생성 후)
 -- ============================================
 
@@ -144,61 +169,25 @@ CREATE POLICY "projects_owner_all" ON public.projects
   FOR ALL USING (auth.uid() = owner_id);
 
 CREATE POLICY "projects_evaluator_select" ON public.projects
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.evaluators
-      WHERE evaluators.project_id = projects.id
-      AND evaluators.user_id = auth.uid()
-    )
-  );
+  FOR SELECT USING (public.is_project_evaluator(id));
 
 -- criteria 정책
 CREATE POLICY "criteria_project_owner" ON public.criteria
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.projects
-      WHERE projects.id = criteria.project_id
-      AND projects.owner_id = auth.uid()
-    )
-  );
+  FOR ALL USING (public.is_project_owner(project_id));
 
 CREATE POLICY "criteria_evaluator_select" ON public.criteria
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.evaluators
-      WHERE evaluators.project_id = criteria.project_id
-      AND evaluators.user_id = auth.uid()
-    )
-  );
+  FOR SELECT USING (public.is_project_evaluator(project_id));
 
 -- alternatives 정책
 CREATE POLICY "alternatives_project_owner" ON public.alternatives
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.projects
-      WHERE projects.id = alternatives.project_id
-      AND projects.owner_id = auth.uid()
-    )
-  );
+  FOR ALL USING (public.is_project_owner(project_id));
 
 CREATE POLICY "alternatives_evaluator_select" ON public.alternatives
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.evaluators
-      WHERE evaluators.project_id = alternatives.project_id
-      AND evaluators.user_id = auth.uid()
-    )
-  );
+  FOR SELECT USING (public.is_project_evaluator(project_id));
 
 -- evaluators 정책
 CREATE POLICY "evaluators_project_owner" ON public.evaluators
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.projects
-      WHERE projects.id = evaluators.project_id
-      AND projects.owner_id = auth.uid()
-    )
-  );
+  FOR ALL USING (public.is_project_owner(project_id));
 
 CREATE POLICY "evaluators_self_select" ON public.evaluators
   FOR SELECT USING (user_id = auth.uid());
@@ -214,23 +203,11 @@ CREATE POLICY "comparisons_evaluator_crud" ON public.pairwise_comparisons
   );
 
 CREATE POLICY "comparisons_owner_select" ON public.pairwise_comparisons
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.projects
-      WHERE projects.id = pairwise_comparisons.project_id
-      AND projects.owner_id = auth.uid()
-    )
-  );
+  FOR SELECT USING (public.is_project_owner(project_id));
 
 -- brainstorming_items 정책
 CREATE POLICY "brainstorming_project_owner" ON public.brainstorming_items
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.projects
-      WHERE projects.id = brainstorming_items.project_id
-      AND projects.owner_id = auth.uid()
-    )
-  );
+  FOR ALL USING (public.is_project_owner(project_id));
 
 -- evaluation_signatures 정책
 CREATE POLICY "signatures_evaluator_crud" ON public.evaluation_signatures
@@ -243,13 +220,7 @@ CREATE POLICY "signatures_evaluator_crud" ON public.evaluation_signatures
   );
 
 CREATE POLICY "signatures_owner_select" ON public.evaluation_signatures
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.projects
-      WHERE projects.id = evaluation_signatures.project_id
-      AND projects.owner_id = auth.uid()
-    )
-  );
+  FOR SELECT USING (public.is_project_owner(project_id));
 
 -- orders 정책
 CREATE POLICY "orders_owner_select" ON public.orders

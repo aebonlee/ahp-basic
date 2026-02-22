@@ -4,6 +4,7 @@ import ParticipantForm from './ParticipantForm';
 import StateTransitionButton from './StateTransitionButton';
 import Button from '../common/Button';
 import LoadingSpinner from '../common/LoadingSpinner';
+import HelpButton from '../common/HelpButton';
 import styles from './ParticipantPanel.module.css';
 
 export default function ParticipantPanel({ project }) {
@@ -42,7 +43,7 @@ export default function ParticipantPanel({ project }) {
   return (
     <div>
       <div className={styles.header}>
-        <h2 className={styles.title}>{project.name}</h2>
+        <h2 className={styles.title}>{project.name} <HelpButton helpKey="projectManage" /></h2>
         <StateTransitionButton project={project} />
       </div>
 
@@ -50,7 +51,7 @@ export default function ParticipantPanel({ project }) {
 
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h3>평가자 목록</h3>
+          <h3>평가자 목록 <HelpButton helpKey="evaluatorSelect" /></h3>
           <Button size="sm" onClick={() => { setEditEval(null); setShowForm(true); }}>
             + 평가자 추가
           </Button>
