@@ -23,7 +23,7 @@
   z-index: 0;
 }
 
-/* Connection lines */
+/* ========== Connection lines (color) ========== */
 .connectionLine {
   fill: none;
   stroke: #94a3b8;
@@ -44,14 +44,47 @@
   opacity: 0.7;
 }
 
-/* Separator line between criteria and alternatives */
+/* ========== Connection lines (paper/grayscale) ========== */
+.linePaper {
+  fill: none;
+  stroke: #555;
+  stroke-width: 1.5;
+}
+
+.lineActivePaper {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2.5;
+}
+
+.lineAltPaper {
+  fill: none;
+  stroke: #888;
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+/* ========== Separator ========== */
 .separatorLine {
   stroke: #cbd5e1;
   stroke-width: 1;
   stroke-dasharray: 6 4;
 }
 
-/* Context menu */
+.separatorPaper {
+  stroke: #aaa;
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+}
+
+/* ========== Paper mode canvas ========== */
+.paperCanvas {
+  background: #fff;
+  border-color: #ccc;
+  box-shadow: none;
+}
+
+/* ========== Context menu ========== */
 .contextMenu {
   position: absolute;
   background: var(--color-surface);
@@ -87,7 +120,7 @@
   background: #fef2f2;
 }
 
-/* Empty state */
+/* ========== Empty state ========== */
 .emptyState {
   display: flex;
   flex-direction: column;

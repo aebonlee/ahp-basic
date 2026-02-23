@@ -8,6 +8,7 @@ export default function HierarchyCanvas({
   criteriaTree,
   alternatives,
   orientation = 'vertical',
+  paperMode = false,
   onAddCriterion,
   onEditCriterion,
   onDeleteCriterion,
@@ -137,6 +138,16 @@ export default function HierarchyCanvas({
     return [];
   }, [contextMenu, onAddCriterion, onAddAlternative, onEditCriterion, onDeleteCriterion, onEditAlternative, onDeleteAlternative]);
 
+  // Connection line class helper
+  const getLineClass = (isAlt, isActive) => {
+    if (paperMode) {
+      if (isAlt) return styles.lineAltPaper;
+      return isActive ? styles.lineActivePaper : styles.linePaper;
+    }
+    if (isAlt) return styles.connectionLineAlt;
+    return isActive ? styles.connectionLineActive : styles.connectionLine;
+  };
+
   // Render SVG connection lines
   const renderConnections = () => {
     const isHorizontal = orientation === 'horizontal';
@@ -151,7 +162,6 @@ export default function HierarchyCanvas({
 
       let d;
       if (isHorizontal) {
-        // Right edge → Left edge (horizontal bezier)
         const x1 = from.x + from.width;
         const y1 = from.y + from.height / 2;
         const x2 = to.x;
@@ -159,7 +169,6 @@ export default function HierarchyCanvas({
         const midX = (x1 + x2) / 2;
         d = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
       } else {
-        // Bottom edge → Top edge (vertical bezier)
         const x1 = from.x + from.width / 2;
         const y1 = from.y + from.height;
         const x2 = to.x + to.width / 2;
@@ -168,19 +177,7 @@ export default function HierarchyCanvas({
         d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
       }
 
-      return (
-        <path
-          key={i}
-          d={d}
-          className={
-            isAlt
-              ? styles.connectionLineAlt
-              : isActive
-                ? styles.connectionLineActive
-                : styles.connectionLine
-          }
-        />
-      );
+      return <path key={i} d={d} className={getLineClass(isAlt, isActive)} />;
     });
   };
 
@@ -201,9 +198,11 @@ export default function HierarchyCanvas({
     );
   }
 
+  const sepClass = paperMode ? styles.separatorPaper : styles.separatorLine;
+
   return (
     <div
-      className={styles.canvasWrapper}
+      className={`${styles.canvasWrapper} ${paperMode ? styles.paperCanvas : ''}`}
       ref={wrapperRef}
       onClick={handleCanvasClick}
       onContextMenu={handleCanvasContextMenu}
@@ -213,31 +212,13 @@ export default function HierarchyCanvas({
         style={{ width: canvasWidth, height: canvasHeight }}
       >
         {/* SVG layer */}
-        <svg
-          className={styles.svgLayer}
-          width={canvasWidth}
-          height={canvasHeight}
-        >
+        <svg className={styles.svgLayer} width={canvasWidth} height={canvasHeight}>
           {renderConnections()}
-          {/* Vertical separator (horizontal layout) */}
           {separatorX && (
-            <line
-              x1={separatorX}
-              y1={40}
-              x2={separatorX}
-              y2={canvasHeight - 40}
-              className={styles.separatorLine}
-            />
+            <line x1={separatorX} y1={40} x2={separatorX} y2={canvasHeight - 40} className={sepClass} />
           )}
-          {/* Horizontal separator (vertical layout) */}
           {separatorY && (
-            <line
-              x1={40}
-              y1={separatorY}
-              x2={canvasWidth - 40}
-              y2={separatorY}
-              className={styles.separatorLine}
-            />
+            <line x1={40} y1={separatorY} x2={canvasWidth - 40} y2={separatorY} className={sepClass} />
           )}
         </svg>
 
@@ -252,6 +233,8 @@ export default function HierarchyCanvas({
             onAddChild={handleAddChild}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            paperMode={paperMode}
+            orientation={orientation}
           />
         ))}
       </div>

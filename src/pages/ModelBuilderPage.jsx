@@ -29,6 +29,7 @@ export default function ModelBuilderPage() {
   const [altFormMode, setAltFormMode] = useState('add');
   const [showPreview, setShowPreview] = useState(false);
   const [orientation, setOrientation] = useState('vertical');
+  const [paperMode, setPaperMode] = useState(false);
   const { confirm, confirmDialogProps } = useConfirm();
 
   if (projectLoading || criteriaLoading || altLoading) {
@@ -112,6 +113,14 @@ export default function ModelBuilderPage() {
       <div className={styles.canvasToolbar}>
         <Button size="sm" onClick={() => handleAddCriterion(null)}>+ 기준 추가</Button>
         <Button size="sm" variant="secondary" onClick={() => handleAddAlternative(null)}>+ 대안 추가</Button>
+        <div className={styles.toolbarRight}>
+        <button
+          className={`${styles.paperBtn} ${paperMode ? styles.paperBtnActive : ''}`}
+          onClick={() => setPaperMode(!paperMode)}
+          title="논문 캡쳐용 흑백 모드"
+        >
+          논문용
+        </button>
         <div className={styles.orientationToggle}>
           <button
             className={`${styles.toggleBtn} ${orientation === 'vertical' ? styles.toggleActive : ''}`}
@@ -144,6 +153,7 @@ export default function ModelBuilderPage() {
             </svg>
           </button>
         </div>
+        </div>
       </div>
 
       <div className={styles.canvasContainer}>
@@ -152,6 +162,7 @@ export default function ModelBuilderPage() {
           criteriaTree={criteriaTree}
           alternatives={alternatives}
           orientation={orientation}
+          paperMode={paperMode}
           onAddCriterion={handleAddCriterion}
           onEditCriterion={handleEditCriterion}
           onDeleteCriterion={handleDeleteCriterion}

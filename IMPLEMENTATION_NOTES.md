@@ -2,6 +2,44 @@
 
 ---
 
+## 2026-02-24 (6차) — 가로형 동적 노드 너비 & 논문 캡쳐용 흑백 모드
+
+### 변경 요약
+가로형 캔버스에서 텍스트 길이에 맞춰 노드 너비를 자동 조절하고, 논문에 바로 캡쳐하여 사용할 수 있는 흑백(grayscale) 모드를 추가.
+
+### 주요 변경
+
+**가로형 동적 노드 너비**
+- `hierarchyLayout.js`에 `estimateNodeWidth()` 함수 추가 (한글 ~11px, 영문 ~7px 추정)
+- 같은 레벨의 노드는 최대 너비로 통일 → 깔끔한 컬럼 정렬
+- 가로형 노드 높이 56px (세로형 48px보다 여유) + 텍스트 줄바꿈 허용 (최대 3줄)
+- 너비 범위: 최소 120px ~ 최대 280px
+
+**논문 캡쳐용 흑백 모드 (논문용 버튼)**
+- 툴바에 "논문용" 토글 버튼 추가
+- 활성 시 캔버스 배경 순백색, 그림자 제거
+- 노드: Goal(검정), Criteria(흰 배경+회색 보더), Alternative(밝은 회색)
+- 연결선: 진한 회색 → 검정 (활성), 대안 연결 점선 회색
+- 기준 레벨 컬러 → 흑백 농도 단계 (#222, #444, #666, #888, #aaa)
+- 호버 액션 버튼 숨김 (클린 캡쳐를 위해)
+- 호버 애니메이션 비활성화
+
+### 수정 파일 (6개)
+| 파일 | 변경 내용 |
+|------|-----------|
+| `src/lib/hierarchyLayout.js` | `estimateNodeWidth()`, `computeHorizontalLayout` 동적 너비/높이 개선 |
+| `src/components/model/CanvasNode.jsx` | `paperMode`/`orientation` prop, 흑백 레벨 컬러, 조건부 액션 숨김 |
+| `src/components/model/CanvasNode.module.css` | `.paper` 변형, `.wrapLabel` 텍스트 줄바꿈 |
+| `src/components/model/HierarchyCanvas.jsx` | `paperMode` prop, 흑백 연결선 클래스, 캔버스 배경 전환 |
+| `src/components/model/HierarchyCanvas.module.css` | `.paperCanvas`, 흑백 연결선/구분선 스타일 |
+| `src/pages/ModelBuilderPage.jsx` + `.module.css` | `paperMode` 상태, "논문용" 토글 버튼, `toolbarRight` 레이아웃 |
+
+### 검증
+- `npm run build` — 빌드 성공
+- `npm run test` — 38개 테스트 전체 통과
+
+---
+
 ## 2026-02-24 (5차) — 모델 확정 버그 수정 & 캔버스 세로/가로 전환 & 전체 점검
 
 ### 변경 요약
