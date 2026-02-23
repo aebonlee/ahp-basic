@@ -44,10 +44,10 @@
   --color-mode-switch: #393;
 
   /* Cell sizes */
-  --cell-size-desktop: 30px;
-  --cell-size-mobile: 17px;
-  --label-width-desktop: 180px;
-  --label-width-mobile: 95px;
+  --cell-size-desktop: 38px;
+  --cell-size-mobile: 24px;
+  --label-width-desktop: 200px;
+  --label-width-mobile: 110px;
 
   /* Spacing */
   --spacing-xs: 4px;

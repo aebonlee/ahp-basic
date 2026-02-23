@@ -8,7 +8,8 @@
   justify-content: space-between;
   padding: 0 var(--label-width-desktop);
   margin-bottom: var(--spacing-xs);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   color: var(--color-text-muted);
 }
 
@@ -25,7 +26,8 @@
 .scaleNum {
   width: var(--cell-size-desktop);
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--color-text-muted);
   flex-shrink: 0;
 }
@@ -38,15 +40,27 @@
 .row {
   display: flex;
   align-items: center;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
+  padding: 4px 0;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.rowAnswered {
+  background: rgba(57, 153, 51, 0.06);
+}
+
+.rowUnanswered {
+  background: rgba(255, 153, 0, 0.06);
+  border-left: 3px solid var(--color-warning);
 }
 
 .labelLeft {
   width: var(--label-width-desktop);
   text-align: right;
-  padding-right: var(--spacing-sm);
-  font-size: 0.85rem;
-  font-weight: 500;
+  padding-right: var(--spacing-md);
+  font-size: 0.95rem;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -56,9 +70,9 @@
 .labelRight {
   width: var(--label-width-desktop);
   text-align: left;
-  padding-left: var(--spacing-sm);
-  font-size: 0.85rem;
-  font-weight: 500;
+  padding-left: var(--spacing-md);
+  font-size: 0.95rem;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -74,19 +88,22 @@
   width: var(--cell-size-desktop);
   height: var(--cell-size-desktop);
   border: 1px solid #ccc;
+  border-radius: 3px;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.15s, box-shadow 0.15s;
   flex-shrink: 0;
 }
 
 .cell:hover {
-  transform: scale(1.15);
+  transform: scale(1.2);
   z-index: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .cellSelected {
   border-color: var(--color-pairwise-selected-border) !important;
   border-width: 2px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 153, 0.2);
 }
 
 /* Mobile */
@@ -102,7 +119,7 @@
   .labelLeft,
   .labelRight {
     width: var(--label-width-mobile);
-    font-size: 0.7rem;
+    font-size: 0.8rem;
   }
 
   .cell {
@@ -112,6 +129,6 @@
 
   .scaleNum {
     width: var(--cell-size-mobile);
-    font-size: 0.6rem;
+    font-size: 0.7rem;
   }
 }

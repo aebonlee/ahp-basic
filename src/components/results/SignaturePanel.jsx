@@ -12,16 +12,12 @@ export default function SignaturePanel({ projectId, evaluatorId, allComplete, al
   const toast = useToast();
   const { confirm, confirmDialogProps } = useConfirm();
 
-  const canSign = allComplete && allConsistent;
-
   const handleSign = async () => {
-    if (!canSign) {
-      if (!allComplete) toast.warning('모든 평가를 완료하지 못했습니다.');
-      else if (!allConsistent) toast.warning('비일관성비율이 0.1보다 높은 항목이 있습니다.');
-      return;
-    }
+    let msg = '평가를 완료하시겠습니까?';
+    if (!allComplete) msg = `아직 미완료 항목이 있습니다 (${completedCells}/${totalCells}). 그래도 완료하시겠습니까?`;
+    else if (!allConsistent) msg = '비일관성비율이 높은 항목이 있습니다. 그래도 완료하시겠습니까?';
 
-    if (!(await confirm({ title: '평가 완료', message: '평가를 완료하시겠습니까? 완료 후에는 수정할 수 없습니다.', variant: 'warning' }))) return;
+    if (!(await confirm({ title: '평가 완료', message: msg, variant: 'warning' }))) return;
 
     setLoading(true);
     try {
@@ -52,8 +48,7 @@ export default function SignaturePanel({ projectId, evaluatorId, allComplete, al
         <div className={styles.signedMsg}>평가가 완료되었습니다.</div>
       ) : (
         <Button
-          variant={canSign ? 'success' : 'secondary'}
-          disabled={!canSign}
+          variant="success"
           loading={loading}
           onClick={handleSign}
         >

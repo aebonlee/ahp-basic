@@ -12,10 +12,10 @@ const CELL_VALUES = [-9, -8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 8,
 
 function getCellValue(cellIndex) {
   // 0-7: left side (values -9 to -2) → negative means left preferred
-  // 8: center (value 0 = equal, treated as 1)
+  // 8: center (value 1 = equal importance)
   // 9-16: right side (values 2 to 9) → positive means right preferred
   if (cellIndex < 8) return -(9 - cellIndex);   // -9, -8, -7, -6, -5, -4, -3, -2
-  if (cellIndex === 8) return 0;                  // equal (stored as 0, interpreted as 1)
+  if (cellIndex === 8) return 1;                  // equal importance
   return cellIndex - 7;                           // 2, 3, 4, 5, 6, 7, 8, 9
 }
 
@@ -40,8 +40,10 @@ export default function PairwiseRow({ pair, parentId, projectId, evaluatorId }) 
 
   const selectedIndex = getSelectedIndex();
 
+  const isAnswered = selectedIndex >= 0;
+
   return (
-    <div className={styles.row}>
+    <div className={`${styles.row} ${isAnswered ? styles.rowAnswered : styles.rowUnanswered}`}>
       <span className={styles.labelLeft}>{pair.left.name}</span>
       <div className={styles.cells}>
         {Array.from({ length: 17 }, (_, i) => {

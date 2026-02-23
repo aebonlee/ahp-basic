@@ -5,13 +5,14 @@
 .info {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
+  font-weight: 500;
   color: var(--color-text-light);
   margin-bottom: var(--spacing-xs);
 }
 
 .bar {
-  height: 6px;
+  height: 8px;
   background: linear-gradient(to right, #efefef, #fff);
   border-radius: 3px;
   overflow: hidden;

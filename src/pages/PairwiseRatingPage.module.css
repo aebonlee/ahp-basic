@@ -14,19 +14,19 @@
 }
 
 .title {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
 .pageType {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--color-text-muted);
   margin-left: var(--spacing-sm);
   font-weight: 400;
 }
 
 .pageNum {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--color-text-light);
   font-weight: 600;
 }
