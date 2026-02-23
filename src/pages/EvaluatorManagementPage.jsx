@@ -7,7 +7,6 @@ import { useToast } from '../contexts/ToastContext';
 import { useConfirm } from '../hooks/useConfirm';
 import { PROJECT_STATUS } from '../lib/constants';
 import ProjectLayout from '../components/layout/ProjectLayout';
-import PageLayout from '../components/layout/PageLayout';
 import ParticipantForm from '../components/admin/ParticipantForm';
 import Button from '../components/common/Button';
 import ConfirmDialog from '../components/common/ConfirmDialog';
@@ -26,7 +25,7 @@ export default function EvaluatorManagementPage() {
   const [showForm, setShowForm] = useState(false);
   const [starting, setStarting] = useState(false);
 
-  if (projLoading || evalLoading) return <PageLayout><LoadingSpinner /></PageLayout>;
+  if (projLoading || evalLoading) return <ProjectLayout><LoadingSpinner /></ProjectLayout>;
   if (!currentProject) return <ProjectLayout><p>프로젝트를 찾을 수 없습니다.</p></ProjectLayout>;
 
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/eval/invite/${id}`;

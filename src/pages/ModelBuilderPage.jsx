@@ -5,7 +5,6 @@ import { useCriteria } from '../hooks/useCriteria';
 import { useAlternatives } from '../hooks/useAlternatives';
 import { useConfirm } from '../hooks/useConfirm';
 import ProjectLayout from '../components/layout/ProjectLayout';
-import PageLayout from '../components/layout/PageLayout';
 import CriteriaForm from '../components/model/CriteriaForm';
 import AlternativeForm from '../components/model/AlternativeForm';
 import EvalMethodSelect from '../components/model/EvalMethodSelect';
@@ -32,7 +31,7 @@ export default function ModelBuilderPage() {
   const { confirm, confirmDialogProps } = useConfirm();
 
   if (projectLoading || criteriaLoading || altLoading) {
-    return <PageLayout><LoadingSpinner message="모델 데이터 로딩 중..." /></PageLayout>;
+    return <ProjectLayout><LoadingSpinner message="모델 데이터 로딩 중..." /></ProjectLayout>;
   }
 
   if (!currentProject) {

@@ -7,7 +7,6 @@ import { useToast } from '../contexts/ToastContext';
 import { useConfirm } from '../hooks/useConfirm';
 import { PROJECT_STATUS } from '../lib/constants';
 import ProjectLayout from '../components/layout/ProjectLayout';
-import PageLayout from '../components/layout/PageLayout';
 import ModelPreview from '../components/model/ModelPreview';
 import Button from '../components/common/Button';
 import ConfirmDialog from '../components/common/ConfirmDialog';
@@ -27,7 +26,7 @@ export default function ModelConfirmPage() {
   const { confirm, confirmDialogProps } = useConfirm();
   const [confirming, setConfirming] = useState(false);
 
-  if (projectLoading || criteriaLoading || altLoading) return <PageLayout><LoadingSpinner /></PageLayout>;
+  if (projectLoading || criteriaLoading || altLoading) return <ProjectLayout><LoadingSpinner /></ProjectLayout>;
   if (!currentProject) return <ProjectLayout><p>프로젝트를 찾을 수 없습니다.</p></ProjectLayout>;
 
   const criteriaTree = getTree();

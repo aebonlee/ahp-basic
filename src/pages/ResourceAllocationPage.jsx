@@ -7,7 +7,6 @@ import { useEvaluation } from '../contexts/EvaluationContext';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import { calculateAHP } from '../lib/ahpEngine';
 import ProjectLayout from '../components/layout/ProjectLayout';
-import PageLayout from '../components/layout/PageLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import HelpButton from '../components/common/HelpButton';
 import common from '../styles/common.module.css';
@@ -95,7 +94,7 @@ export default function ResourceAllocationPage() {
 
   const totalScore = allocations.reduce((sum, a) => sum + a.score, 0);
 
-  if (projLoading || loading) return <PageLayout><LoadingSpinner /></PageLayout>;
+  if (projLoading || loading) return <ProjectLayout><LoadingSpinner /></ProjectLayout>;
 
   return (
     <ProjectLayout projectName={currentProject?.name}>

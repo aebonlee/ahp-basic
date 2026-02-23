@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useProject } from '../hooks/useProjects';
 import ProjectLayout from '../components/layout/ProjectLayout';
-import PageLayout from '../components/layout/PageLayout';
 import BrainstormingBoard from '../components/brainstorming/BrainstormingBoard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import common from '../styles/common.module.css';
@@ -10,7 +9,7 @@ export default function BrainstormingPage() {
   const { id } = useParams();
   const { currentProject, loading } = useProject(id);
 
-  if (loading) return <PageLayout><LoadingSpinner message="로딩 중..." /></PageLayout>;
+  if (loading) return <ProjectLayout><LoadingSpinner message="로딩 중..." /></ProjectLayout>;
   if (!currentProject) return <ProjectLayout><p>프로젝트를 찾을 수 없습니다.</p></ProjectLayout>;
 
   return (

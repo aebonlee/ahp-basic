@@ -8,7 +8,6 @@ import { useAlternatives } from '../hooks/useAlternatives';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import { pairCount } from '../lib/ahpEngine';
 import ProjectLayout from '../components/layout/ProjectLayout';
-import PageLayout from '../components/layout/PageLayout';
 import ProgressBar from '../components/common/ProgressBar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import HelpButton from '../components/common/HelpButton';
@@ -64,7 +63,7 @@ export default function WorkshopPage() {
     return pages.reduce((sum, page) => sum + pairCount(page.items.length), 0);
   }, [criteria, alternatives]);
 
-  if (projLoading) return <PageLayout><LoadingSpinner /></PageLayout>;
+  if (projLoading) return <ProjectLayout><LoadingSpinner /></ProjectLayout>;
 
   return (
     <ProjectLayout projectName={currentProject?.name}>

@@ -8,7 +8,6 @@ import { buildPageSequence } from '../lib/pairwiseUtils';
 import { calculateAHP } from '../lib/ahpEngine';
 import { sensitivityAnalysis } from '../lib/sensitivityAnalysis';
 import ProjectLayout from '../components/layout/ProjectLayout';
-import PageLayout from '../components/layout/PageLayout';
 import SensitivityChart from '../components/sensitivity/SensitivityChart';
 import WeightSlider from '../components/sensitivity/WeightSlider';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -98,7 +97,7 @@ export default function SensitivityPage() {
     }
   }, [criteria, alternatives, comparisons, selectedCriterion]);
 
-  if (projLoading || loading) return <PageLayout><LoadingSpinner /></PageLayout>;
+  if (projLoading || loading) return <ProjectLayout><LoadingSpinner /></ProjectLayout>;
 
   return (
     <ProjectLayout projectName={currentProject?.name}>

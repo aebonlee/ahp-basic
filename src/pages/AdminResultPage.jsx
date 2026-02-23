@@ -10,7 +10,6 @@ import { aggregateDirectInputs } from '../lib/directInputEngine';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import { EVAL_METHOD, CR_THRESHOLD } from '../lib/constants';
 import ProjectLayout from '../components/layout/ProjectLayout';
-import PageLayout from '../components/layout/PageLayout';
 import ComprehensiveChart from '../components/results/ComprehensiveChart';
 import ConsistencyTable from '../components/results/ConsistencyTable';
 import EvaluatorWeightEditor from '../components/admin/EvaluatorWeightEditor';
@@ -149,7 +148,7 @@ export default function AdminResultPage() {
   }, [criteria, alternatives, allComparisons, allDirectInputs, weights, isDirectInput]);
 
   if (projLoading || loading) {
-    return <PageLayout><LoadingSpinner message="집계 결과 로딩 중..." /></PageLayout>;
+    return <ProjectLayout><LoadingSpinner message="집계 결과 로딩 중..." /></ProjectLayout>;
   }
 
   return (
