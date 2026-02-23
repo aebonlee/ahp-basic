@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEvaluation } from '../contexts/EvaluationContext';
 import { useAuth } from '../hooks/useAuth';
+import { useEvaluators } from '../hooks/useEvaluators';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import { calculateAHP } from '../lib/ahpEngine';
 import { CR_THRESHOLD } from '../lib/constants';
@@ -19,12 +20,19 @@ export default function EvalResultPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { evaluators } = useEvaluators(id);
   const { criteria, alternatives, comparisons, loading, loadProjectData } = useEvaluation();
   const [activeTab, setActiveTab] = useState('summary');
 
+  const evaluatorId = useMemo(() => {
+    return evaluators.find(e => e.user_id === user?.id)?.id || null;
+  }, [evaluators, user?.id]);
+
   useEffect(() => {
-    loadProjectData(id);
-  }, [id, loadProjectData]);
+    if (evaluatorId) {
+      loadProjectData(id, evaluatorId);
+    }
+  }, [id, evaluatorId, loadProjectData]);
 
   // Calculate all results
   const results = useMemo(() => {
@@ -141,7 +149,7 @@ export default function EvalResultPage() {
 
       <SignaturePanel
         projectId={id}
-        evaluatorId={user?.id}
+        evaluatorId={evaluatorId}
         allComplete={results.allComplete}
         allConsistent={results.allConsistent}
         completedCells={results.completedCells}

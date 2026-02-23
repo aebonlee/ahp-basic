@@ -1,8 +1,6 @@
 import styles from './EvaluationProgress.module.css';
 
 export default function EvaluationProgress({ current, total, pageSequence, comparisons }) {
-  const percent = total > 0 ? (current / total) * 100 : 0;
-
   // Count total completed comparisons across all pages
   let totalPairs = 0;
   let completedPairs = 0;
@@ -17,14 +15,19 @@ export default function EvaluationProgress({ current, total, pageSequence, compa
     }
   }
 
+  const pairPercent = totalPairs > 0 ? (completedPairs / totalPairs) * 100 : 0;
+
   return (
     <div className={styles.container}>
       <div className={styles.info}>
-        <span>진행도: {current}/{total} 페이지</span>
-        <span>평가: {completedPairs}/{totalPairs} 항목</span>
+        <span>페이지: {current}/{total}</span>
+        <span className={styles.pairCount}>
+          평가 완료: <strong>{completedPairs}/{totalPairs}</strong> 항목
+          ({Math.round(pairPercent)}%)
+        </span>
       </div>
       <div className={styles.bar}>
-        <div className={styles.fill} style={{ width: `${percent}%` }} />
+        <div className={styles.fill} style={{ width: `${pairPercent}%` }} />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEvaluation } from '../contexts/EvaluationContext';
 import { useAuth } from '../hooks/useAuth';
+import { useEvaluators } from '../hooks/useEvaluators';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import PageLayout from '../components/layout/PageLayout';
 import PairwiseGrid from '../components/evaluation/PairwiseGrid';
@@ -21,13 +22,21 @@ export default function PairwiseRatingPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { evaluators } = useEvaluators(id);
   const { criteria, alternatives, comparisons, loading, loadProjectData } = useEvaluation();
   const [currentPage, setCurrentPage] = useState(0);
   const [showIntro, setShowIntro] = useState(true);
 
+  // evaluators.id (FK target) vs user?.id (auth UUID) — must use evaluators.id
+  const evaluatorId = useMemo(() => {
+    return evaluators.find(e => e.user_id === user?.id)?.id || null;
+  }, [evaluators, user?.id]);
+
   useEffect(() => {
-    loadProjectData(id);
-  }, [id, loadProjectData]);
+    if (evaluatorId) {
+      loadProjectData(id, evaluatorId);
+    }
+  }, [id, evaluatorId, loadProjectData]);
 
   const pageSequence = useMemo(
     () => buildPageSequence(criteria, alternatives),
@@ -77,7 +86,7 @@ export default function PairwiseRatingPage() {
         <PairwiseGrid
           pageData={currentPageData}
           projectId={id}
-          evaluatorId={user?.id}
+          evaluatorId={evaluatorId}
         />
 
         <div className={styles.results}>

@@ -67,14 +67,20 @@ function evalReducer(state, action) {
 export function EvaluationProvider({ children }) {
   const [state, dispatch] = useReducer(evalReducer, initialState);
 
-  const loadProjectData = useCallback(async (projectId) => {
+  const loadProjectData = useCallback(async (projectId, evaluatorId) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
+      let compQuery = supabase.from('pairwise_comparisons').select('*').eq('project_id', projectId);
+      let directQuery = supabase.from('direct_input_values').select('*').eq('project_id', projectId);
+      if (evaluatorId) {
+        compQuery = compQuery.eq('evaluator_id', evaluatorId);
+        directQuery = directQuery.eq('evaluator_id', evaluatorId);
+      }
       const [criteriaRes, altRes, compRes, directRes] = await Promise.all([
         supabase.from('criteria').select('*').eq('project_id', projectId).order('sort_order'),
         supabase.from('alternatives').select('*').eq('project_id', projectId).order('sort_order'),
-        supabase.from('pairwise_comparisons').select('*').eq('project_id', projectId),
-        supabase.from('direct_input_values').select('*').eq('project_id', projectId),
+        compQuery,
+        directQuery,
       ]);
 
       if (criteriaRes.error) throw criteriaRes.error;

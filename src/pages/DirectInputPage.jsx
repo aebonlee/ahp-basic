@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEvaluation } from '../contexts/EvaluationContext';
 import { useAuth } from '../hooks/useAuth';
+import { useEvaluators } from '../hooks/useEvaluators';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import { calculateDirectPriorities } from '../lib/directInputEngine';
 import PageLayout from '../components/layout/PageLayout';
@@ -15,12 +16,19 @@ export default function DirectInputPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { evaluators } = useEvaluators(id);
   const { criteria, alternatives, loading, loadProjectData, directInputValues } = useEvaluation();
   const [validations, setValidations] = useState({});
 
+  const evaluatorId = useMemo(() => {
+    return evaluators.find(e => e.user_id === user?.id)?.id || null;
+  }, [evaluators, user?.id]);
+
   useEffect(() => {
-    loadProjectData(id);
-  }, [id, loadProjectData]);
+    if (evaluatorId) {
+      loadProjectData(id, evaluatorId);
+    }
+  }, [id, evaluatorId, loadProjectData]);
 
   const pages = useMemo(
     () => buildPageSequence(criteria, alternatives),
@@ -59,7 +67,7 @@ export default function DirectInputPage() {
             <h3 className={styles.sectionTitle}>{page.parentName}</h3>
             <DirectInputPanel
               projectId={id}
-              evaluatorId={user?.id}
+              evaluatorId={evaluatorId}
               criterionId={page.parentId}
               items={page.items}
               onValidationChange={handleValidationChange}

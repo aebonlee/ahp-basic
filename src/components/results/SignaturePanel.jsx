@@ -28,8 +28,7 @@ export default function SignaturePanel({ projectId, evaluatorId, allComplete, al
       });
       await supabase.from('evaluators')
         .update({ completed: true })
-        .eq('project_id', projectId)
-        .eq('user_id', evaluatorId);
+        .eq('id', evaluatorId);
       setSigned(true);
     } catch (err) {
       toast.error('완료 처리 실패: ' + err.message);
