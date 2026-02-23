@@ -32,13 +32,8 @@ export default function ModelConfirmPage() {
   const criteriaTree = getTree();
   const rootCriteria = criteria.filter(c => !c.parent_id);
   const rootAlternatives = alternatives.filter(a => !a.parent_id);
-  const canConfirm = criteria.length >= 1 || rootAlternatives.length >= 1;
 
   const handleConfirm = async () => {
-    if (!canConfirm) {
-      toast.warning('기준 또는 대안이 최소 1개 이상 필요합니다.');
-      return;
-    }
     if (!(await confirm({ title: '모델 확정', message: '모델을 확정하시겠습니까? 확정 후 기준/대안 수정이 제한됩니다.', variant: 'warning' }))) return;
     setConfirming(true);
     try {
@@ -68,12 +63,6 @@ export default function ModelConfirmPage() {
           기준: {rootCriteria.length}개 (하위 포함 {criteria.length}개) | 대안: {rootAlternatives.length}개
         </p>
 
-        {!canConfirm && !criteriaError && !altError && (
-          <p className={styles.hintMsg}>
-            모델 확정을 위해 기준 또는 대안이 최소 1개 이상 필요합니다.
-          </p>
-        )}
-
         <ModelPreview
           projectName={currentProject.name}
           criteriaTree={criteriaTree}
@@ -88,7 +77,6 @@ export default function ModelConfirmPage() {
           <Button
             variant="success"
             loading={confirming}
-            disabled={!canConfirm}
             onClick={handleConfirm}
           >
             모델 확정
