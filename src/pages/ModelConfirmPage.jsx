@@ -32,11 +32,11 @@ export default function ModelConfirmPage() {
   const criteriaTree = getTree();
   const rootCriteria = criteria.filter(c => !c.parent_id);
   const rootAlternatives = alternatives.filter(a => !a.parent_id);
-  const canConfirm = rootCriteria.length >= 2 && rootAlternatives.length >= 2;
+  const canConfirm = criteria.length >= 1 && rootAlternatives.length >= 2;
 
   const handleConfirm = async () => {
     if (!canConfirm) {
-      toast.warning('루트 기준 2개 이상, 대안 2개 이상이 필요합니다.');
+      toast.warning('기준 1개 이상, 대안 2개 이상이 필요합니다.');
       return;
     }
     if (!(await confirm({ title: '모델 확정', message: '모델을 확정하시겠습니까? 확정 후 기준/대안 수정이 제한됩니다.', variant: 'warning' }))) return;
@@ -70,8 +70,8 @@ export default function ModelConfirmPage() {
 
         {!canConfirm && !criteriaError && !altError && (
           <p className={styles.hintMsg}>
-            모델 확정을 위해 루트 기준 2개 이상, 대안 2개 이상이 필요합니다.
-            (현재: 루트 기준 {rootCriteria.length}개, 대안 {rootAlternatives.length}개)
+            모델 확정을 위해 기준 1개 이상, 대안 2개 이상이 필요합니다.
+            (현재: 기준 {criteria.length}개, 대안 {rootAlternatives.length}개)
           </p>
         )}
 
