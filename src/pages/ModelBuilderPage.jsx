@@ -5,12 +5,11 @@ import { useCriteria } from '../hooks/useCriteria';
 import { useAlternatives } from '../hooks/useAlternatives';
 import { useConfirm } from '../hooks/useConfirm';
 import PageLayout from '../components/layout/PageLayout';
-import CriteriaTree from '../components/model/CriteriaTree';
 import CriteriaForm from '../components/model/CriteriaForm';
-import AlternativeTree from '../components/model/AlternativeTree';
 import AlternativeForm from '../components/model/AlternativeForm';
 import EvalMethodSelect from '../components/model/EvalMethodSelect';
 import ModelPreview from '../components/model/ModelPreview';
+import HierarchyCanvas from '../components/model/HierarchyCanvas';
 import Button from '../components/common/Button';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -42,11 +41,6 @@ export default function ModelBuilderPage() {
 
   const criteriaTree = getTree();
 
-  const handleCriterionClick = (criterion) => {
-    setSelectedCriterion(criterion);
-    setSelectedAlternative(null);
-  };
-
   const handleAddCriterion = (parentId) => {
     setCriteriaFormMode(parentId ? 'addChild' : 'add');
     setSelectedCriterion(parentId ? criteria.find(c => c.id === parentId) : null);
@@ -75,15 +69,21 @@ export default function ModelBuilderPage() {
     setShowCriteriaForm(false);
   };
 
-  const handleAlternativeClick = (alt) => {
-    setSelectedAlternative(alt);
-    setSelectedCriterion(null);
-  };
-
   const handleAddAlternative = (parentId) => {
     setAltFormMode(parentId ? 'addSub' : 'add');
     setSelectedAlternative(parentId ? alternatives.find(a => a.id === parentId) : null);
     setShowAltForm(true);
+  };
+
+  const handleEditAlternative = (alt) => {
+    setAltFormMode('edit');
+    setSelectedAlternative(alt);
+    setShowAltForm(true);
+  };
+
+  const handleDeleteAlternative = async (altId) => {
+    if (!(await confirm({ title: '대안 삭제', message: '정말 삭제하시겠습니까?', variant: 'danger' }))) return;
+    await deleteAlternative(altId);
   };
 
   const handleAltFormSubmit = async (data) => {
@@ -118,37 +118,23 @@ export default function ModelBuilderPage() {
 
       <EvalMethodSelect project={currentProject} />
 
-      <div className={styles.builder}>
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>기준 (Criteria)</h2>
-            <Button size="sm" onClick={() => handleAddCriterion(null)}>+ 기준 추가</Button>
-          </div>
-          <CriteriaTree
-            tree={criteriaTree}
-            projectName={currentProject.name}
-            onNodeClick={handleCriterionClick}
-            onAddChild={handleAddCriterion}
-            onEdit={handleEditCriterion}
-            onDelete={handleDeleteCriterion}
-            selectedId={selectedCriterion?.id}
-          />
-        </div>
+      <div className={styles.canvasToolbar}>
+        <Button size="sm" onClick={() => handleAddCriterion(null)}>+ 기준 추가</Button>
+        <Button size="sm" variant="secondary" onClick={() => handleAddAlternative(null)}>+ 대안 추가</Button>
+      </div>
 
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <h2>대안 (Alternatives)</h2>
-            <Button size="sm" onClick={() => handleAddAlternative(null)}>+ 대안 추가</Button>
-          </div>
-          <AlternativeTree
-            alternatives={alternatives}
-            onNodeClick={handleAlternativeClick}
-            onAddSub={handleAddAlternative}
-            onEdit={(alt) => { setAltFormMode('edit'); setSelectedAlternative(alt); setShowAltForm(true); }}
-            onDelete={async (id) => { if (await confirm({ title: '대안 삭제', message: '정말 삭제하시겠습니까?', variant: 'danger' })) await deleteAlternative(id); }}
-            selectedId={selectedAlternative?.id}
-          />
-        </div>
+      <div className={styles.canvasContainer}>
+        <HierarchyCanvas
+          projectName={currentProject.name}
+          criteriaTree={criteriaTree}
+          alternatives={alternatives}
+          onAddCriterion={handleAddCriterion}
+          onEditCriterion={handleEditCriterion}
+          onDeleteCriterion={handleDeleteCriterion}
+          onAddAlternative={handleAddAlternative}
+          onEditAlternative={handleEditAlternative}
+          onDeleteAlternative={handleDeleteAlternative}
+        />
       </div>
 
       {showCriteriaForm && (

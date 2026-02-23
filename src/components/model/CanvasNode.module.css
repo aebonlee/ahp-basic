@@ -1,0 +1,118 @@
+.node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+  user-select: none;
+  z-index: 1;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.node:hover {
+  z-index: 10;
+  transform: translateY(-1px);
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Goal node */
+.goalNode {
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.goalNode:hover {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+/* Criteria node */
+.criteriaNode {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid #a0a;
+  box-shadow: var(--shadow-sm);
+}
+
+.criteriaNode:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Alternative node */
+.altNode {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1.5px solid #86efac;
+  border-radius: 24px;
+  font-weight: 600;
+}
+
+.altNode:hover {
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
+}
+
+/* Selected state */
+.selected {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.selected.altNode {
+  outline-color: #22c55e;
+}
+
+/* Hover action buttons */
+.nodeActions {
+  display: none;
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  gap: 2px;
+  z-index: 20;
+}
+
+.node:hover .nodeActions {
+  display: flex;
+}
+
+.actionBtn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.actionBtn:hover {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.deleteBtn:hover {
+  background: var(--color-danger, #ef4444);
+  border-color: var(--color-danger, #ef4444);
+}
