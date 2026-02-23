@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import PageLayout from '../components/layout/PageLayout';
+import ProjectLayout from '../components/layout/ProjectLayout';
 import ProjectPanel from '../components/admin/ProjectPanel';
 import ParticipantPanel from '../components/admin/ParticipantPanel';
 import ModeSwitch from '../components/admin/ModeSwitch';
@@ -13,7 +13,7 @@ export default function AdminDashboard() {
   const selectedProject = projects.find(p => p.id === selectedProjectId) || null;
 
   return (
-    <PageLayout>
+    <ProjectLayout>
       <div className={styles.header}>
         <h1 className={styles.title}>프로젝트 관리</h1>
         <ModeSwitch />
@@ -69,6 +69,6 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
-    </PageLayout>
+    </ProjectLayout>
   );
 }
