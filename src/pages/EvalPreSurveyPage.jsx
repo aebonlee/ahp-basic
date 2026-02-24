@@ -155,61 +155,67 @@ export default function EvalPreSurveyPage() {
           })}
         </div>
 
-        <div className={styles.card}>
-          {/* Step 0: 연구 소개 */}
-          {step === 0 && hasIntro && (
-            <>
-              <h2 className={styles.sectionTitle}>연구 소개</h2>
-              <div className={styles.descriptionBox}>
-                {config.research_description}
-              </div>
-              <div className={styles.actions}>
-                <Button onClick={() => {
-                  const next = effectiveSteps.find(s => s > 0);
-                  setStep(next !== undefined ? next : 0);
-                }}>
-                  다음
-                </Button>
-              </div>
-            </>
-          )}
+        {/* Step 0: 연구 소개 */}
+        {step === 0 && hasIntro && (
+          <div className={styles.card}>
+            <h2 className={styles.sectionTitle}>연구 소개</h2>
+            <div className={styles.descriptionBox}>
+              {config.research_description}
+            </div>
+            <div className={styles.actions}>
+              <Button onClick={() => {
+                const next = effectiveSteps.find(s => s > 0);
+                setStep(next !== undefined ? next : 0);
+              }}>
+                다음
+              </Button>
+            </div>
+          </div>
+        )}
 
-          {/* Step 1: 동의서 */}
-          {step === 1 && hasConsent && (
-            <>
-              <h2 className={styles.sectionTitle}>개인정보 수집 동의</h2>
-              <div className={styles.consentBox}>
-                {config.consent_text}
-              </div>
-              <label className={styles.consentCheck}>
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={e => setAgreed(e.target.checked)}
-                />
-                위 내용을 읽었으며, 이에 동의합니다.
-              </label>
-              <div className={styles.actions}>
-                {hasIntro && (
-                  <Button variant="secondary" onClick={() => setStep(0)}>이전</Button>
-                )}
-                <Button onClick={handleConsent} disabled={!agreed} loading={submitting}>
-                  동의합니다
-                </Button>
-              </div>
-            </>
-          )}
+        {/* Step 1: 동의서 */}
+        {step === 1 && hasConsent && (
+          <div className={styles.card}>
+            <h2 className={styles.sectionTitle}>개인정보 수집 동의</h2>
+            <div className={styles.consentBox}>
+              {config.consent_text}
+            </div>
+            <label className={styles.consentCheck}>
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={e => setAgreed(e.target.checked)}
+              />
+              위 내용을 읽었으며, 이에 동의합니다.
+            </label>
+            <div className={styles.actions}>
+              {hasIntro && (
+                <Button variant="secondary" onClick={() => setStep(0)}>이전</Button>
+              )}
+              <Button onClick={handleConsent} disabled={!agreed} loading={submitting}>
+                동의합니다
+              </Button>
+            </div>
+          </div>
+        )}
 
-          {/* Step 2: 설문 */}
-          {step === 2 && questions.length > 0 && (
-            <>
+        {/* Step 2: 설문 */}
+        {step === 2 && questions.length > 0 && (
+          <>
+            <div className={styles.card}>
               <h2 className={styles.sectionTitle}>인구통계학적 설문</h2>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: 'var(--spacing-sm)' }}>
+                * 표시는 필수 항목입니다.
+              </p>
+            </div>
 
-              {questions.map((q, idx) => (
-                <div key={q.id} className={styles.questionBlock}>
+            {questions.map((q, idx) => (
+              <div key={q.id} className={styles.questionBlock}>
+                <div className={styles.questionLeftBar} />
+                <div className={styles.questionInner}>
                   <div className={styles.questionLabel}>
-                    Q{idx + 1}. {q.question_text}
-                    {q.required && <span className={styles.required}>*</span>}
+                    {q.question_text}
+                    {q.required && <span className={styles.required}> *</span>}
                   </div>
                   <QuestionInput
                     question={q}
@@ -220,24 +226,24 @@ export default function EvalPreSurveyPage() {
                     <div className={styles.validationMsg}>{validationErrors[q.id]}</div>
                   )}
                 </div>
-              ))}
-
-              <div className={styles.actions}>
-                {(hasConsent || hasIntro) && (
-                  <Button variant="secondary" onClick={() => {
-                    const prev = [...effectiveSteps].reverse().find(s => s < 2);
-                    if (prev !== undefined) setStep(prev);
-                  }}>
-                    이전
-                  </Button>
-                )}
-                <Button onClick={handleSubmitSurvey} loading={submitting}>
-                  제출 후 평가 시작
-                </Button>
               </div>
-            </>
-          )}
-        </div>
+            ))}
+
+            <div className={styles.actions}>
+              {(hasConsent || hasIntro) && (
+                <Button variant="secondary" onClick={() => {
+                  const prev = [...effectiveSteps].reverse().find(s => s < 2);
+                  if (prev !== undefined) setStep(prev);
+                }}>
+                  이전
+                </Button>
+              )}
+              <Button onClick={handleSubmitSurvey} loading={submitting}>
+                제출 후 평가 시작
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </PageLayout>
   );
@@ -254,7 +260,7 @@ function QuestionInput({ question, value, onChange }) {
           className={styles.textInput}
           value={value || ''}
           onChange={e => onChange(e.target.value)}
-          placeholder="답변을 입력하세요"
+          placeholder="내 답변"
         />
       );
 
@@ -264,7 +270,7 @@ function QuestionInput({ question, value, onChange }) {
           className={styles.textArea}
           value={value || ''}
           onChange={e => onChange(e.target.value)}
-          placeholder="답변을 입력하세요"
+          placeholder="내 답변"
         />
       );
 
@@ -339,7 +345,11 @@ function QuestionInput({ question, value, onChange }) {
       return (
         <div className={styles.likertGroup}>
           {options.map((opt, i) => (
-            <div key={i} className={styles.likertOption}>
+            <div
+              key={i}
+              className={`${styles.likertOption}${value === opt ? ` ${styles.selected}` : ''}`}
+              onClick={() => onChange(opt)}
+            >
               <input
                 type="radio"
                 name={question.id}

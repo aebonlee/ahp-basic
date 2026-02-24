@@ -1,4 +1,9 @@
+-- ============================================
 -- 004: 인구통계학적 설문 기능 테이블
+-- ============================================
+-- ※ Supabase 자동 마이그레이션이 아닌, SQL Editor에서 수동 실행 필요
+-- ※ Supabase Dashboard → SQL Editor → 이 파일 내용 붙여넣기 → Run
+-- ============================================
 
 -- projects 테이블에 연구 소개/동의서 컬럼 추가
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS research_description TEXT DEFAULT '';
@@ -43,43 +48,116 @@ ALTER TABLE survey_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE survey_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE consent_records ENABLE ROW LEVEL SECURITY;
 
+-- ============================================
 -- survey_questions: 프로젝트 소유자 CRUD + 누구나 SELECT
-CREATE POLICY "survey_questions_owner_all" ON survey_questions
-  FOR ALL USING (
-    project_id IN (SELECT id FROM projects WHERE owner_id = auth.uid())
-  );
+-- ============================================
+DROP POLICY IF EXISTS "survey_questions_owner_all" ON public.survey_questions;
+DROP POLICY IF EXISTS "survey_questions_read" ON public.survey_questions;
 
-CREATE POLICY "survey_questions_read" ON survey_questions
-  FOR SELECT USING (true);
+CREATE POLICY "sq_owner_select" ON public.survey_questions
+  FOR SELECT USING (public.is_project_owner(project_id));
 
--- survey_responses: 프로젝트 소유자 SELECT + 평가자 본인 INSERT/SELECT
-CREATE POLICY "survey_responses_owner_read" ON survey_responses
+CREATE POLICY "sq_owner_insert" ON public.survey_questions
+  FOR INSERT WITH CHECK (public.is_project_owner(project_id));
+
+CREATE POLICY "sq_owner_update" ON public.survey_questions
+  FOR UPDATE USING (public.is_project_owner(project_id));
+
+CREATE POLICY "sq_owner_delete" ON public.survey_questions
+  FOR DELETE USING (public.is_project_owner(project_id));
+
+-- 평가자(누구나 인증된 사용자)도 질문 조회 가능
+CREATE POLICY "sq_authenticated_select" ON public.survey_questions
+  FOR SELECT USING (auth.uid() IS NOT NULL);
+
+-- ============================================
+-- survey_responses: 소유자 SELECT + 평가자 본인 CRUD
+-- ============================================
+DROP POLICY IF EXISTS "survey_responses_owner_read" ON public.survey_responses;
+DROP POLICY IF EXISTS "survey_responses_evaluator_insert" ON public.survey_responses;
+DROP POLICY IF EXISTS "survey_responses_evaluator_read" ON public.survey_responses;
+
+CREATE POLICY "sr_owner_select" ON public.survey_responses
+  FOR SELECT USING (public.is_project_owner(project_id));
+
+CREATE POLICY "sr_evaluator_select" ON public.survey_responses
   FOR SELECT USING (
-    project_id IN (SELECT id FROM projects WHERE owner_id = auth.uid())
+    EXISTS (
+      SELECT 1 FROM public.evaluators
+      WHERE evaluators.id = survey_responses.evaluator_id
+      AND evaluators.user_id = auth.uid()
+    )
   );
 
-CREATE POLICY "survey_responses_evaluator_insert" ON survey_responses
+CREATE POLICY "sr_evaluator_insert" ON public.survey_responses
   FOR INSERT WITH CHECK (
-    evaluator_id IN (SELECT id FROM evaluators WHERE user_id = auth.uid())
+    EXISTS (
+      SELECT 1 FROM public.evaluators
+      WHERE evaluators.id = survey_responses.evaluator_id
+      AND evaluators.user_id = auth.uid()
+    )
   );
 
-CREATE POLICY "survey_responses_evaluator_read" ON survey_responses
+CREATE POLICY "sr_evaluator_update" ON public.survey_responses
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM public.evaluators
+      WHERE evaluators.id = survey_responses.evaluator_id
+      AND evaluators.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "sr_evaluator_delete" ON public.survey_responses
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM public.evaluators
+      WHERE evaluators.id = survey_responses.evaluator_id
+      AND evaluators.user_id = auth.uid()
+    )
+  );
+
+-- ============================================
+-- consent_records: 소유자 SELECT + 평가자 본인 CRUD
+-- ============================================
+DROP POLICY IF EXISTS "consent_records_owner_read" ON public.consent_records;
+DROP POLICY IF EXISTS "consent_records_evaluator_insert" ON public.consent_records;
+DROP POLICY IF EXISTS "consent_records_evaluator_read" ON public.consent_records;
+
+CREATE POLICY "cr_owner_select" ON public.consent_records
+  FOR SELECT USING (public.is_project_owner(project_id));
+
+CREATE POLICY "cr_evaluator_select" ON public.consent_records
   FOR SELECT USING (
-    evaluator_id IN (SELECT id FROM evaluators WHERE user_id = auth.uid())
+    EXISTS (
+      SELECT 1 FROM public.evaluators
+      WHERE evaluators.id = consent_records.evaluator_id
+      AND evaluators.user_id = auth.uid()
+    )
   );
 
--- consent_records: 프로젝트 소유자 SELECT + 평가자 본인 INSERT/SELECT
-CREATE POLICY "consent_records_owner_read" ON consent_records
-  FOR SELECT USING (
-    project_id IN (SELECT id FROM projects WHERE owner_id = auth.uid())
-  );
-
-CREATE POLICY "consent_records_evaluator_insert" ON consent_records
+CREATE POLICY "cr_evaluator_insert" ON public.consent_records
   FOR INSERT WITH CHECK (
-    evaluator_id IN (SELECT id FROM evaluators WHERE user_id = auth.uid())
+    EXISTS (
+      SELECT 1 FROM public.evaluators
+      WHERE evaluators.id = consent_records.evaluator_id
+      AND evaluators.user_id = auth.uid()
+    )
   );
 
-CREATE POLICY "consent_records_evaluator_read" ON consent_records
-  FOR SELECT USING (
-    evaluator_id IN (SELECT id FROM evaluators WHERE user_id = auth.uid())
+CREATE POLICY "cr_evaluator_update" ON public.consent_records
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM public.evaluators
+      WHERE evaluators.id = consent_records.evaluator_id
+      AND evaluators.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "cr_evaluator_delete" ON public.consent_records
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM public.evaluators
+      WHERE evaluators.id = consent_records.evaluator_id
+      AND evaluators.user_id = auth.uid()
+    )
   );
