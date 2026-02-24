@@ -20,10 +20,13 @@ import AdminResultPage from './pages/AdminResultPage';
 import SensitivityPage from './pages/SensitivityPage';
 import ResourceAllocationPage from './pages/ResourceAllocationPage';
 import WorkshopPage from './pages/WorkshopPage';
+import SurveyBuilderPage from './pages/SurveyBuilderPage';
+import SurveyResultPage from './pages/SurveyResultPage';
 import EvaluatorMainPage from './pages/EvaluatorMainPage';
 import PairwiseRatingPage from './pages/PairwiseRatingPage';
 import DirectInputPage from './pages/DirectInputPage';
 import EvalResultPage from './pages/EvalResultPage';
+import EvalPreSurveyPage from './pages/EvalPreSurveyPage';
 import InviteLandingPage from './pages/InviteLandingPage';
 
 export default function App() {
@@ -47,8 +50,10 @@ export default function App() {
               <Route path="/admin/project/:id" element={<ProtectedRoute><ModelBuilderPage /></ProtectedRoute>} />
               <Route path="/admin/project/:id/brain" element={<ProtectedRoute><BrainstormingPage /></ProtectedRoute>} />
               <Route path="/admin/project/:id/confirm" element={<ProtectedRoute><ModelConfirmPage /></ProtectedRoute>} />
+              <Route path="/admin/project/:id/survey" element={<ProtectedRoute><SurveyBuilderPage /></ProtectedRoute>} />
               <Route path="/admin/project/:id/eval" element={<ProtectedRoute><EvaluatorManagementPage /></ProtectedRoute>} />
               <Route path="/admin/project/:id/result" element={<ProtectedRoute><AdminResultPage /></ProtectedRoute>} />
+              <Route path="/admin/project/:id/survey-result" element={<ProtectedRoute><SurveyResultPage /></ProtectedRoute>} />
               <Route path="/admin/project/:id/sensitivity" element={<ProtectedRoute><SensitivityPage /></ProtectedRoute>} />
               <Route path="/admin/project/:id/resource" element={<ProtectedRoute><ResourceAllocationPage /></ProtectedRoute>} />
               <Route path="/admin/project/:id/workshop" element={<ProtectedRoute><WorkshopPage /></ProtectedRoute>} />
@@ -57,6 +62,7 @@ export default function App() {
               <Route path="/eval" element={<ProtectedRoute><EvaluatorMainPage /></ProtectedRoute>} />
               <Route path="/eval/project/:id" element={<ProtectedRoute><PairwiseRatingPage /></ProtectedRoute>} />
               <Route path="/eval/project/:id/direct" element={<ProtectedRoute><DirectInputPage /></ProtectedRoute>} />
+              <Route path="/eval/project/:id/pre-survey" element={<ProtectedRoute><EvalPreSurveyPage /></ProtectedRoute>} />
               <Route path="/eval/project/:id/result" element={<ProtectedRoute><EvalResultPage /></ProtectedRoute>} />
 
               {/* Default */}

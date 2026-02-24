@@ -1,0 +1,130 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-primary-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-primary-border, #c7d2fe);
+}
+
+.summaryNum {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+}
+
+.summaryLabel {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+}
+
+.questionCard {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+  margin-bottom: var(--spacing-md);
+}
+
+.questionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.questionType {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  padding: 2px 8px;
+  border-radius: var(--radius-round);
+}
+
+.responseCount {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+/* 텍스트 응답 목록 */
+.textList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.textItem {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 0.88rem;
+  color: var(--color-text);
+}
+
+.textItem:last-child {
+  border-bottom: none;
+}
+
+/* 숫자 통계 */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.statBox {
+  text-align: center;
+  padding: var(--spacing-sm);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.statValue {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* 차트 컨테이너 */
+.chartWrap {
+  width: 100%;
+  height: 250px;
+}
+
+.emptyMsg {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--spacing-xl);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .summary {
+    flex-direction: column;
+    text-align: center;
+  }
+}

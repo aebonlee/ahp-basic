@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 import { useEvaluation } from '../contexts/EvaluationContext';
 import { useAuth } from '../hooks/useAuth';
 import { useEvaluators } from '../hooks/useEvaluators';
@@ -23,6 +24,22 @@ export default function DirectInputPage() {
   const evaluatorId = useMemo(() => {
     return evaluators.find(e => e.user_id === user?.id)?.id || null;
   }, [evaluators, user?.id]);
+
+  // 설문 완료 여부 체크 → 미완료면 pre-survey로 리다이렉트
+  useEffect(() => {
+    if (!evaluatorId || !id) return;
+    const checkSurvey = async () => {
+      const { data: surveyQs } = await supabase
+        .from('survey_questions').select('id').eq('project_id', id).limit(1);
+      if (!surveyQs || surveyQs.length === 0) return;
+      const { data: responses } = await supabase
+        .from('survey_responses').select('id').eq('project_id', id).eq('evaluator_id', evaluatorId).limit(1);
+      if (!responses || responses.length === 0) {
+        navigate(`/eval/project/${id}/pre-survey`, { replace: true });
+      }
+    };
+    checkSurvey();
+  }, [evaluatorId, id, navigate]);
 
   useEffect(() => {
     if (evaluatorId) {

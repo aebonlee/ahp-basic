@@ -2,14 +2,16 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styles from './ProjectSidebar.module.css';
 
 const STEPS = [
-  { key: 'model',       path: '',             label: '모델 구축',     step: 1 },
-  { key: 'brain',       path: '/brain',       label: '브레인스토밍',  step: 2 },
-  { key: 'confirm',     path: '/confirm',     label: '모델 확정',     step: 3 },
-  { key: 'eval',        path: '/eval',        label: '평가자 관리',   step: 4 },
-  { key: 'workshop',    path: '/workshop',    label: '실시간 워크숍', step: 5 },
-  { key: 'result',      path: '/result',      label: '집계 결과',     step: 6 },
-  { key: 'sensitivity', path: '/sensitivity', label: '민감도 분석',   step: 7 },
-  { key: 'resource',    path: '/resource',    label: '자원 배분',     step: 8 },
+  { key: 'model',         path: '',               label: '모델 구축',     step: 1  },
+  { key: 'brain',         path: '/brain',         label: '브레인스토밍',  step: 2  },
+  { key: 'confirm',       path: '/confirm',       label: '모델 확정',     step: 3  },
+  { key: 'survey',        path: '/survey',        label: '설문 설계',     step: 4  },
+  { key: 'eval',          path: '/eval',          label: '평가자 관리',   step: 5  },
+  { key: 'workshop',      path: '/workshop',      label: '실시간 워크숍', step: 6  },
+  { key: 'result',        path: '/result',        label: '집계 결과',     step: 7  },
+  { key: 'survey-result', path: '/survey-result', label: '설문 집계',     step: 8  },
+  { key: 'sensitivity',   path: '/sensitivity',   label: '민감도 분석',   step: 9  },
+  { key: 'resource',      path: '/resource',      label: '자원 배분',     step: 10 },
 ];
 
 export default function ProjectSidebar({ projectName, collapsed }) {

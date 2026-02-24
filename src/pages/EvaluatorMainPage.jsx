@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -143,7 +143,25 @@ export default function EvaluatorMainPage() {
                             email: user.email,
                           });
                         }
-                        navigate(`/eval/project/${p.id}`);
+                        // 설문이 설정된 프로젝트인지 확인
+                        const { data: surveyQs } = await supabase
+                          .from('survey_questions')
+                          .select('id')
+                          .eq('project_id', p.id)
+                          .limit(1);
+                        const { data: projData } = await supabase
+                          .from('projects')
+                          .select('research_description, consent_text')
+                          .eq('id', p.id)
+                          .single();
+                        const hasSurvey = (surveyQs && surveyQs.length > 0) ||
+                          (projData?.research_description) ||
+                          (projData?.consent_text);
+                        if (hasSurvey) {
+                          navigate(`/eval/project/${p.id}/pre-survey`);
+                        } else {
+                          navigate(`/eval/project/${p.id}`);
+                        }
                       }}>
                         평가 시작하기
                       </Button>
