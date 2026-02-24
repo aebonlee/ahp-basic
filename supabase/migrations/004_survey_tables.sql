@@ -19,8 +19,13 @@ CREATE TABLE IF NOT EXISTS survey_questions (
   options JSONB DEFAULT '[]',
   required BOOLEAN DEFAULT true,
   sort_order INTEGER DEFAULT 0,
+  category TEXT NOT NULL DEFAULT 'demographic' CHECK (category IN ('demographic','custom')),
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- ※ 기존 테이블이 이미 존재하는 경우 category 컬럼만 추가
+ALTER TABLE survey_questions ADD COLUMN IF NOT EXISTS
+  category TEXT NOT NULL DEFAULT 'demographic' CHECK (category IN ('demographic','custom'));
 
 -- 설문 응답
 CREATE TABLE IF NOT EXISTS survey_responses (

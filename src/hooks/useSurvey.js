@@ -35,6 +35,7 @@ export function useSurveyQuestions(projectId) {
         options: question.options || [],
         required: question.required !== undefined ? question.required : true,
         sort_order: maxOrder + 1,
+        ...(question.category ? { category: question.category } : {}),
       })
       .select()
       .single();
