@@ -3,6 +3,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import ProjectSidebar from './ProjectSidebar';
 import ResearcherGuide from '../admin/ResearcherGuide';
+import EvaluatorGuideSidebar from '../admin/EvaluatorGuideSidebar';
 import styles from './ProjectLayout.module.css';
 
 export default function ProjectLayout({ children, projectName }) {
@@ -41,11 +42,18 @@ export default function ProjectLayout({ children, projectName }) {
           </button>
           <div className={styles.rightSidebar}>
             {rightOpen ? (
-              <ResearcherGuide />
+              <>
+                <ResearcherGuide />
+                <div className={styles.guideDivider} />
+                <EvaluatorGuideSidebar />
+              </>
             ) : (
               <div className={styles.collapsedGuide}>
                 <span className={styles.collapsedIcon}>🔬</span>
-                <span className={styles.collapsedVertical}>연구자 가이드</span>
+                <span className={styles.collapsedVertical}>연구자</span>
+                <div className={styles.collapsedDot} />
+                <span className={styles.collapsedIcon}>👨‍💼</span>
+                <span className={styles.collapsedVertical}>평가자</span>
               </div>
             )}
           </div>

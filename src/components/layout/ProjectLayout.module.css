@@ -103,10 +103,25 @@
 .collapsedVertical {
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--color-text-muted);
   letter-spacing: 0.05em;
+}
+
+.collapsedDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-border);
+  margin: 4px 0;
+}
+
+/* ─── Guide Divider ─── */
+.guideDivider {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--spacing-lg) 0;
 }
 
 /* ─── Responsive ─── */
