@@ -31,9 +31,9 @@ export default function ComprehensiveChart({ criteria, alternatives, results }) 
     <div className={styles.card}>
       <h3 className={styles.cardTitle}>대안 종합중요도</h3>
       <ResponsiveContainer width="100%" height={Math.max(200, chartData.length * 50)}>
-        <BarChart data={chartData} layout="vertical" margin={{ left: 80, right: 20 }}>
+        <BarChart data={chartData} layout="vertical" margin={{ left: 20, right: 20 }}>
           <XAxis type="number" domain={[0, 'auto']} tickFormatter={v => `${v.toFixed(1)}%`} />
-          <YAxis type="category" dataKey="name" width={80} />
+          <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 13 }} />
           <Tooltip formatter={(v) => `${v.toFixed(3)}%`} />
           <Bar dataKey="score" fill="var(--color-priority-bar)" radius={[0, 4, 4, 0]}>
             {chartData.map((_, i) => (
