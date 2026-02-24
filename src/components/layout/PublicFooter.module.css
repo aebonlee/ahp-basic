@@ -1,0 +1,65 @@
+.footer {
+  background: #0f2b5b;
+  padding: 36px var(--spacing-xl);
+}
+
+.footerInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.footerLogo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.footerSub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.footerLinks {
+  display: flex;
+  gap: var(--spacing-lg);
+}
+
+.footerLink {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.82rem;
+  text-decoration: none;
+  transition: color 200ms;
+}
+
+.footerLink:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.footerCopy {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .footerInner {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    text-align: center;
+  }
+
+  .footerLinks {
+    gap: var(--spacing-md);
+  }
+}

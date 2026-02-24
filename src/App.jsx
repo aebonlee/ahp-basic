@@ -35,6 +35,9 @@ const PairwiseRatingPage = lazy(() => import('./pages/PairwiseRatingPage'));
 const DirectInputPage = lazy(() => import('./pages/DirectInputPage'));
 const EvalResultPage = lazy(() => import('./pages/EvalResultPage'));
 const EvalPreSurveyPage = lazy(() => import('./pages/EvalPreSurveyPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const FeaturesPage = lazy(() => import('./pages/FeaturesPage'));
+const GuidePage = lazy(() => import('./pages/GuidePage'));
 
 export default function App() {
   return (
@@ -53,6 +56,9 @@ export default function App() {
               <Route path="/register" element={<SignupPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/eval/invite/:token" element={<InviteLandingPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/features" element={<FeaturesPage />} />
+              <Route path="/guide" element={<GuidePage />} />
 
               {/* Admin */}
               <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />

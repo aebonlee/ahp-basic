@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import Button from '../components/common/Button';
+import PublicLayout from '../components/layout/PublicLayout';
 import styles from './HomePage.module.css';
 
 const FEATURES = [
@@ -71,32 +71,7 @@ export default function HomePage() {
   const { isLoggedIn } = useAuth();
 
   return (
-    <div className={styles.page}>
-      {/* ─── Nav ─── */}
-      <header className={styles.nav}>
-        <div className={styles.navInner}>
-          <div className={styles.logo} onClick={() => navigate('/')}>
-            <span className={styles.logoMark}>AHP</span>
-            <span className={styles.logoText}>Basic</span>
-          </div>
-          <nav className={styles.navLinks}>
-            <a href="#features">기능</a>
-            <a href="#process">프로세스</a>
-            <a href="#start">시작하기</a>
-          </nav>
-          <div className={styles.navActions}>
-            {isLoggedIn ? (
-              <button className={styles.navBtn} onClick={() => navigate('/admin')}>대시보드</button>
-            ) : (
-              <>
-                <button className={styles.navBtnGhost} onClick={() => navigate('/login')}>로그인</button>
-                <button className={styles.navBtn} onClick={() => navigate('/register')}>시작하기</button>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
+    <PublicLayout>
       {/* ─── Hero ─── */}
       <section className={styles.hero}>
         <div className={styles.heroGlow} />
@@ -167,6 +142,12 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+          <div className={styles.sectionMore}>
+            <Link to="/features" className={styles.moreLink}>
+              자세히 보기
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -184,6 +165,12 @@ export default function HomePage() {
                 <p className={styles.stepDesc}>{s.desc}</p>
               </div>
             ))}
+          </div>
+          <div className={styles.sectionMoreLight}>
+            <Link to="/guide" className={styles.moreLinkLight}>
+              자세히 보기
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </Link>
           </div>
         </div>
       </section>
@@ -209,17 +196,6 @@ export default function HomePage() {
           )}
         </div>
       </section>
-
-      {/* ─── Footer ─── */}
-      <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <div className={styles.footerBrand}>
-            <span className={styles.footerLogo}>AHP Basic</span>
-            <span className={styles.footerSub}>Decision Analysis Platform</span>
-          </div>
-          <p className={styles.footerCopy}>&copy; {new Date().getFullYear()} DreamIT Biz. All rights reserved.</p>
-        </div>
-      </footer>
-    </div>
+    </PublicLayout>
   );
 }
