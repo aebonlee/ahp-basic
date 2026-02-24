@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { PROJECT_STATUS, PROJECT_STATUS_LABELS, EVAL_METHOD_LABELS } from '../lib/constants';
 import PageLayout from '../components/layout/PageLayout';
 import ModeSwitch from '../components/admin/ModeSwitch';
+import EvaluatorGuide from '../components/evaluation/EvaluatorGuide';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import Button from '../components/common/Button';
 import styles from './EvaluatorMainPage.module.css';
@@ -90,7 +91,10 @@ export default function EvaluatorMainPage() {
           <h1 className={styles.bannerTitle}>AHP 평가</h1>
           <p className={styles.bannerDesc}>배정된 프로젝트에 대해 쌍대비교 평가를 진행합니다.</p>
         </div>
-        <ModeSwitch />
+        <div className={styles.bannerActions}>
+          <EvaluatorGuide />
+          <ModeSwitch />
+        </div>
       </div>
 
       {loading ? (

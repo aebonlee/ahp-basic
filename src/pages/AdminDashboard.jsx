@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProjectLayout from '../components/layout/ProjectLayout';
 import ProjectPanel from '../components/admin/ProjectPanel';
+import ResearcherGuide from '../components/admin/ResearcherGuide';
 import ModeSwitch from '../components/admin/ModeSwitch';
 import { useProjectList } from '../hooks/useProjects';
 import { PROJECT_STATUS, PROJECT_STATUS_LABELS } from '../lib/constants';
@@ -105,6 +106,10 @@ export default function AdminDashboard() {
               <p className={styles.welcomeDesc}>왼쪽에서 프로젝트를 선택하거나 새로 생성하여 시작합니다.</p>
             </div>
           )}
+        </div>
+
+        <div className={styles.guidePanel}>
+          <ResearcherGuide />
         </div>
       </div>
     </ProjectLayout>

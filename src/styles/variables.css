@@ -1,11 +1,11 @@
 :root {
-  /* ─── Brand: Warm Violet Identity ─── */
-  --color-primary: #7c3aed;
-  --color-primary-light: #a78bfa;
-  --color-primary-dark: #5b21b6;
-  --color-primary-hover: #6d28d9;
-  --color-primary-bg: #f5f3ff;
-  --color-primary-surface: #ede9fe;
+  /* ─── Brand: Dark Blue Identity ─── */
+  --color-primary: #1e40af;
+  --color-primary-light: #60a5fa;
+  --color-primary-dark: #1e3a8a;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-bg: #eff6ff;
+  --color-primary-surface: #dbeafe;
 
   /* Accent: Warm Amber */
   --color-accent: #f59e0b;
@@ -14,15 +14,15 @@
   --color-accent-bg: #fffbeb;
 
   /* Pairwise comparison */
-  --color-pairwise-left: #7c3aed;
+  --color-pairwise-left: #1e40af;
   --color-pairwise-right: #f97316;
-  --color-pairwise-selected: rgba(124, 58, 237, 0.18);
-  --color-pairwise-selected-border: #5b21b6;
-  --color-pairwise-equal: #f5f3ff;
+  --color-pairwise-selected: rgba(30, 64, 175, 0.18);
+  --color-pairwise-selected-border: #1e3a8a;
+  --color-pairwise-equal: #eff6ff;
 
   /* Results / Level colors */
-  --color-priority-bar: #7c3aed;
-  --color-level-1: #7c3aed;
+  --color-priority-bar: #1e40af;
+  --color-level-1: #1e40af;
   --color-level-2: #0891b2;
   --color-level-3: #d97706;
   --color-level-4: #e11d48;
@@ -32,7 +32,7 @@
   --color-creating: #94a3b8;
   --color-waiting: #f59e0b;
   --color-evaluating: #10b981;
-  --color-completed: #7c3aed;
+  --color-completed: #1e40af;
   --color-danger: #e11d48;
   --color-success: #059669;
   --color-warning: #f59e0b;
@@ -83,8 +83,8 @@
   --shadow-md: 0 4px 12px rgba(28, 25, 23, 0.08), 0 2px 4px rgba(28, 25, 23, 0.04);
   --shadow-lg: 0 12px 32px rgba(28, 25, 23, 0.10), 0 4px 8px rgba(28, 25, 23, 0.04);
   --shadow-xl: 0 20px 48px rgba(28, 25, 23, 0.12);
-  --shadow-violet: 0 4px 14px rgba(124, 58, 237, 0.15);
-  --shadow-violet-lg: 0 8px 24px rgba(124, 58, 237, 0.20);
+  --shadow-violet: 0 4px 14px rgba(30, 64, 175, 0.15);
+  --shadow-violet-lg: 0 8px 24px rgba(30, 64, 175, 0.20);
 
   /* ─── Font ─── */
   --font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;

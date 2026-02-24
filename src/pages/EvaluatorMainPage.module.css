@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: space-between;
   background:
-    radial-gradient(ellipse at 0% 50%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 0% 50%, rgba(30, 64, 175, 0.15) 0%, transparent 50%),
     linear-gradient(135deg, var(--color-dark) 0%, #292524 50%, var(--color-dark) 100%);
   border-radius: var(--radius-xl);
   padding: var(--spacing-xl) var(--spacing-2xl);
@@ -42,6 +42,14 @@
 .bannerDesc {
   font-size: 0.95rem;
   opacity: 0.6;
+}
+
+.bannerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  z-index: 1;
 }
 
 /* ─── Empty State ─── */
