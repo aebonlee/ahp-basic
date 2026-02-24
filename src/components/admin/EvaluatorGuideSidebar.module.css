@@ -3,19 +3,20 @@
   flex-direction: column;
 }
 
-.guideTitle {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-sm);
+/* ─── Step Number (matching left sidebar) ─── */
+.stepNum {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  letter-spacing: -0.01em;
-}
-
-.guideTitle span {
-  font-size: 1.2rem;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border-light);
 }
 
 /* ─── Process Flow ─── */
@@ -23,7 +24,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: var(--spacing-xs) 0 var(--spacing-md);
+  padding: 0 0 var(--spacing-md);
   flex-wrap: wrap;
 }
 
@@ -46,15 +47,15 @@
 .overviewGrid {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
 }
 
 .overviewCard {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  background: var(--color-primary-bg);
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -64,20 +65,14 @@
 
 .overviewCard:hover {
   border-left-color: var(--color-primary);
-  background: var(--color-primary-surface);
+  background: var(--color-primary-bg);
   transform: translateX(2px);
 }
 
-.overviewIcon {
-  font-size: 1.3rem;
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-surface);
-  border-radius: var(--radius-sm);
+.overviewCard:hover .stepNum {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
 }
 
 .overviewInfo {
@@ -87,7 +82,7 @@
 
 .overviewLabel {
   display: block;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--color-text);
   line-height: 1.4;
@@ -95,16 +90,17 @@
 
 .overviewDesc {
   display: block;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--color-text-muted);
   line-height: 1.5;
   margin-top: 1px;
 }
 
 .overviewArrow {
-  color: var(--color-primary-light);
-  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
   flex-shrink: 0;
+  font-weight: 600;
 }
 
 /* ─── Detail Section ─── */
@@ -121,10 +117,10 @@
   background: none;
   border: none;
   color: var(--color-primary);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 6px 0;
+  padding: 4px 0;
   transition: color var(--transition-fast);
 }
 
@@ -136,15 +132,17 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
 }
 
-.sectionIcon {
-  font-size: 1.3rem;
+.sectionHeader .stepNum {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
 }
 
 .sectionTitle {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
 }
@@ -156,28 +154,23 @@
 }
 
 .detailCard {
-  background: var(--color-primary-bg);
+  background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
-  padding: 14px;
+  padding: 12px 14px;
 }
 
 .detailCardTitle {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.detailCardTitle span {
-  font-size: 1rem;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .detailCardBody {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: var(--color-text-light);
   line-height: 1.7;
 }
@@ -188,7 +181,7 @@
 }
 
 .detailCardBody li {
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 /* ─── Scale Table ─── */
@@ -226,8 +219,8 @@
   background: var(--color-accent-bg);
   border: 1px solid #fde68a;
   border-radius: var(--radius-md);
-  padding: 12px 14px;
-  font-size: 0.85rem;
+  padding: 10px 12px;
+  font-size: 0.82rem;
   line-height: 1.6;
   color: #92400e;
   margin-top: var(--spacing-xs);

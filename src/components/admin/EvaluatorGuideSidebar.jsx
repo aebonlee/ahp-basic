@@ -4,18 +4,16 @@ import styles from './EvaluatorGuideSidebar.module.css';
 const SECTIONS = [
   {
     id: 'section-1',
-    icon: '1️⃣',
+    step: 1,
     label: '프로젝트 초대 및 시작',
     desc: '이메일 링크 또는 평가자 대시보드 접속',
     cards: [
       {
-        icon: '📧',
         title: '이메일 초대장 확인',
         body: '이메일로 받은 초대 링크를 클릭하거나 평가자 대시보드에 직접 접속할 수 있습니다.',
         items: ['프로젝트 개요: 연구 배경 및 목적', '평가 방법: 쌍대비교 또는 직접입력', '예상 소요시간: 15~30분'],
       },
       {
-        icon: '🔐',
         title: '로그인 및 계정 설정',
         body: '간편하게 로그인하고 평가 환경을 설정합니다.',
         items: ['이메일 + 인증코드 간편 로그인', 'Google/Kakao 소셜 로그인', '이름 및 직책/소속 입력', '전문성 수준 선택'],
@@ -25,12 +23,11 @@ const SECTIONS = [
   },
   {
     id: 'section-2',
-    icon: '2️⃣',
+    step: 2,
     label: '쌍대비교 평가 수행',
     desc: '9점 척도를 사용한 두 요소 직접 비교',
     cards: [
       {
-        icon: '⚖️',
         title: '9점 척도 사용법',
         body: '두 요소를 직접 비교하는 직관적인 인터페이스입니다.',
         scale: [
@@ -42,7 +39,6 @@ const SECTIONS = [
         ],
       },
       {
-        icon: '🧠',
         title: '평가 전략',
         body: '일관성 있고 신뢰할 수 있는 평가를 위한 전략입니다.',
         items: [
@@ -58,18 +54,16 @@ const SECTIONS = [
   },
   {
     id: 'section-3',
-    icon: '3️⃣',
+    step: 3,
     label: '직접입력 평가 (선택적)',
     desc: '가중치를 백분율로 직접 입력',
     cards: [
       {
-        icon: '📊',
         title: '직접 가중치 입력',
         body: '각 평가기준의 상대적 중요도를 백분율(%)로 직접 입력합니다. 합계가 반드시 100%가 되어야 합니다.',
         items: ['실시간으로 합계 100% 검증', '기준 3개: 약 5분 소요', '기준 5개: 약 10분 소요'],
       },
       {
-        icon: '⚡',
         title: '직접입력 장단점',
         body: '쌍대비교 대비 빠르지만 일관성 체크가 없습니다.',
         items: [
@@ -83,12 +77,11 @@ const SECTIONS = [
   },
   {
     id: 'section-4',
-    icon: '4️⃣',
+    step: 4,
     label: '인구통계학적 설문조사',
     desc: '평가자 배경 정보 수집 설문',
     cards: [
       {
-        icon: '📋',
         title: '설문 구성 요소',
         body: '평가 결과의 신뢰성과 해석을 위한 배경 정보를 수집합니다.',
         items: [
@@ -98,7 +91,6 @@ const SECTIONS = [
         ],
       },
       {
-        icon: '🔒',
         title: '데이터 보안 및 윤리',
         body: '수집된 데이터는 엄격한 보안 기준에 따라 관리됩니다.',
         items: ['완전 익명화: 개인 식별 불가', '연구 목적 외 사용 금지', '암호화 저장: 높은 보안 수준', 'GDPR 준수: 국제 기준 따름'],
@@ -108,18 +100,16 @@ const SECTIONS = [
   },
   {
     id: 'section-5',
-    icon: '5️⃣',
+    step: 5,
     label: '평가 완료 및 결과 확인',
     desc: '감사 메시지 및 결과 대기',
     cards: [
       {
-        icon: '🎉',
         title: '평가 완료 후',
         body: '모든 평가를 완료하면 감사 메시지와 함께 결과 대기 상태가 됩니다.',
         items: ['쌍대비교 완료 개수 확인', '일관성 비율(CR) 확인', '설문조사 완료 상태', '총 소요시간 표시'],
       },
       {
-        icon: '💬',
         title: '후속 서비스',
         body: '평가 완료 후 다양한 후속 서비스를 받을 수 있습니다.',
         items: [
@@ -141,10 +131,6 @@ export default function EvaluatorGuideSidebar() {
 
   return (
     <div className={styles.guide}>
-      <h3 className={styles.guideTitle}>
-        <span>👨‍💼</span> 평가자 가이드
-      </h3>
-
       {/* Process Flow */}
       <div className={styles.processFlow}>
         {['초대 수락', '로그인', '평가 수행', '설문', '완료'].map((step, i, arr) => (
@@ -163,7 +149,7 @@ export default function EvaluatorGuideSidebar() {
               className={styles.overviewCard}
               onClick={() => setView(s.id)}
             >
-              <div className={styles.overviewIcon}>{s.icon}</div>
+              <span className={styles.stepNum}>{s.step}</span>
               <div className={styles.overviewInfo}>
                 <span className={styles.overviewLabel}>{s.label}</span>
                 <span className={styles.overviewDesc}>{s.desc}</span>
@@ -179,7 +165,7 @@ export default function EvaluatorGuideSidebar() {
           </button>
 
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionIcon}>{currentSection.icon}</span>
+            <span className={styles.stepNum}>{currentSection.step}</span>
             <span className={styles.sectionTitle}>{currentSection.label}</span>
           </div>
 
@@ -187,7 +173,7 @@ export default function EvaluatorGuideSidebar() {
             {currentSection.cards.map((card, idx) => (
               <div key={idx} className={styles.detailCard}>
                 <div className={styles.detailCardTitle}>
-                  <span>{card.icon}</span> {card.title}
+                  {card.title}
                 </div>
                 <div className={styles.detailCardBody}>
                   {card.body}

@@ -4,18 +4,16 @@ import styles from './ResearcherGuide.module.css';
 const SECTIONS = [
   {
     id: 'section-1',
-    icon: '📋',
+    step: 1,
     label: '프로젝트 생성',
     desc: '연구 목표 설정 및 프로젝트 초기화',
     cards: [
       {
-        icon: '🎯',
         title: '연구 목표 정의',
         body: '의사결정 문제를 명확히 정의하고, AHP 분석의 목적을 구체화합니다.',
         items: ['연구 배경 및 필요성 정리', '의사결정 목표 1문장 정의', '기대 결과물 설정'],
       },
       {
-        icon: '📝',
         title: '프로젝트 등록',
         body: '대시보드에서 "새 프로젝트 만들기" 버튼으로 프로젝트를 생성합니다.',
         items: ['프로젝트명 및 설명 입력', '평가 방법 선택 (쌍대비교/직접입력)', '공개 범위 설정'],
@@ -25,18 +23,16 @@ const SECTIONS = [
   },
   {
     id: 'section-2',
-    icon: '🏗️',
+    step: 2,
     label: '모델 구축',
     desc: '계층 구조(기준, 대안) 설계',
     cards: [
       {
-        icon: '📊',
         title: '평가 기준 설계',
         body: '계층적 구조로 평가 기준을 설정합니다.',
         items: ['상위 기준 3~7개 설정', '하위 기준(선택) 추가', '기준별 설명 작성', '브레인스토밍 도구 활용'],
       },
       {
-        icon: '🔄',
         title: '대안 설정',
         body: '비교할 대안(선택지)을 등록합니다.',
         items: ['대안 2~9개 등록', '각 대안의 설명 추가', '모델 확정 후 평가 시작'],
@@ -46,18 +42,16 @@ const SECTIONS = [
   },
   {
     id: 'section-3',
-    icon: '👥',
+    step: 3,
     label: '평가자 관리',
     desc: '평가자 초대 및 진행 상태 모니터링',
     cards: [
       {
-        icon: '📧',
         title: '평가자 초대',
         body: '이메일로 평가자를 초대하고, 참여 상태를 관리합니다.',
         items: ['이메일 주소로 초대', '초대 링크 자동 발송', '평가자별 가중치 설정(선택)'],
       },
       {
-        icon: '📡',
         title: '실시간 모니터링',
         body: '워크숍 페이지에서 평가 진행 상태를 실시간으로 확인합니다.',
         items: ['평가자별 진행률 확인', '일관성 비율(CR) 모니터링', '미완료 평가자 리마인더'],
@@ -67,24 +61,21 @@ const SECTIONS = [
   },
   {
     id: 'section-4',
-    icon: '📈',
+    step: 4,
     label: '결과 분석',
     desc: '집계, 민감도 분석, 자원 배분',
     cards: [
       {
-        icon: '🧮',
         title: '결과 집계',
         body: '평가가 완료되면 자동으로 가중치가 계산됩니다.',
         items: ['기하평균 기반 집계', '개인별/그룹 결과 비교', '일관성 비율 종합 확인'],
       },
       {
-        icon: '🔍',
         title: '민감도 분석',
         body: '기준 가중치 변화에 따른 순위 변동을 분석합니다.',
         items: ['What-if 시나리오 테스트', '기준별 민감도 확인', '순위 안정성 검증'],
       },
       {
-        icon: '💰',
         title: '자원 배분',
         body: '우선순위에 따라 자원을 배분합니다.',
         items: ['총 예산/자원 입력', '우선순위 기반 자동 배분', '수동 조정 가능'],
@@ -94,18 +85,16 @@ const SECTIONS = [
   },
   {
     id: 'section-5',
-    icon: '📄',
+    step: 5,
     label: '논문 작성',
     desc: '연구 결과 정리 및 보고서 작성',
     cards: [
       {
-        icon: '📑',
         title: '결과 내보내기',
         body: '분석 결과를 다양한 형식으로 내보냅니다.',
         items: ['Excel/CSV 다운로드', '차트 이미지 저장', '결과 요약 리포트'],
       },
       {
-        icon: '✍️',
         title: '학술 보고서 구성',
         body: 'AHP 분석 결과를 학술적 형식으로 정리합니다.',
         items: ['방법론 기술 (AHP 이론)', '평가 기준 및 대안 설명', '결과표 및 시각화', '민감도 분석 해석'],
@@ -122,10 +111,6 @@ export default function ResearcherGuide() {
 
   return (
     <div className={styles.guide}>
-      <h3 className={styles.guideTitle}>
-        <span>🔬</span> 연구자 가이드
-      </h3>
-
       {view === 'overview' ? (
         <div className={styles.overviewGrid}>
           {SECTIONS.map((s) => (
@@ -134,7 +119,7 @@ export default function ResearcherGuide() {
               className={styles.overviewCard}
               onClick={() => setView(s.id)}
             >
-              <div className={styles.overviewIcon}>{s.icon}</div>
+              <span className={styles.stepNum}>{s.step}</span>
               <div className={styles.overviewInfo}>
                 <span className={styles.overviewLabel}>{s.label}</span>
                 <span className={styles.overviewDesc}>{s.desc}</span>
@@ -150,7 +135,7 @@ export default function ResearcherGuide() {
           </button>
 
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionIcon}>{currentSection.icon}</span>
+            <span className={styles.stepNum}>{currentSection.step}</span>
             <span className={styles.sectionTitle}>{currentSection.label}</span>
           </div>
 
@@ -158,7 +143,7 @@ export default function ResearcherGuide() {
             {currentSection.cards.map((card, idx) => (
               <div key={idx} className={styles.detailCard}>
                 <div className={styles.detailCardTitle}>
-                  <span>{card.icon}</span> {card.title}
+                  {card.title}
                 </div>
                 <div className={styles.detailCardBody}>
                   {card.body}

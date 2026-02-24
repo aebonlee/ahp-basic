@@ -9,6 +9,7 @@ import styles from './ProjectLayout.module.css';
 export default function ProjectLayout({ children, projectName }) {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState('researcher');
 
   return (
     <div className={styles.layout}>
@@ -43,17 +44,41 @@ export default function ProjectLayout({ children, projectName }) {
           <div className={styles.rightSidebar}>
             {rightOpen ? (
               <>
-                <ResearcherGuide />
-                <div className={styles.guideDivider} />
-                <EvaluatorGuideSidebar />
+                <div className={styles.tabBar}>
+                  <button
+                    className={`${styles.tab} ${activeTab === 'researcher' ? styles.tabActive : ''}`}
+                    onClick={() => setActiveTab('researcher')}
+                  >
+                    연구자 가이드
+                  </button>
+                  <button
+                    className={`${styles.tab} ${activeTab === 'evaluator' ? styles.tabActive : ''}`}
+                    onClick={() => setActiveTab('evaluator')}
+                  >
+                    평가자 가이드
+                  </button>
+                </div>
+                <div className={styles.tabContent}>
+                  {activeTab === 'researcher' ? <ResearcherGuide /> : <EvaluatorGuideSidebar />}
+                </div>
               </>
             ) : (
               <div className={styles.collapsedGuide}>
-                <span className={styles.collapsedIcon}>🔬</span>
-                <span className={styles.collapsedVertical}>연구자</span>
+                <button
+                  className={`${styles.collapsedTab} ${activeTab === 'researcher' ? styles.collapsedTabActive : ''}`}
+                  onClick={() => { setActiveTab('researcher'); setRightOpen(true); }}
+                  title="연구자 가이드"
+                >
+                  <span className={styles.collapsedLabel}>R</span>
+                </button>
                 <div className={styles.collapsedDot} />
-                <span className={styles.collapsedIcon}>👨‍💼</span>
-                <span className={styles.collapsedVertical}>평가자</span>
+                <button
+                  className={`${styles.collapsedTab} ${activeTab === 'evaluator' ? styles.collapsedTabActive : ''}`}
+                  onClick={() => { setActiveTab('evaluator'); setRightOpen(true); }}
+                  title="평가자 가이드"
+                >
+                  <span className={styles.collapsedLabel}>E</span>
+                </button>
               </div>
             )}
           </div>
