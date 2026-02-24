@@ -171,44 +171,47 @@ export default function ModelBuilderPage() {
           {importing ? '가져오는 중...' : '브레인스토밍에서 가져오기'}
         </button>
         <div className={styles.toolbarRight}>
-        <button
-          className={`${styles.paperBtn} ${paperMode ? styles.paperBtnActive : ''}`}
-          onClick={() => setPaperMode(!paperMode)}
-          title="논문 캡쳐용 흑백 모드"
-        >
-          논문용
-        </button>
+        <span className={styles.tooltip} data-tooltip="흑백 모드 — 논문·보고서 캡쳐 시 색상과 그림자를 제거하여 인쇄에 적합한 형태로 표시합니다.">
+          <button
+            className={`${styles.paperBtn} ${paperMode ? styles.paperBtnActive : ''}`}
+            onClick={() => setPaperMode(!paperMode)}
+          >
+            논문용
+          </button>
+        </span>
         <div className={styles.orientationToggle}>
-          <button
-            className={`${styles.toggleBtn} ${orientation === 'vertical' ? styles.toggleActive : ''}`}
-            onClick={() => setOrientation('vertical')}
-            title="세로형"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-              <rect x="6" y="1" width="4" height="3" rx="0.5" />
-              <rect x="2" y="7" width="4" height="3" rx="0.5" />
-              <rect x="10" y="7" width="4" height="3" rx="0.5" />
-              <line x1="8" y1="4" x2="8" y2="5.5" stroke="currentColor" strokeWidth="1" />
-              <line x1="4" y1="5.5" x2="12" y2="5.5" stroke="currentColor" strokeWidth="1" />
-              <line x1="4" y1="5.5" x2="4" y2="7" stroke="currentColor" strokeWidth="1" />
-              <line x1="12" y1="5.5" x2="12" y2="7" stroke="currentColor" strokeWidth="1" />
-            </svg>
-          </button>
-          <button
-            className={`${styles.toggleBtn} ${orientation === 'horizontal' ? styles.toggleActive : ''}`}
-            onClick={() => setOrientation('horizontal')}
-            title="가로형"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-              <rect x="1" y="6" width="3" height="4" rx="0.5" />
-              <rect x="7" y="2" width="3" height="4" rx="0.5" />
-              <rect x="7" y="10" width="3" height="4" rx="0.5" />
-              <line x1="4" y1="8" x2="5.5" y2="8" stroke="currentColor" strokeWidth="1" />
-              <line x1="5.5" y1="4" x2="5.5" y2="12" stroke="currentColor" strokeWidth="1" />
-              <line x1="5.5" y1="4" x2="7" y2="4" stroke="currentColor" strokeWidth="1" />
-              <line x1="5.5" y1="12" x2="7" y2="12" stroke="currentColor" strokeWidth="1" />
-            </svg>
-          </button>
+          <span className={styles.tooltip} data-tooltip="세로 배치 — 목표 → 기준 → 대안을 위에서 아래로 표시합니다. 기준이 많을 때 적합합니다.">
+            <button
+              className={`${styles.toggleBtn} ${orientation === 'vertical' ? styles.toggleActive : ''}`}
+              onClick={() => setOrientation('vertical')}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <rect x="6" y="1" width="4" height="3" rx="0.5" />
+                <rect x="2" y="7" width="4" height="3" rx="0.5" />
+                <rect x="10" y="7" width="4" height="3" rx="0.5" />
+                <line x1="8" y1="4" x2="8" y2="5.5" stroke="currentColor" strokeWidth="1" />
+                <line x1="4" y1="5.5" x2="12" y2="5.5" stroke="currentColor" strokeWidth="1" />
+                <line x1="4" y1="5.5" x2="4" y2="7" stroke="currentColor" strokeWidth="1" />
+                <line x1="12" y1="5.5" x2="12" y2="7" stroke="currentColor" strokeWidth="1" />
+              </svg>
+            </button>
+          </span>
+          <span className={styles.tooltip} data-tooltip="가로 배치 — 목표 → 기준 → 대안을 왼쪽에서 오른쪽으로 표시합니다. 계층이 깊을 때 적합합니다.">
+            <button
+              className={`${styles.toggleBtn} ${orientation === 'horizontal' ? styles.toggleActive : ''}`}
+              onClick={() => setOrientation('horizontal')}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <rect x="1" y="6" width="3" height="4" rx="0.5" />
+                <rect x="7" y="2" width="3" height="4" rx="0.5" />
+                <rect x="7" y="10" width="3" height="4" rx="0.5" />
+                <line x1="4" y1="8" x2="5.5" y2="8" stroke="currentColor" strokeWidth="1" />
+                <line x1="5.5" y1="4" x2="5.5" y2="12" stroke="currentColor" strokeWidth="1" />
+                <line x1="5.5" y1="4" x2="7" y2="4" stroke="currentColor" strokeWidth="1" />
+                <line x1="5.5" y1="12" x2="7" y2="12" stroke="currentColor" strokeWidth="1" />
+              </svg>
+            </button>
+          </span>
         </div>
         </div>
       </div>
@@ -227,23 +230,68 @@ export default function ModelBuilderPage() {
         </div>
       )}
 
-      <div className={styles.canvasContainer}>
-        <HierarchyCanvas
-          projectName={currentProject.name}
-          criteriaTree={criteriaTree}
-          alternatives={alternatives}
-          orientation={orientation}
-          paperMode={paperMode}
-          onAddCriterion={handleAddCriterion}
-          onEditCriterion={handleEditCriterion}
-          onDeleteCriterion={handleDeleteCriterion}
-          onAddAlternative={handleAddAlternative}
-          onEditAlternative={handleEditAlternative}
-          onDeleteAlternative={handleDeleteAlternative}
-          onDropNode={handleDropNode}
-          onRenameCriterion={handleRenameCriterion}
-          onRenameAlternative={handleRenameAlternative}
-        />
+      <div className={`${styles.canvasArea} ${orientation === 'vertical' ? styles.canvasAreaRow : styles.canvasAreaCol}`}>
+        <div className={styles.canvasContainer}>
+          <HierarchyCanvas
+            projectName={currentProject.name}
+            criteriaTree={criteriaTree}
+            alternatives={alternatives}
+            orientation={orientation}
+            paperMode={paperMode}
+            onAddCriterion={handleAddCriterion}
+            onEditCriterion={handleEditCriterion}
+            onDeleteCriterion={handleDeleteCriterion}
+            onAddAlternative={handleAddAlternative}
+            onEditAlternative={handleEditAlternative}
+            onDeleteAlternative={handleDeleteAlternative}
+            onDropNode={handleDropNode}
+            onRenameCriterion={handleRenameCriterion}
+            onRenameAlternative={handleRenameAlternative}
+          />
+        </div>
+
+        <aside className={styles.guidePanel}>
+          <h3 className={styles.guideTitle}>AHP 모델 구성 가이드</h3>
+
+          <div className={styles.guideSection}>
+            <h4 className={styles.guideSectionTitle}>계층 구조</h4>
+            <p className={styles.guideText}>
+              <strong>목표(Goal)</strong> → <strong>평가기준</strong>(Criteria) → <strong>대안</strong>(Alternatives)의
+              3단계 계층을 구성합니다. 기준은 하위기준으로 세분화할 수 있습니다.
+            </p>
+          </div>
+
+          <div className={styles.guideSection}>
+            <h4 className={styles.guideSectionTitle}>기준 설정 원칙</h4>
+            <ul className={styles.guideList}>
+              <li>같은 레벨에 <strong>3~7개</strong> 권장 <span className={styles.guideRef}>(Saaty, 1980)</span></li>
+              <li>동일 레벨 기준은 상호 <strong>독립적</strong>이어야 함</li>
+              <li>기준이 많으면 일관성비율(CR) 관리가 어려워짐</li>
+              <li>대안은 모든 기준에 대해 평가 가능해야 함</li>
+            </ul>
+          </div>
+
+          <div className={styles.guideSection}>
+            <h4 className={styles.guideSectionTitle}>조작법</h4>
+            <ul className={styles.guideList}>
+              <li><span className={styles.guideBadge}>드래그</span> 순서 변경 · 다른 기준의 하위로 이동</li>
+              <li><span className={styles.guideBadge}>더블클릭</span> 이름 직접 수정</li>
+              <li><span className={styles.guideBadge}>우클릭</span> 추가 · 수정 · 삭제 메뉴</li>
+              <li><span className={styles.guideBadge}>호버</span> +/✎/× 액션 버튼 표시</li>
+            </ul>
+          </div>
+
+          <div className={styles.guideSection}>
+            <h4 className={styles.guideSectionTitle}>색상 범례</h4>
+            <div className={styles.guideLegend}>
+              <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: 'var(--color-primary)' }} /> 목표</span>
+              <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#3b82f6' }} /> 기준 L1</span>
+              <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#0891b2' }} /> 기준 L2</span>
+              <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: '#d97706' }} /> 기준 L3</span>
+              <span className={styles.legendItem}><span className={`${styles.legendDot} ${styles.legendDotAlt}`} /> 대안</span>
+            </div>
+          </div>
+        </aside>
       </div>
 
       {showCriteriaForm && (
