@@ -210,19 +210,21 @@ export default function AdminResultPage() {
             )}
           </div>
           <div className={common.sectionGap}>
-            <ExportButtons criteria={criteria} alternatives={alternatives} results={results} />
+            <ExportButtons criteria={criteria} alternatives={alternatives} results={results} projectName={currentProject?.name} />
           </div>
-          <div className={common.sectionGap}>
-            <ComprehensiveChart criteria={criteria} alternatives={alternatives} results={results} />
-          </div>
-          <div className={common.sectionGap}>
-            <ResultSummary criteria={criteria} alternatives={alternatives} results={results} />
-          </div>
-          <div className={common.sectionGap}>
-            <DetailView criteria={criteria} alternatives={alternatives} results={results} onNavigateToPage={() => {}} />
-          </div>
-          <div className={common.sectionGap}>
-            <ConsistencyTable results={results} onNavigateToPage={() => {}} />
+          <div id="ahp-print-area">
+            <div className={common.sectionGap}>
+              <ComprehensiveChart criteria={criteria} alternatives={alternatives} results={results} />
+            </div>
+            <div className={common.sectionGap}>
+              <ResultSummary criteria={criteria} alternatives={alternatives} results={results} />
+            </div>
+            <div className={common.sectionGap}>
+              <DetailView criteria={criteria} alternatives={alternatives} results={results} onNavigateToPage={() => {}} />
+            </div>
+            <div className={common.sectionGap}>
+              <ConsistencyTable results={results} onNavigateToPage={() => {}} />
+            </div>
           </div>
           {evaluatorCRs && evaluatorCRs.length > 0 && (
             <div className={common.sectionGap}>

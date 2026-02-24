@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEvaluation } from '../contexts/EvaluationContext';
 import { useAuth } from '../hooks/useAuth';
+import { useProject } from '../hooks/useProjects';
 import { useEvaluators } from '../hooks/useEvaluators';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import { calculateAHP } from '../lib/ahpEngine';
@@ -20,6 +21,7 @@ export default function EvalResultPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { currentProject } = useProject(id);
   const { evaluators } = useEvaluators(id);
   const { criteria, alternatives, comparisons, loading, loadProjectData } = useEvaluation();
   const [activeTab, setActiveTab] = useState('summary');
@@ -120,6 +122,7 @@ export default function EvalResultPage() {
           criteria={criteria}
           alternatives={alternatives}
           results={results}
+          projectName={currentProject?.name}
         />
       </div>
 
@@ -135,7 +138,7 @@ export default function EvalResultPage() {
         ))}
       </div>
 
-      <div className={styles.content}>
+      <div id="ahp-print-area" className={styles.content}>
         {activeTab === 'summary' && (
           <>
             <ResultSummary

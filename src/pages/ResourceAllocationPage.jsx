@@ -403,7 +403,9 @@ export default function ResourceAllocationPage() {
 
     const csv = bom + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, `자원배분_${currentProject?.name || 'AHP'}.csv`);
+    const today = new Date().toISOString().slice(0, 10);
+    const safeName = (currentProject?.name || 'AHP').replace(/[\\/:*?"<>|]/g, '_');
+    saveAs(blob, `${safeName}_자원배분_${today}.csv`);
   }, [sortedAllocations, effectivePcts, totalResource, unit, leafCriteria, breakdownMap, totalScore, currentProject]);
 
   const handleExportExcel = useCallback(() => {
@@ -417,6 +419,7 @@ export default function ResourceAllocationPage() {
       [`배분량(${unit})`]: +((effectivePcts[i] / 100) * totalResource).toFixed(2),
     }));
     const ws1 = XLSX.utils.json_to_sheet(summaryData);
+    ws1['!cols'] = [{ wch: 8 }, { wch: 28 }, { wch: 14 }, { wch: 18 }];
     XLSX.utils.book_append_sheet(wb, ws1, '요약');
 
     // Sheet 2: Criterion contributions
@@ -434,11 +437,14 @@ export default function ResourceAllocationPage() {
       }
     });
     const ws2 = XLSX.utils.json_to_sheet(contribRows);
+    ws2['!cols'] = [{ wch: 28 }, { wch: 22 }, { wch: 22 }, { wch: 22 }, { wch: 14 }];
     XLSX.utils.book_append_sheet(wb, ws2, '기준별 기여도');
 
     const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([wbout], { type: 'application/octet-stream' });
-    saveAs(blob, `자원배분_${currentProject?.name || 'AHP'}.xlsx`);
+    const today = new Date().toISOString().slice(0, 10);
+    const safeName = (currentProject?.name || 'AHP').replace(/[\\/:*?"<>|]/g, '_');
+    saveAs(blob, `${safeName}_자원배분_${today}.xlsx`);
   }, [sortedAllocations, effectivePcts, totalResource, unit, breakdownMap, totalScore, currentProject]);
 
   // ── Render ──

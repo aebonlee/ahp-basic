@@ -1,29 +1,46 @@
 import Button from '../common/Button';
 import { exportToExcel } from '../../lib/exportUtils';
 
-export default function ExportButtons({ criteria, alternatives, results }) {
+export default function ExportButtons({ criteria, alternatives, results, projectName }) {
   const handleExcel = () => {
-    exportToExcel(criteria, alternatives, results);
+    exportToExcel(criteria, alternatives, results, projectName);
   };
 
   const handlePdf = () => {
-    // 인쇄용 스타일을 동적으로 추가하여 현재 결과 영역만 PDF로 출력
     const style = document.createElement('style');
     style.id = 'pdf-print-style';
     style.textContent = `
       @media print {
+        /* 모든 요소 숨기기 */
         body * { visibility: hidden; }
-        .sectionGap, .sectionGap * { visibility: visible !important; }
-        nav, footer, [class*="sidebar"], [class*="Sidebar"],
-        [class*="toolbar"], [class*="Toolbar"], [class*="header"],
-        [class*="actionBar"], button { display: none !important; }
-        .sectionGap { position: relative; page-break-inside: avoid; }
-        @page { margin: 15mm; size: A4 landscape; }
+
+        /* 인쇄 영역만 표시 */
+        #ahp-print-area,
+        #ahp-print-area * { visibility: visible !important; }
+
+        #ahp-print-area {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+
+        /* 불필요한 UI 완전 제거 */
+        nav, footer,
+        [class*="sidebar"], [class*="Sidebar"],
+        [class*="toggle"], [class*="Toggle"] { display: none !important; }
+
+        /* 인쇄 영역 내부 버튼 숨기기 */
+        #ahp-print-area button { display: none !important; }
+
+        /* 차트/테이블 페이지 넘김 방지 */
+        #ahp-print-area > div { page-break-inside: avoid; margin-bottom: 12px; }
+
+        @page { margin: 12mm; size: A4 landscape; }
       }
     `;
     document.head.appendChild(style);
     window.print();
-    // 인쇄 후 스타일 제거
     setTimeout(() => {
       const el = document.getElementById('pdf-print-style');
       if (el) el.remove();
