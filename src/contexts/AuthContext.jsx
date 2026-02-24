@@ -14,12 +14,11 @@ import {
 
 export const AuthContext = createContext(null);
 
-const ADMIN_EMAILS = ['aebon@kakao.com', 'aebon@kyonggi.ac.kr', 'ryuwebpd@gmail.com'];
-
 const initialState = {
   user: null,
   session: null,
   profile: null,
+  profileLoading: false,
   mode: USER_MODE.ADMIN,
   loading: true,
   error: null,
@@ -36,7 +35,9 @@ function authReducer(state, action) {
         error: null,
       };
     case 'SET_PROFILE':
-      return { ...state, profile: action.payload };
+      return { ...state, profile: action.payload, profileLoading: false };
+    case 'SET_PROFILE_LOADING':
+      return { ...state, profileLoading: true };
     case 'SET_MODE':
       return { ...state, mode: action.payload };
     case 'SET_LOADING':
@@ -55,6 +56,7 @@ export function AuthProvider({ children }) {
 
   // 프로필 로드
   const loadProfile = useCallback(async (userId) => {
+    dispatch({ type: 'SET_PROFILE_LOADING' });
     try {
       const profile = await getProfile(userId);
       dispatch({ type: 'SET_PROFILE', payload: profile });
@@ -171,7 +173,7 @@ export function AuthProvider({ children }) {
   }, [state.user]);
 
   const isLoggedIn = !!state.user;
-  const isAdmin = isLoggedIn && ADMIN_EMAILS.includes(state.user?.email);
+  const isAdmin = isLoggedIn && state.profile?.role === 'admin';
 
   const value = {
     ...state,

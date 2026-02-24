@@ -3,10 +3,10 @@ import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 
 export default function AdminGuard({ children }) {
-  const { isLoggedIn, isAdmin, loading } = useAuth();
+  const { isLoggedIn, isAdmin, loading, profileLoading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (loading || profileLoading) {
     return <LoadingSpinner message="인증 확인 중..." />;
   }
 

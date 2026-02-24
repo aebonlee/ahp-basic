@@ -64,9 +64,11 @@ export function useSurveyQuestions(projectId) {
 
   const reorderQuestions = useCallback(async (reorderedIds) => {
     const updates = reorderedIds.map((id, idx) => ({ id, sort_order: idx }));
-    for (const u of updates) {
-      await supabase.from('survey_questions').update({ sort_order: u.sort_order }).eq('id', u.id);
-    }
+    await Promise.all(
+      updates.map(u =>
+        supabase.from('survey_questions').update({ sort_order: u.sort_order }).eq('id', u.id)
+      )
+    );
     setQuestions(prev => {
       const map = {};
       for (const q of prev) map[q.id] = q;

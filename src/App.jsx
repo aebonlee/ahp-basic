@@ -4,6 +4,7 @@ import { ProjectProvider } from './contexts/ProjectContext';
 import { EvaluationProvider } from './contexts/EvaluationContext';
 import { ToastProvider } from './contexts/ToastContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import AdminGuard from './components/common/AdminGuard';
 import ToastContainer from './components/common/Toast';
 
 // Pages
@@ -46,17 +47,17 @@ export default function App() {
               <Route path="/eval/invite/:token" element={<InviteLandingPage />} />
 
               {/* Admin */}
-              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/project/:id" element={<ProtectedRoute><ModelBuilderPage /></ProtectedRoute>} />
-              <Route path="/admin/project/:id/brain" element={<ProtectedRoute><BrainstormingPage /></ProtectedRoute>} />
-              <Route path="/admin/project/:id/confirm" element={<ProtectedRoute><ModelConfirmPage /></ProtectedRoute>} />
-              <Route path="/admin/project/:id/survey" element={<ProtectedRoute><SurveyBuilderPage /></ProtectedRoute>} />
-              <Route path="/admin/project/:id/eval" element={<ProtectedRoute><EvaluatorManagementPage /></ProtectedRoute>} />
-              <Route path="/admin/project/:id/result" element={<ProtectedRoute><AdminResultPage /></ProtectedRoute>} />
-              <Route path="/admin/project/:id/survey-result" element={<ProtectedRoute><SurveyResultPage /></ProtectedRoute>} />
-              <Route path="/admin/project/:id/sensitivity" element={<ProtectedRoute><SensitivityPage /></ProtectedRoute>} />
-              <Route path="/admin/project/:id/resource" element={<ProtectedRoute><ResourceAllocationPage /></ProtectedRoute>} />
-              <Route path="/admin/project/:id/workshop" element={<ProtectedRoute><WorkshopPage /></ProtectedRoute>} />
+              <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+              <Route path="/admin/project/:id" element={<AdminGuard><ModelBuilderPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/brain" element={<AdminGuard><BrainstormingPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/confirm" element={<AdminGuard><ModelConfirmPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/survey" element={<AdminGuard><SurveyBuilderPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/eval" element={<AdminGuard><EvaluatorManagementPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/result" element={<AdminGuard><AdminResultPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/survey-result" element={<AdminGuard><SurveyResultPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/sensitivity" element={<AdminGuard><SensitivityPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/resource" element={<AdminGuard><ResourceAllocationPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/workshop" element={<AdminGuard><WorkshopPage /></AdminGuard>} />
 
               {/* Evaluator */}
               <Route path="/eval" element={<ProtectedRoute><EvaluatorMainPage /></ProtectedRoute>} />

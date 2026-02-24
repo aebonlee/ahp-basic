@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
 
 const ToastContext = createContext(null);
 
@@ -27,12 +27,12 @@ export function ToastProvider({ children }) {
     return id;
   }, [removeToast]);
 
-  const toast = useCallback({
+  const toast = useMemo(() => ({
     success: (msg) => addToast(msg, 'success'),
     error: (msg) => addToast(msg, 'error'),
     warning: (msg) => addToast(msg, 'warning'),
     info: (msg) => addToast(msg, 'info'),
-  }, [addToast]);
+  }), [addToast]);
 
   // Make toast callable with a reassignment trick — expose as object with methods
   const value = { toasts, removeToast, toast };

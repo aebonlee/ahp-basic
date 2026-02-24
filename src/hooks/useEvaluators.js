@@ -1,19 +1,25 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 export function useEvaluators(projectId) {
   const [evaluators, setEvaluators] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!projectId);
+  const [error, setError] = useState(null);
 
   const fetchEvaluators = useCallback(async () => {
-    if (!projectId) return;
+    if (!projectId) { setLoading(false); return; }
     setLoading(true);
-    const { data, error } = await supabase
+    setError(null);
+    const { data, error: fetchError } = await supabase
       .from('evaluators')
       .select('*')
       .eq('project_id', projectId)
       .order('created_at');
-    if (!error) setEvaluators(data || []);
+    if (fetchError) {
+      setError(fetchError.message);
+    } else {
+      setEvaluators(data || []);
+    }
     setLoading(false);
   }, [projectId]);
 
@@ -60,5 +66,5 @@ export function useEvaluators(projectId) {
     setEvaluators(prev => prev.filter(e => e.id !== id));
   }, []);
 
-  return { evaluators, loading, fetchEvaluators, addEvaluator, updateEvaluator, deleteEvaluator };
+  return { evaluators, loading, error, fetchEvaluators, addEvaluator, updateEvaluator, deleteEvaluator };
 }

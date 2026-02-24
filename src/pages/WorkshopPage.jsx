@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useProject } from '../hooks/useProjects';
@@ -22,8 +22,20 @@ export default function WorkshopPage() {
   const { alternatives } = useAlternatives(id);
   const [progress, setProgress] = useState({});
 
+  const loadProgress = useCallback(async () => {
+    const { data } = await supabase
+      .from('pairwise_comparisons')
+      .select('evaluator_id')
+      .eq('project_id', id);
+
+    const counts = {};
+    for (const row of (data || [])) {
+      counts[row.evaluator_id] = (counts[row.evaluator_id] || 0) + 1;
+    }
+    setProgress(counts);
+  }, [id]);
+
   useEffect(() => {
-    // Subscribe to realtime changes
     const channel = supabase
       .channel(`workshop-${id}`)
       .on('postgres_changes', {
@@ -41,20 +53,7 @@ export default function WorkshopPage() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [id]);
-
-  const loadProgress = async () => {
-    const { data } = await supabase
-      .from('pairwise_comparisons')
-      .select('evaluator_id')
-      .eq('project_id', id);
-
-    const counts = {};
-    for (const row of (data || [])) {
-      counts[row.evaluator_id] = (counts[row.evaluator_id] || 0) + 1;
-    }
-    setProgress(counts);
-  };
+  }, [id, loadProgress]);
 
   // Calculate total required comparisons
   const totalRequired = useMemo(() => {
