@@ -230,7 +230,7 @@ export default function ModelBuilderPage() {
         </div>
       )}
 
-      <div className={`${styles.canvasArea} ${orientation === 'vertical' ? styles.canvasAreaRow : styles.canvasAreaCol}`}>
+      <div className={`${styles.canvasArea} ${orientation === 'horizontal' ? styles.canvasAreaRow : styles.canvasAreaCol}`}>
         <div className={styles.canvasContainer}>
           <HierarchyCanvas
             projectName={currentProject.name}
