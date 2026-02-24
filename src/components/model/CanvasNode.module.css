@@ -167,3 +167,72 @@
   background: var(--color-danger, #ef4444);
   border-color: var(--color-danger, #ef4444);
 }
+
+/* ========== Drag state ========== */
+.isDragging {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* ========== Drop indicator lines ========== */
+.dropLine {
+  position: absolute;
+  background: var(--color-primary);
+  z-index: 30;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.dropLineTop {
+  top: -4px;
+  left: -2px;
+  right: -2px;
+  height: 3px;
+}
+
+.dropLineBottom {
+  bottom: -4px;
+  left: -2px;
+  right: -2px;
+  height: 3px;
+}
+
+.dropLineLeft {
+  left: -4px;
+  top: -2px;
+  bottom: -2px;
+  width: 3px;
+}
+
+.dropLineRight {
+  right: -4px;
+  top: -2px;
+  bottom: -2px;
+  width: 3px;
+}
+
+/* "Make child" drop indicator */
+.dropChildOverlay {
+  position: absolute;
+  inset: -3px;
+  border: 2px dashed var(--color-primary);
+  border-radius: inherit;
+  pointer-events: none;
+  background: rgba(15, 43, 91, 0.06);
+}
+
+/* ========== Inline edit ========== */
+.editInput {
+  width: 100%;
+  border: none;
+  outline: 2px solid var(--color-primary);
+  outline-offset: -1px;
+  background: #fff;
+  font-size: inherit;
+  font-weight: inherit;
+  color: var(--color-text);
+  text-align: center;
+  padding: 0 4px;
+  font-family: inherit;
+  border-radius: 2px;
+}

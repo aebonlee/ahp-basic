@@ -95,6 +95,55 @@ export function useCriteria(projectId) {
     return roots;
   }, [criteria]);
 
+  const moveCriterion = useCallback(async (criterionId, newParentId, newIndex) => {
+    const current = criteriaRef.current.find(c => c.id === criterionId);
+    if (!current) return;
+
+    const effectiveNewParentId = newParentId || null;
+    const oldParentId = current.parent_id || null;
+
+    // Get siblings at the target level (excluding the moved item)
+    const targetSiblings = criteriaRef.current
+      .filter(c => (c.parent_id || null) === effectiveNewParentId && c.id !== criterionId)
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+    const idx = newIndex < 0 ? targetSiblings.length : Math.min(newIndex, targetSiblings.length);
+
+    const reordered = [...targetSiblings];
+    reordered.splice(idx, 0, current);
+
+    // Prepare updates for new parent siblings
+    const dbUpdates = reordered.map((c, i) => ({
+      id: c.id,
+      changes: {
+        sort_order: i,
+        ...(c.id === criterionId ? { parent_id: effectiveNewParentId } : {}),
+      },
+    }));
+
+    // If parent changed, re-index old siblings too
+    if (oldParentId !== effectiveNewParentId) {
+      const oldSiblings = criteriaRef.current
+        .filter(c => (c.parent_id || null) === oldParentId && c.id !== criterionId)
+        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+      oldSiblings.forEach((c, i) => {
+        if (!dbUpdates.find(u => u.id === c.id)) {
+          dbUpdates.push({ id: c.id, changes: { sort_order: i } });
+        }
+      });
+    }
+
+    await Promise.all(
+      dbUpdates.map(u => supabase.from('criteria').update(u.changes).eq('id', u.id))
+    );
+
+    setCriteria(prev => prev.map(c => {
+      const update = dbUpdates.find(u => u.id === c.id);
+      if (!update) return c;
+      return { ...c, ...update.changes };
+    }));
+  }, []);
+
   const getLevel = useCallback((id) => {
     let level = 0;
     let current = criteria.find(c => c.id === id);
@@ -113,6 +162,7 @@ export function useCriteria(projectId) {
     addCriterion,
     updateCriterion,
     deleteCriterion,
+    moveCriterion,
     getTree,
     getLevel,
   };

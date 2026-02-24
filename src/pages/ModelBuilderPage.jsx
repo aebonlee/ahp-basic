@@ -19,8 +19,8 @@ import styles from './ModelBuilderPage.module.css';
 export default function ModelBuilderPage() {
   const { id } = useParams();
   const { currentProject, loading: projectLoading } = useProject(id);
-  const { criteria, loading: criteriaLoading, addCriterion, updateCriterion, deleteCriterion, getTree } = useCriteria(id);
-  const { alternatives, loading: altLoading, addAlternative, updateAlternative, deleteAlternative } = useAlternatives(id);
+  const { criteria, loading: criteriaLoading, addCriterion, updateCriterion, deleteCriterion, moveCriterion, getTree } = useCriteria(id);
+  const { alternatives, loading: altLoading, addAlternative, updateAlternative, deleteAlternative, moveAlternative } = useAlternatives(id);
 
   const [selectedCriterion, setSelectedCriterion] = useState(null);
   const [selectedAlternative, setSelectedAlternative] = useState(null);
@@ -95,6 +95,46 @@ export default function ModelBuilderPage() {
     } catch (err) {
       console.error('Brainstorming import failed:', err);
     }
+  };
+
+  const handleDropNode = async (draggedId, draggedType, targetId, targetType, position) => {
+    try {
+      if (draggedType === 'criteria') {
+        if (targetType === 'goal' || position === 'child') {
+          // Re-parent: make child of target (or root if goal)
+          const newParentId = targetType === 'goal' ? null : targetId;
+          await moveCriterion(draggedId, newParentId, -1);
+        } else {
+          // Reorder at target's parent level
+          const targetCrit = criteria.find(c => c.id === targetId);
+          if (!targetCrit) return;
+          const parentId = targetCrit.parent_id || null;
+          const siblings = criteria
+            .filter(c => (c.parent_id || null) === parentId && c.id !== draggedId)
+            .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+          const targetIdx = siblings.findIndex(c => c.id === targetId);
+          const newIdx = position === 'before' ? targetIdx : targetIdx + 1;
+          await moveCriterion(draggedId, parentId, newIdx);
+        }
+      } else if (draggedType === 'alternative' && targetType === 'alternative') {
+        const siblings = alternatives
+          .filter(a => !a.parent_id && a.id !== draggedId)
+          .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+        const targetIdx = siblings.findIndex(a => a.id === targetId);
+        const newIdx = position === 'before' ? targetIdx : targetIdx + 1;
+        await moveAlternative(draggedId, newIdx);
+      }
+    } catch (err) {
+      console.error('Move failed:', err);
+    }
+  };
+
+  const handleRenameCriterion = async (id, newName) => {
+    await updateCriterion(id, { name: newName });
+  };
+
+  const handleRenameAlternative = async (id, newName) => {
+    await updateAlternative(id, { name: newName });
   };
 
   const handleAltFormSubmit = async (data) => {
@@ -200,6 +240,9 @@ export default function ModelBuilderPage() {
           onAddAlternative={handleAddAlternative}
           onEditAlternative={handleEditAlternative}
           onDeleteAlternative={handleDeleteAlternative}
+          onDropNode={handleDropNode}
+          onRenameCriterion={handleRenameCriterion}
+          onRenameAlternative={handleRenameAlternative}
         />
       </div>
 

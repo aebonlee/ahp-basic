@@ -155,3 +155,40 @@
   border-color: var(--color-primary);
   background: #eff6ff;
 }
+
+/* ========== Drag & Drop ========== */
+.draggingCanvas {
+  cursor: grabbing;
+}
+
+.ghostNode {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  opacity: 0.85;
+  z-index: 50;
+  pointer-events: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0 8px;
+  box-shadow: var(--shadow-lg);
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ghostCriteria {
+  background: var(--color-primary);
+  color: #fff;
+  border: 1px solid var(--color-primary-dark);
+}
+
+.ghostAlt {
+  background: #dcfce7;
+  color: #166534;
+  border: 1.5px solid #86efac;
+  border-radius: 24px;
+}

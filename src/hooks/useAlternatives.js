@@ -78,6 +78,31 @@ export function useAlternatives(projectId) {
     });
   }, []);
 
+  const moveAlternative = useCallback(async (altId, newIndex) => {
+    const current = alternativesRef.current.find(a => a.id === altId);
+    if (!current) return;
+
+    const siblings = alternativesRef.current
+      .filter(a => !a.parent_id && a.id !== altId)
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+    const idx = newIndex < 0 ? siblings.length : Math.min(newIndex, siblings.length);
+    const reordered = [...siblings];
+    reordered.splice(idx, 0, current);
+
+    const dbUpdates = reordered.map((a, i) => ({ id: a.id, sort_order: i }));
+
+    await Promise.all(
+      dbUpdates.map(u => supabase.from('alternatives').update({ sort_order: u.sort_order }).eq('id', u.id))
+    );
+
+    setAlternatives(prev => prev.map(a => {
+      const update = dbUpdates.find(u => u.id === a.id);
+      if (!update) return a;
+      return { ...a, sort_order: update.sort_order };
+    }));
+  }, []);
+
   return {
     alternatives,
     loading,
@@ -86,5 +111,6 @@ export function useAlternatives(projectId) {
     addAlternative,
     updateAlternative,
     deleteAlternative,
+    moveAlternative,
   };
 }

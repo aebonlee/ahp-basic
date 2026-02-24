@@ -15,12 +15,24 @@ export default function HierarchyCanvas({
   onAddAlternative,
   onEditAlternative,
   onDeleteAlternative,
+  onDropNode,
+  onRenameCriterion,
+  onRenameAlternative,
 }) {
   const [selectedId, setSelectedId] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
   const wrapperRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(800);
   const [containerHeight, setContainerHeight] = useState(400);
+
+  // Drag state
+  const [draggedNodeId, setDraggedNodeId] = useState(null);
+  const [ghostPos, setGhostPos] = useState(null);
+  const [dropTarget, setDropTarget] = useState(null);
+  const dropTargetRef = useRef(null);
+  const nodesRef = useRef([]);
+  const onDropNodeRef = useRef(onDropNode);
+  useEffect(() => { onDropNodeRef.current = onDropNode; }, [onDropNode]);
 
   // Measure container
   useEffect(() => {
@@ -46,6 +58,8 @@ export default function HierarchyCanvas({
 
   const { nodes, connections, canvasWidth, canvasHeight, separatorY, separatorX } = layout;
 
+  useEffect(() => { nodesRef.current = nodes; }, [nodes]);
+
   // Build a node lookup map for connection line rendering
   const nodeMap = useMemo(() => {
     const map = {};
@@ -53,6 +67,151 @@ export default function HierarchyCanvas({
     return map;
   }, [nodes]);
 
+  // Helper: get descendant IDs of a criterion in the tree (for circular drop prevention)
+  const getDescendantIds = useCallback((criterionId) => {
+    const ids = new Set();
+    function collectChildren(treeNodes) {
+      for (const n of treeNodes) {
+        ids.add(n.id);
+        if (n.children?.length) collectChildren(n.children);
+      }
+    }
+    function find(treeNodes) {
+      for (const n of treeNodes) {
+        if (n.id === criterionId) {
+          if (n.children?.length) collectChildren(n.children);
+          return true;
+        }
+        if (n.children?.length && find(n.children)) return true;
+      }
+      return false;
+    }
+    find(criteriaTree);
+    return ids;
+  }, [criteriaTree]);
+
+  // ─── Drag & Drop ───
+  const handleDragStart = useCallback((node, e) => {
+    if (node.type === 'goal') return;
+
+    const wrapper = wrapperRef.current;
+    const rect = wrapper.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left + wrapper.scrollLeft - node.x;
+    const offsetY = e.clientY - rect.top + wrapper.scrollTop - node.y;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    let started = false;
+
+    const descendantIds = node.type === 'criteria'
+      ? getDescendantIds(node.data.id)
+      : new Set();
+
+    const onMove = (e) => {
+      e.preventDefault();
+      if (!started) {
+        if (Math.abs(e.clientX - startX) < 5 && Math.abs(e.clientY - startY) < 5) return;
+        started = true;
+        setDraggedNodeId(node.id);
+      }
+
+      const r = wrapper.getBoundingClientRect();
+      const gx = e.clientX - r.left + wrapper.scrollLeft - offsetX;
+      const gy = e.clientY - r.top + wrapper.scrollTop - offsetY;
+      setGhostPos({ x: gx, y: gy, width: node.width, height: node.height, label: node.label, type: node.type });
+
+      // Drop target detection
+      const gcx = gx + node.width / 2;
+      const gcy = gy + node.height / 2;
+      let best = null;
+      let bestDist = Infinity;
+
+      for (const n of nodesRef.current) {
+        if (n.id === node.id) continue;
+
+        // Type compatibility
+        if (node.type === 'criteria') {
+          if (n.type !== 'criteria' && n.type !== 'goal') continue;
+          if (n.type === 'criteria' && descendantIds.has(n.data.id)) continue;
+        } else if (node.type === 'alternative') {
+          if (n.type !== 'alternative') continue;
+        }
+
+        const ncx = n.x + n.width / 2;
+        const ncy = n.y + n.height / 2;
+        const dist = Math.sqrt((gcx - ncx) ** 2 + (gcy - ncy) ** 2);
+
+        if (dist < bestDist && dist < 120) {
+          bestDist = dist;
+          let position;
+
+          if (n.type === 'goal') {
+            position = 'child';
+          } else if (node.type === 'alternative') {
+            position = (gcy - n.y) < n.height / 2 ? 'before' : 'after';
+          } else {
+            // Criteria: top 30% = before, bottom 30% = after, middle 40% = make child
+            const ratio = (gcy - n.y) / n.height;
+            if (ratio < 0.3) position = 'before';
+            else if (ratio > 0.7) position = 'after';
+            else position = 'child';
+          }
+
+          best = { nodeId: n.id, position };
+        }
+      }
+
+      dropTargetRef.current = best;
+      setDropTarget(best);
+    };
+
+    const cleanup = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('keydown', onKeyDown);
+      setDraggedNodeId(null);
+      setGhostPos(null);
+      setDropTarget(null);
+      dropTargetRef.current = null;
+    };
+
+    const onUp = () => {
+      if (started) {
+        const dt = dropTargetRef.current;
+        if (dt) {
+          const targetNode = nodesRef.current.find(n => n.id === dt.nodeId);
+          if (targetNode) {
+            onDropNodeRef.current?.(
+              node.data.id,
+              node.type,
+              targetNode.type === 'goal' ? null : targetNode.data.id,
+              targetNode.type,
+              dt.position,
+            );
+          }
+        }
+      }
+      cleanup();
+    };
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') cleanup();
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('keydown', onKeyDown);
+  }, [getDescendantIds]);
+
+  // ─── Inline Rename ───
+  const handleRename = useCallback((node, newName) => {
+    if (node.type === 'criteria') {
+      onRenameCriterion?.(node.data.id, newName);
+    } else if (node.type === 'alternative') {
+      onRenameAlternative?.(node.data.id, newName);
+    }
+  }, [onRenameCriterion, onRenameAlternative]);
+
+  // ─── Click Handlers ───
   const handleCanvasClick = useCallback(() => {
     setSelectedId(null);
     setContextMenu(null);
@@ -202,7 +361,7 @@ export default function HierarchyCanvas({
 
   return (
     <div
-      className={`${styles.canvasWrapper} ${paperMode ? styles.paperCanvas : ''}`}
+      className={`${styles.canvasWrapper} ${paperMode ? styles.paperCanvas : ''} ${draggedNodeId ? styles.draggingCanvas : ''}`}
       ref={wrapperRef}
       onClick={handleCanvasClick}
       onContextMenu={handleCanvasContextMenu}
@@ -228,15 +387,35 @@ export default function HierarchyCanvas({
             key={node.id}
             node={node}
             isSelected={selectedId === node.id}
+            isDragging={draggedNodeId === node.id}
+            isDropTarget={dropTarget?.nodeId === node.id}
+            dropPosition={dropTarget?.nodeId === node.id ? dropTarget.position : null}
             onClick={handleNodeClick}
             onContextMenu={handleContextMenu}
             onAddChild={handleAddChild}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onDragStart={handleDragStart}
+            onRename={handleRename}
             paperMode={paperMode}
             orientation={orientation}
           />
         ))}
+
+        {/* Ghost node during drag */}
+        {ghostPos && (
+          <div
+            className={`${styles.ghostNode} ${ghostPos.type === 'criteria' ? styles.ghostCriteria : styles.ghostAlt}`}
+            style={{
+              left: ghostPos.x,
+              top: ghostPos.y,
+              width: ghostPos.width,
+              height: ghostPos.height,
+            }}
+          >
+            {ghostPos.label}
+          </div>
+        )}
       </div>
 
       {/* Context menu */}
