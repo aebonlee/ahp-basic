@@ -87,6 +87,17 @@
   overflow: hidden;
 }
 
+/* ─── Guide Title ─── */
+.guideTitle {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--color-text);
+  text-align: center;
+  padding: var(--spacing-xs) 0;
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: -0.02em;
+}
+
 /* ─── Tab Bar ─── */
 .tabBar {
   display: flex;

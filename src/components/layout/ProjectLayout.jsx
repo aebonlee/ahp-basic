@@ -2,14 +2,30 @@ import { useState } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ProjectSidebar from './ProjectSidebar';
+import PlatformGuide from '../admin/PlatformGuide';
 import ResearcherGuide from '../admin/ResearcherGuide';
 import EvaluatorGuideSidebar from '../admin/EvaluatorGuideSidebar';
 import styles from './ProjectLayout.module.css';
 
+const GUIDE_TABS = [
+  { key: 'platform',   label: '플랫폼',  shortLabel: 'P', title: '플랫폼 가이드' },
+  { key: 'researcher', label: '연구자',  shortLabel: 'R', title: '연구자 가이드' },
+  { key: 'evaluator',  label: '평가자',  shortLabel: 'E', title: '평가자 가이드' },
+];
+
 export default function ProjectLayout({ children, projectName }) {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('researcher');
+  const [activeTab, setActiveTab] = useState('platform');
+
+  const renderGuideContent = () => {
+    switch (activeTab) {
+      case 'platform':   return <PlatformGuide />;
+      case 'researcher': return <ResearcherGuide />;
+      case 'evaluator':  return <EvaluatorGuideSidebar />;
+      default:           return <PlatformGuide />;
+    }
+  };
 
   return (
     <div className={styles.layout}>
@@ -44,41 +60,36 @@ export default function ProjectLayout({ children, projectName }) {
           <div className={styles.rightSidebar}>
             {rightOpen ? (
               <>
+                <div className={styles.guideTitle}>AHP 연구 플랫폼 가이드</div>
                 <div className={styles.tabBar}>
-                  <button
-                    className={`${styles.tab} ${activeTab === 'researcher' ? styles.tabActive : ''}`}
-                    onClick={() => setActiveTab('researcher')}
-                  >
-                    연구자 가이드
-                  </button>
-                  <button
-                    className={`${styles.tab} ${activeTab === 'evaluator' ? styles.tabActive : ''}`}
-                    onClick={() => setActiveTab('evaluator')}
-                  >
-                    평가자 가이드
-                  </button>
+                  {GUIDE_TABS.map((tab) => (
+                    <button
+                      key={tab.key}
+                      className={`${styles.tab} ${activeTab === tab.key ? styles.tabActive : ''}`}
+                      onClick={() => setActiveTab(tab.key)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
                 <div className={styles.tabContent}>
-                  {activeTab === 'researcher' ? <ResearcherGuide /> : <EvaluatorGuideSidebar />}
+                  {renderGuideContent()}
                 </div>
               </>
             ) : (
               <div className={styles.collapsedGuide}>
-                <button
-                  className={`${styles.collapsedTab} ${activeTab === 'researcher' ? styles.collapsedTabActive : ''}`}
-                  onClick={() => { setActiveTab('researcher'); setRightOpen(true); }}
-                  title="연구자 가이드"
-                >
-                  <span className={styles.collapsedLabel}>R</span>
-                </button>
-                <div className={styles.collapsedDot} />
-                <button
-                  className={`${styles.collapsedTab} ${activeTab === 'evaluator' ? styles.collapsedTabActive : ''}`}
-                  onClick={() => { setActiveTab('evaluator'); setRightOpen(true); }}
-                  title="평가자 가이드"
-                >
-                  <span className={styles.collapsedLabel}>E</span>
-                </button>
+                {GUIDE_TABS.map((tab, i) => (
+                  <span key={tab.key}>
+                    <button
+                      className={`${styles.collapsedTab} ${activeTab === tab.key ? styles.collapsedTabActive : ''}`}
+                      onClick={() => { setActiveTab(tab.key); setRightOpen(true); }}
+                      title={tab.title}
+                    >
+                      <span className={styles.collapsedLabel}>{tab.shortLabel}</span>
+                    </button>
+                    {i < GUIDE_TABS.length - 1 && <div className={styles.collapsedDot} />}
+                  </span>
+                ))}
               </div>
             )}
           </div>
