@@ -11,6 +11,7 @@ import ParticipantForm from '../components/admin/ParticipantForm';
 import Button from '../components/common/Button';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { formatPhone } from '../lib/evaluatorUtils';
 import common from '../styles/common.module.css';
 import styles from './EvaluatorManagementPage.module.css';
 
@@ -99,7 +100,7 @@ export default function EvaluatorManagementPage() {
                 <tr key={ev.id}>
                   <td>{ev.name}</td>
                   <td>{ev.email}</td>
-                  <td>{ev.phone_number || '-'}</td>
+                  <td>{ev.phone_number ? formatPhone(ev.phone_number) : '-'}</td>
                   <td>{ev.completed ? '완료' : '미완료'}</td>
                   <td>
                     <button className={common.linkAction} onClick={handleCopyLink}>
