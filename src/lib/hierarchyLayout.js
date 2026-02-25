@@ -227,7 +227,7 @@ function estimateNodeHeight(label, nodeWidth) {
 
 /**
  * Compute horizontal (left-to-right) layout (세로형 쉘트리).
- * Single-line truncation — all nodes use H_FIXED_WIDTH × H_NODE_HEIGHT.
+ * Text wraps within H_FIXED_WIDTH; heights unified per level.
  */
 export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
   const positioned = [];
@@ -241,7 +241,27 @@ export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
   }
   findMaxLevel(goalNode);
 
-  // Step 2: X offset per level (all columns use H_FIXED_WIDTH)
+  // Step 2: Estimate height per node at fixed width, collect max per level
+  const levelMaxHeight = {};
+
+  function measureHeights(node) {
+    const h = estimateNodeHeight(node.label, H_FIXED_WIDTH);
+    levelMaxHeight[node.level] = Math.max(levelMaxHeight[node.level] || H_NODE_HEIGHT, h);
+    node.children?.forEach(measureHeights);
+  }
+  measureHeights(goalNode);
+
+  const altLevelKey = maxCriteriaLevel + 2;
+  altNodes.forEach(a => {
+    const h = estimateNodeHeight(a.label, H_FIXED_WIDTH);
+    levelMaxHeight[altLevelKey] = Math.max(levelMaxHeight[altLevelKey] || H_NODE_HEIGHT, h);
+  });
+
+  function getNodeHeight(level) {
+    return levelMaxHeight[level] || H_NODE_HEIGHT;
+  }
+
+  // Step 3: X offset per level (all columns use H_FIXED_WIDTH)
   const levelX = {};
   let xOffset = PADDING;
   for (let l = 0; l <= maxCriteriaLevel; l++) {
@@ -249,27 +269,30 @@ export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
     xOffset += H_FIXED_WIDTH + LEVEL_GAP;
   }
 
-  // Step 3: Subtree heights (fixed node height)
+  // Step 4: Subtree heights (using per-level node heights)
   function subtreeHeight(node) {
-    if (!node.children || node.children.length === 0) return H_NODE_HEIGHT;
+    const nh = getNodeHeight(node.level);
+    if (!node.children || node.children.length === 0) return nh;
     return node.children.map(subtreeHeight).reduce((s, h) => s + h, 0) + NODE_GAP * (node.children.length - 1);
   }
 
   const totalCriteriaHeight = subtreeHeight(goalNode);
+  const altNodeHeight = getNodeHeight(altLevelKey);
   const totalAltHeight = altNodes.length > 0
-    ? altNodes.length * H_NODE_HEIGHT + NODE_GAP * (altNodes.length - 1) : 0;
+    ? altNodes.length * altNodeHeight + NODE_GAP * (altNodes.length - 1) : 0;
   const finalCanvasHeight = Math.max(
     Math.max(totalCriteriaHeight, totalAltHeight) + PADDING * 2,
     containerHeight || 400
   );
 
-  // Step 4: Position criteria tree
+  // Step 5: Position criteria tree
   function positionTree(node, top) {
     const sh = subtreeHeight(node);
+    const nh = getNodeHeight(node.level);
     const x = levelX[node.level];
-    const y = top + (sh - H_NODE_HEIGHT) / 2;
+    const y = top + (sh - nh) / 2;
 
-    positioned.push({ ...node, x, y, width: H_FIXED_WIDTH, height: H_NODE_HEIGHT });
+    positioned.push({ ...node, x, y, width: H_FIXED_WIDTH, height: nh });
 
     if (node.children?.length > 0) {
       let childTop = top;
@@ -285,7 +308,7 @@ export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
   const criteriaTop = (finalCanvasHeight - totalCriteriaHeight) / 2;
   positionTree(goalNode, criteriaTop);
 
-  // Step 5: Leaf criteria
+  // Step 6: Leaf criteria
   function getLeaves(node) {
     if (!node.children || node.children.length === 0) return [node.id];
     return node.children.flatMap(getLeaves);
@@ -293,27 +316,27 @@ export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
   const leafCriteriaIds = goalNode.children.length > 0
     ? goalNode.children.flatMap(getLeaves) : [];
 
-  // Step 6: Position alternatives
+  // Step 7: Position alternatives
   const altLeft = xOffset + ALT_SEPARATOR_GAP;
   const separatorX = xOffset + ALT_SEPARATOR_GAP / 2;
 
   if (altNodes.length > 0) {
-    const altTotalHeight = altNodes.length * H_NODE_HEIGHT + NODE_GAP * (altNodes.length - 1);
+    const altTotalHeight = altNodes.length * altNodeHeight + NODE_GAP * (altNodes.length - 1);
     let altTop = (finalCanvasHeight - altTotalHeight) / 2;
 
     for (const alt of altNodes) {
       positioned.push({
         ...alt,
-        level: maxCriteriaLevel + 2,
+        level: altLevelKey,
         x: altLeft,
         y: altTop,
         width: H_FIXED_WIDTH,
-        height: H_NODE_HEIGHT,
+        height: altNodeHeight,
       });
       for (const leafId of leafCriteriaIds) {
         connections.push({ from: leafId, to: alt.id, type: 'alternative' });
       }
-      altTop += H_NODE_HEIGHT + NODE_GAP;
+      altTop += altNodeHeight + NODE_GAP;
     }
   }
 
