@@ -89,7 +89,9 @@ export function calculateLambdaMax(matrix, priorities) {
     for (let j = 0; j < n; j++) {
       sum += matrix[i][j] * priorities[j];
     }
-    lambdaMax += sum / priorities[i];
+    if (priorities[i] > 0) {
+      lambdaMax += sum / priorities[i];
+    }
   }
   return lambdaMax / n;
 }

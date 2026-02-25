@@ -95,7 +95,7 @@ export function EvaluationProvider({ children }) {
 
       // Build comparisons map
       const compMap = {};
-      for (const c of compRes.data) {
+      for (const c of (compRes.data || [])) {
         compMap[`${c.criterion_id}:${c.row_id}:${c.col_id}`] = c.value;
       }
       dispatch({ type: 'SET_COMPARISONS', payload: compMap });

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useProject } from '../hooks/useProjects';
@@ -31,11 +31,7 @@ export default function AdminResultPage() {
   const [weights, setWeights] = useState({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadAllData();
-  }, [id, evaluators]);
-
-  const loadAllData = async () => {
+  const loadAllData = useCallback(async () => {
     if (!evaluators.length) return;
 
     try {
@@ -77,7 +73,11 @@ export default function AdminResultPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, evaluators]);
+
+  useEffect(() => {
+    loadAllData();
+  }, [loadAllData]);
 
   const isDirectInput = currentProject?.eval_method === EVAL_METHOD.DIRECT_INPUT;
 
