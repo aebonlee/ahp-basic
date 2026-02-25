@@ -46,14 +46,43 @@ export function buildCanvasTree(projectName, criteriaTree, alternatives) {
 }
 
 /**
- * Compute positions for all nodes.
+ * Compute positions for all nodes (top-to-bottom / 가로형 2진트리).
+ * Text wraps within NODE_WIDTH; heights are unified per level.
  * Returns { nodes: [{...node, x, y, width, height}], connections: [{from, to, type}], canvasWidth, canvasHeight }
  */
 export function computeLayout(goalNode, altNodes, containerWidth) {
   const positioned = [];
   const connections = [];
+  let maxCriteriaLevel = 0;
 
-  // Step 1: Calculate subtree widths (bottom-up)
+  // Step 0: Find max criteria level
+  function findMaxLevel(node) {
+    if (node.level > maxCriteriaLevel) maxCriteriaLevel = node.level;
+    node.children?.forEach(findMaxLevel);
+  }
+  findMaxLevel(goalNode);
+
+  // Step 1: Measure heights per level (text wrapping at NODE_WIDTH)
+  const levelMaxHeight = {};
+
+  function measureHeights(node) {
+    const h = estimateNodeHeight(node.label, NODE_WIDTH);
+    levelMaxHeight[node.level] = Math.max(levelMaxHeight[node.level] || NODE_HEIGHT, h);
+    node.children?.forEach(measureHeights);
+  }
+  measureHeights(goalNode);
+
+  const altLevelKey = maxCriteriaLevel + 2;
+  altNodes.forEach(a => {
+    const h = estimateNodeHeight(a.label, NODE_WIDTH);
+    levelMaxHeight[altLevelKey] = Math.max(levelMaxHeight[altLevelKey] || NODE_HEIGHT, h);
+  });
+
+  function getNodeHeight(level) {
+    return levelMaxHeight[level] || NODE_HEIGHT;
+  }
+
+  // Step 2: Calculate subtree widths (bottom-up)
   function subtreeWidth(node) {
     if (!node.children || node.children.length === 0) {
       return NODE_WIDTH;
@@ -69,29 +98,34 @@ export function computeLayout(goalNode, altNodes, containerWidth) {
   const contentWidth = Math.max(totalCriteriaWidth, totalAltWidth);
   const canvasWidth = Math.max(contentWidth + PADDING * 2, containerWidth || 600);
 
-  // Step 2: Position criteria tree (top-down, center-aligned)
-  let maxCriteriaLevel = 0;
+  // Step 3: Cumulative Y offsets per level (based on per-level heights)
+  const levelY = {};
+  let yOffset = PADDING;
+  for (let l = 0; l <= maxCriteriaLevel; l++) {
+    levelY[l] = yOffset;
+    yOffset += getNodeHeight(l) + LEVEL_GAP;
+  }
 
-  function positionTree(node, left, top) {
+  // Step 4: Position criteria tree (top-down, center-aligned)
+  function positionTree(node, left) {
     const sw = subtreeWidth(node);
     const x = left + (sw - NODE_WIDTH) / 2;
-    const y = top;
-
-    if (node.level > maxCriteriaLevel) maxCriteriaLevel = node.level;
+    const nh = getNodeHeight(node.level);
+    const y = levelY[node.level];
 
     positioned.push({
       ...node,
       x,
       y,
       width: NODE_WIDTH,
-      height: NODE_HEIGHT,
+      height: nh,
     });
 
     if (node.children && node.children.length > 0) {
       let childLeft = left;
       for (const child of node.children) {
         const cw = subtreeWidth(child);
-        positionTree(child, childLeft, top + NODE_HEIGHT + LEVEL_GAP);
+        positionTree(child, childLeft);
         connections.push({
           from: node.id,
           to: child.id,
@@ -103,9 +137,9 @@ export function computeLayout(goalNode, altNodes, containerWidth) {
   }
 
   const criteriaLeft = (canvasWidth - totalCriteriaWidth) / 2;
-  positionTree(goalNode, criteriaLeft, PADDING);
+  positionTree(goalNode, criteriaLeft);
 
-  // Step 3: Find leaf criteria for alt connections
+  // Step 5: Find leaf criteria for alt connections
   function getLeaves(node) {
     if (!node.children || node.children.length === 0) {
       return [node.id];
@@ -116,9 +150,10 @@ export function computeLayout(goalNode, altNodes, containerWidth) {
     ? goalNode.children.flatMap(getLeaves)
     : [];
 
-  // Step 4: Position alternative nodes below criteria with separator
-  const altTop = PADDING + (maxCriteriaLevel + 1) * (NODE_HEIGHT + LEVEL_GAP) + ALT_SEPARATOR_GAP;
-  const separatorY = altTop - ALT_SEPARATOR_GAP / 2;
+  // Step 6: Position alternative nodes below criteria with separator
+  const altNodeHeight = getNodeHeight(altLevelKey);
+  const altTop = yOffset + ALT_SEPARATOR_GAP;
+  const separatorY = yOffset + ALT_SEPARATOR_GAP / 2;
 
   if (altNodes.length > 0) {
     const altTotalWidth = altNodes.length * NODE_WIDTH + NODE_GAP * (altNodes.length - 1);
@@ -127,14 +162,13 @@ export function computeLayout(goalNode, altNodes, containerWidth) {
     for (const alt of altNodes) {
       positioned.push({
         ...alt,
-        level: maxCriteriaLevel + 2,
+        level: altLevelKey,
         x: altLeft,
         y: altTop,
         width: NODE_WIDTH,
-        height: NODE_HEIGHT,
+        height: altNodeHeight,
       });
 
-      // Connect each leaf criterion to each alternative
       for (const leafId of leafCriteriaIds) {
         connections.push({
           from: leafId,
@@ -148,8 +182,8 @@ export function computeLayout(goalNode, altNodes, containerWidth) {
   }
 
   const canvasHeight = altNodes.length > 0
-    ? altTop + NODE_HEIGHT + PADDING
-    : PADDING + (maxCriteriaLevel + 1) * (NODE_HEIGHT + LEVEL_GAP) + PADDING;
+    ? altTop + altNodeHeight + PADDING
+    : yOffset + PADDING;
 
   return {
     nodes: positioned,
@@ -192,9 +226,8 @@ function estimateNodeHeight(label, nodeWidth) {
 }
 
 /**
- * Compute horizontal (left-to-right) layout.
- * All nodes use H_FIXED_WIDTH so text wraps naturally.
- * Heights are unified per level based on the tallest node.
+ * Compute horizontal (left-to-right) layout (세로형 쉘트리).
+ * Single-line truncation — all nodes use H_FIXED_WIDTH × H_NODE_HEIGHT.
  */
 export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
   const positioned = [];
@@ -208,27 +241,7 @@ export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
   }
   findMaxLevel(goalNode);
 
-  // Step 2: Estimate height per node at fixed width, collect max per level
-  const levelMaxHeight = {};
-
-  function measureHeights(node) {
-    const h = estimateNodeHeight(node.label, H_FIXED_WIDTH);
-    levelMaxHeight[node.level] = Math.max(levelMaxHeight[node.level] || H_NODE_HEIGHT, h);
-    node.children?.forEach(measureHeights);
-  }
-  measureHeights(goalNode);
-
-  const altLevelKey = maxCriteriaLevel + 2;
-  altNodes.forEach(a => {
-    const h = estimateNodeHeight(a.label, H_FIXED_WIDTH);
-    levelMaxHeight[altLevelKey] = Math.max(levelMaxHeight[altLevelKey] || H_NODE_HEIGHT, h);
-  });
-
-  function getNodeHeight(level) {
-    return levelMaxHeight[level] || H_NODE_HEIGHT;
-  }
-
-  // Step 3: X offset per level (all columns use H_FIXED_WIDTH)
+  // Step 2: X offset per level (all columns use H_FIXED_WIDTH)
   const levelX = {};
   let xOffset = PADDING;
   for (let l = 0; l <= maxCriteriaLevel; l++) {
@@ -236,30 +249,27 @@ export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
     xOffset += H_FIXED_WIDTH + LEVEL_GAP;
   }
 
-  // Step 4: Subtree heights (using per-level node heights)
+  // Step 3: Subtree heights (fixed node height)
   function subtreeHeight(node) {
-    const nh = getNodeHeight(node.level);
-    if (!node.children || node.children.length === 0) return nh;
+    if (!node.children || node.children.length === 0) return H_NODE_HEIGHT;
     return node.children.map(subtreeHeight).reduce((s, h) => s + h, 0) + NODE_GAP * (node.children.length - 1);
   }
 
   const totalCriteriaHeight = subtreeHeight(goalNode);
-  const altNodeHeight = getNodeHeight(altLevelKey);
   const totalAltHeight = altNodes.length > 0
-    ? altNodes.length * altNodeHeight + NODE_GAP * (altNodes.length - 1) : 0;
+    ? altNodes.length * H_NODE_HEIGHT + NODE_GAP * (altNodes.length - 1) : 0;
   const finalCanvasHeight = Math.max(
     Math.max(totalCriteriaHeight, totalAltHeight) + PADDING * 2,
     containerHeight || 400
   );
 
-  // Step 5: Position criteria tree
+  // Step 4: Position criteria tree
   function positionTree(node, top) {
     const sh = subtreeHeight(node);
-    const nh = getNodeHeight(node.level);
     const x = levelX[node.level];
-    const y = top + (sh - nh) / 2;
+    const y = top + (sh - H_NODE_HEIGHT) / 2;
 
-    positioned.push({ ...node, x, y, width: H_FIXED_WIDTH, height: nh });
+    positioned.push({ ...node, x, y, width: H_FIXED_WIDTH, height: H_NODE_HEIGHT });
 
     if (node.children?.length > 0) {
       let childTop = top;
@@ -275,7 +285,7 @@ export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
   const criteriaTop = (finalCanvasHeight - totalCriteriaHeight) / 2;
   positionTree(goalNode, criteriaTop);
 
-  // Step 6: Leaf criteria
+  // Step 5: Leaf criteria
   function getLeaves(node) {
     if (!node.children || node.children.length === 0) return [node.id];
     return node.children.flatMap(getLeaves);
@@ -283,27 +293,27 @@ export function computeHorizontalLayout(goalNode, altNodes, containerHeight) {
   const leafCriteriaIds = goalNode.children.length > 0
     ? goalNode.children.flatMap(getLeaves) : [];
 
-  // Step 7: Position alternatives
+  // Step 6: Position alternatives
   const altLeft = xOffset + ALT_SEPARATOR_GAP;
   const separatorX = xOffset + ALT_SEPARATOR_GAP / 2;
 
   if (altNodes.length > 0) {
-    const altTotalHeight = altNodes.length * altNodeHeight + NODE_GAP * (altNodes.length - 1);
+    const altTotalHeight = altNodes.length * H_NODE_HEIGHT + NODE_GAP * (altNodes.length - 1);
     let altTop = (finalCanvasHeight - altTotalHeight) / 2;
 
     for (const alt of altNodes) {
       positioned.push({
         ...alt,
-        level: altLevelKey,
+        level: maxCriteriaLevel + 2,
         x: altLeft,
         y: altTop,
         width: H_FIXED_WIDTH,
-        height: altNodeHeight,
+        height: H_NODE_HEIGHT,
       });
       for (const leafId of leafCriteriaIds) {
         connections.push({ from: leafId, to: alt.id, type: 'alternative' });
       }
-      altTop += altNodeHeight + NODE_GAP;
+      altTop += H_NODE_HEIGHT + NODE_GAP;
     }
   }
 

@@ -112,7 +112,7 @@ export default function CanvasNode({
           onMouseDown={(e) => e.stopPropagation()}
         />
       ) : (
-        <span className={`${styles.label} ${isHorizontal ? styles.wrapLabel : ''}`}>{label}</span>
+        <span className={`${styles.label} ${!isHorizontal ? styles.wrapLabel : ''}`}>{label}</span>
       )}
 
       {!paperMode && !editing && (
