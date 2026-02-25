@@ -36,7 +36,7 @@ END; $$;
 
 -- 3) 전체 프로젝트 목록 (소유자 이메일 포함)
 CREATE OR REPLACE FUNCTION public.sa_list_projects()
-RETURNS TABLE(id UUID, name TEXT, description TEXT, status TEXT,
+RETURNS TABLE(id UUID, name TEXT, description TEXT, status INTEGER,
               created_at TIMESTAMPTZ, owner_email TEXT)
 LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public AS $$
 BEGIN
@@ -45,7 +45,7 @@ BEGIN
     SELECT pr.id, pr.name, pr.description, pr.status, pr.created_at,
            u.email::TEXT AS owner_email
     FROM projects pr
-    LEFT JOIN auth.users u ON u.id = pr.user_id
+    LEFT JOIN auth.users u ON u.id = pr.owner_id
     ORDER BY pr.created_at DESC;
 END; $$;
 
