@@ -88,10 +88,24 @@ export default function HomePage() {
     <PublicLayout>
       {/* ─── Hero ─── */}
       <section className={styles.hero}>
-        <div className={styles.heroGlow} />
+        <div className={styles.heroBgGradient} />
+        <div className={styles.heroOrb1} />
+        <div className={styles.heroOrb2} />
+        <div className={styles.heroOrb3} />
+        <div className={styles.heroOrb4} />
         <div className={styles.heroGrid} />
+        <div className={styles.heroHierarchy}>
+          <div className={styles.hierNode1} />
+          <div className={styles.hierNode2} />
+          <div className={styles.hierNode3} />
+          <div className={styles.hierNode4} />
+          <div className={styles.hierNode5} />
+        </div>
         <div className={styles.heroContent}>
-          <p className={styles.heroBadge}>Decision Analysis Platform</p>
+          <p className={styles.heroBadge}>
+            <span className={styles.badgeDot} />
+            Decision Analysis Platform
+          </p>
           <h1 className={styles.heroTitle}>
             The Best Decision.<br />
             <span className={styles.heroAccent}>AHP Basic.</span>
