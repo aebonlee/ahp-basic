@@ -5,9 +5,9 @@
   right: 0;
   z-index: 100;
   padding: 0 var(--spacing-xl);
-  background: rgba(10, 15, 30, 0.85);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  border-bottom: 1px solid #E0E6ED;
 }
 
 .navInner {
@@ -29,7 +29,7 @@
 }
 
 .logoMark {
-  background: #0f2b5b;
+  background: #0066CC;
   color: #fff;
   font-size: 0.75rem;
   font-weight: 800;
@@ -41,7 +41,7 @@
 .logoText {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: #1A1A1A;
   letter-spacing: -0.02em;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .navLink {
-  color: rgba(148, 163, 184, 0.7);
+  color: #4A4A4A;
   font-size: 0.85rem;
   font-weight: 500;
   text-decoration: none;
@@ -60,11 +60,11 @@
 }
 
 .navLink:hover {
-  color: #f1f5f9;
+  color: #0066CC;
 }
 
 .navLink.active {
-  color: #f1f5f9;
+  color: #0066CC;
   font-weight: 600;
 }
 
@@ -77,7 +77,7 @@
   padding: 8px 20px;
   border: none;
   border-radius: 8px;
-  background: #0f2b5b;
+  background: #0066CC;
   color: #fff;
   font-size: 0.82rem;
   font-weight: 600;
@@ -86,17 +86,17 @@
 }
 
 .navBtn:hover {
-  background: #1a3f7a;
+  background: #004C99;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(15, 43, 91, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
 }
 
 .navBtnGhost {
   padding: 8px 20px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid #0066CC;
   border-radius: 8px;
   background: transparent;
-  color: rgba(203, 213, 225, 0.9);
+  color: #0066CC;
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
@@ -104,8 +104,8 @@
 }
 
 .navBtnGhost:hover {
-  border-color: rgba(148, 163, 184, 0.4);
-  color: #f1f5f9;
+  background: #0066CC;
+  color: #fff;
 }
 
 /* Hamburger for mobile */
@@ -115,7 +115,7 @@
   border: none;
   cursor: pointer;
   padding: 4px;
-  color: #f1f5f9;
+  color: #1A1A1A;
 }
 
 .mobileMenu {
@@ -136,9 +136,9 @@
     top: 64px;
     left: 0;
     right: 0;
-    background: rgba(10, 15, 30, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    border-bottom: 1px solid #E0E6ED;
     padding: 16px var(--spacing-md);
     flex-direction: column;
     gap: 8px;
@@ -152,7 +152,7 @@
   .mobileLink {
     display: block;
     padding: 12px 16px;
-    color: rgba(148, 163, 184, 0.7);
+    color: #4A4A4A;
     font-size: 0.92rem;
     font-weight: 500;
     text-decoration: none;
@@ -162,13 +162,13 @@
 
   .mobileLink:hover,
   .mobileLink.active {
-    color: #f1f5f9;
-    background: rgba(148, 163, 184, 0.08);
+    color: #0066CC;
+    background: #F7F9FC;
   }
 
   .mobileDivider {
     height: 1px;
-    background: rgba(148, 163, 184, 0.1);
+    background: #E0E6ED;
     margin: 8px 0;
   }
 
@@ -186,14 +186,14 @@
 
   .mobileBtnPrimary {
     composes: mobileBtn;
-    background: #0f2b5b;
+    background: #0066CC;
     color: #fff;
   }
 
   .mobileBtnGhost {
     composes: mobileBtn;
     background: transparent;
-    color: rgba(203, 213, 225, 0.9);
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    color: #0066CC;
+    border: 1px solid #0066CC;
   }
 }
