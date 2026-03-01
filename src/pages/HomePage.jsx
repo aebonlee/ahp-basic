@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import PublicLayout from '../components/layout/PublicLayout';
@@ -169,6 +170,10 @@ export default function HomePage() {
           <div className={styles.sectionMoreLight}>
             <Link to="/guide" className={styles.moreLinkLight}>
               자세히 보기
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </Link>
+            <Link to="/manual" className={styles.moreLinkLight} style={{ marginLeft: 24 }}>
+              사용설명서
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
           </div>

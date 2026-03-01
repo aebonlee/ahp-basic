@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { to: '/about', label: 'AHP 소개' },
   { to: '/features', label: '주요 기능' },
   { to: '/guide', label: '이용 가이드' },
+  { to: '/manual', label: '사용설명서' },
 ];
 
 export default function PublicNav() {
