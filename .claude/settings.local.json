@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo:*)",
+      "WebFetch(domain:www.dreamitbiz.com)",
+      "WebFetch(domain:hcmgdztsgjvzcyxyayaj.supabase.co)"
+    ]
+  }
+}
