@@ -10,6 +10,12 @@ const SITE_LINKS = [
   { to: '/manual', label: '사용설명서' },
 ];
 
+const FAMILY_SITES = [
+  { url: 'https://www.dreamitbiz.com', label: 'DreamIT Biz 메인' },
+  { url: 'https://books.dreamitbiz.com', label: 'DreamIT Biz 출판사' },
+  { url: 'https://competency.dreamitbiz.com', label: '핵심역량 자가측정' },
+];
+
 export default function Footer() {
   const year = new Date().getFullYear();
 
@@ -56,12 +62,26 @@ export default function Footer() {
             <p>010-3700-0629</p>
             <p>카카오톡: aebon</p>
             <p className={styles.hours}>평일: 09:00 ~ 18:00</p>
+            <div className={styles.family}>
+              <select
+                defaultValue=""
+                onChange={(e) => {
+                  if (e.target.value) window.open(e.target.value, '_blank');
+                  e.target.value = '';
+                }}
+              >
+                <option value="" disabled>Family Site</option>
+                {FAMILY_SITES.map(({ url, label }) => (
+                  <option key={url} value={url}>{label}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
         {/* Copyright */}
         <div className={styles.bottom}>
-          <p>&copy; {year} DreamIT Biz. All rights reserved.</p>
+          <p>&copy; 2020-{year} DreamIT Biz. All rights reserved.</p>
         </div>
       </div>
     </footer>

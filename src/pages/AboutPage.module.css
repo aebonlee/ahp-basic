@@ -15,7 +15,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #2563eb;
+  color: #0046C8;
   margin-bottom: 20px;
   background: #fff;
 }
@@ -61,7 +61,7 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #2563eb;
+  color: #0046C8;
   margin-bottom: 12px;
 }
 
@@ -105,7 +105,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #0f2b5b, #2563eb);
+  background: linear-gradient(90deg, #0046C8, #0046C8);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -113,7 +113,7 @@
 
 .conceptCard:hover {
   border-color: #bfdbfe;
-  box-shadow: 0 8px 32px rgba(15, 43, 91, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 70, 200, 0.06);
   transform: translateY(-4px);
 }
 
@@ -126,7 +126,7 @@
   height: 44px;
   border-radius: 12px;
   background: #f0f4fa;
-  color: #0f2b5b;
+  color: #0046C8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,8 +150,8 @@
 
 /* ─── Concept Card Colors (nth-child) ─── */
 /* 1 — Blue (AB: 쌍대비교) */
-.conceptCard:nth-child(1) .conceptIcon { background: #eff6ff; color: #2563eb; }
-.conceptCard:nth-child(1)::after { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.conceptCard:nth-child(1) .conceptIcon { background: #eff6ff; color: #0046C8; }
+.conceptCard:nth-child(1)::after { background: linear-gradient(90deg, #0046C8, #3b82f6); }
 .conceptCard:nth-child(1):hover { border-color: #bfdbfe; }
 
 /* 2 — Violet (CR: 일관성) */
@@ -188,13 +188,13 @@
 
 .platformItem:hover {
   border-color: #bfdbfe;
-  box-shadow: 0 4px 16px rgba(15, 43, 91, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 70, 200, 0.05);
 }
 
 .platformIcon {
   font-size: 1.6rem;
   margin-bottom: 12px;
-  color: #0f2b5b;
+  color: #0046C8;
 }
 
 .platformTitle {
@@ -211,7 +211,7 @@
 }
 
 /* Platform item colors */
-.platformItem:nth-child(1) .platformIcon { color: #2563eb; }
+.platformItem:nth-child(1) .platformIcon { color: #0046C8; }
 .platformItem:nth-child(1):hover { border-color: #bfdbfe; }
 .platformItem:nth-child(2) .platformIcon { color: #7c3aed; }
 .platformItem:nth-child(2):hover { border-color: #ddd6fe; }
@@ -246,19 +246,19 @@
   padding: 14px 32px;
   border: none;
   border-radius: 12px;
-  background: #0f2b5b;
+  background: #0046C8;
   color: #fff;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 12px rgba(15, 43, 91, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 70, 200, 0.15);
 }
 
 .ctaBtn:hover {
-  background: #1a3f7a;
+  background: #002E8A;
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(15, 43, 91, 0.25);
+  box-shadow: 0 6px 24px rgba(0, 70, 200, 0.25);
 }
 
 /* ─── Responsive ─── */

@@ -25,12 +25,8 @@ export default function PublicNav() {
       <header className={styles.nav}>
         <div className={styles.navInner}>
           <Link to="/" className={styles.logo}>
-            <span className={styles.logoMain}>
-              <span className={styles.logoDream}>Dream</span>
-              <span className={styles.logoIt}>IT</span>{' '}
-              <span className={styles.logoBiz}>Biz</span>
-            </span>
-            <span className={styles.logoSub}>AHP Basic</span>
+            <span className={styles.logoMark}>AHP</span>
+            <span className={styles.logoText}>Basic</span>
           </Link>
 
           <nav className={styles.navLinks}>

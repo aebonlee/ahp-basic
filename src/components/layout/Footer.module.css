@@ -1,8 +1,8 @@
-/* ── Footer (books.dreamitbiz.com style) ── */
+/* ── Footer (www.dreamitbiz.com style) ── */
 .footer {
   background: linear-gradient(180deg, #111827 0%, #0A0F1A 100%);
   color: #fff;
-  padding: 64px 0 32px;
+  padding: 80px 0 32px;
   margin-top: auto;
 }
 
@@ -19,23 +19,23 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
+  gap: 48px;
   margin-bottom: 40px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 900px) {
   .grid { grid-template-columns: 1fr 1fr; }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1200px) {
   .grid { grid-template-columns: 2fr 1.5fr 1.3fr; }
 }
 
 /* Brand section */
 .brandName {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .brandDream { color: #4A8FE7; }
@@ -45,32 +45,32 @@
 .brandDesc {
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.7;
-  margin-bottom: 20px;
-  font-size: 14px;
+  margin-bottom: 24px;
+  font-size: 15px;
 }
 
 .companyInfo {
-  margin-top: 20px;
-  padding-top: 20px;
+  margin-top: 24px;
+  padding-top: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .companyInfo p {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 13px;
-  margin-bottom: 4px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin-bottom: 6px;
   line-height: 1.7;
 }
 
 .companyInfo p strong {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 /* Section headings */
 .section h4 {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   color: #FFFFFF;
 }
 
@@ -80,18 +80,18 @@
   padding: 0;
   margin: 0;
   columns: 2;
-  column-gap: 24px;
+  column-gap: 28px;
 }
 
 .linkList li {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   break-inside: avoid;
 }
 
 .linkList a {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 15px;
   transition: color 0.2s ease;
   line-height: 1.6;
 }
@@ -102,15 +102,41 @@
 
 /* Contact info */
 .section p {
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 14px;
-  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  margin-bottom: 10px;
   line-height: 1.7;
 }
 
 .hours {
-  margin-top: 10px;
+  margin-top: 12px;
   font-style: italic;
+}
+
+/* Family Site dropdown */
+.family {
+  margin-top: 20px;
+}
+
+.family select {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.family select:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.family select option {
+  background: #1f2937;
+  color: #e5e7eb;
 }
 
 /* Copyright bottom */
@@ -121,6 +147,19 @@
 }
 
 .bottom p {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .footer { padding: 48px 0 24px; }
+}
+
+@media (max-width: 480px) {
+  .footer { padding: 36px 0 20px; }
+  .brandName { font-size: 20px; }
+  .brandDesc { font-size: 14px; }
+  .linkList a { font-size: 14px; }
+  .bottom p { font-size: 12px; }
 }
