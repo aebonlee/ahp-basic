@@ -6,7 +6,14 @@ export default function ProgressBar({ value = 0, max = 100, label, color }) {
   return (
     <div className={styles.container}>
       {label && <span className={styles.label}>{label}</span>}
-      <div className={styles.track}>
+      <div
+        className={styles.track}
+        role="progressbar"
+        aria-valuenow={Math.round(percent)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={label || '진행률'}
+      >
         <div
           className={styles.fill}
           style={{

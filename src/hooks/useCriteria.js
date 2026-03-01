@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 export function useCriteria(projectId) {
@@ -78,8 +78,8 @@ export function useCriteria(projectId) {
     });
   }, []);
 
-  // Build tree structure
-  const getTree = useCallback(() => {
+  // Build tree structure (memoized)
+  const tree = useMemo(() => {
     const map = {};
     const roots = [];
     for (const c of criteria) {
@@ -94,6 +94,8 @@ export function useCriteria(projectId) {
     }
     return roots;
   }, [criteria]);
+
+  const getTree = useCallback(() => tree, [tree]);
 
   const moveCriterion = useCallback(async (criterionId, newParentId, newIndex) => {
     const current = criteriaRef.current.find(c => c.id === criterionId);

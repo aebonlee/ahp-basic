@@ -118,19 +118,19 @@ export default function CanvasNode({
       {!paperMode && !editing && (
         <div className={styles.nodeActions}>
           {type === 'goal' && (
-            <button className={styles.actionBtn} onClick={(e) => { e.stopPropagation(); onAddChild?.(node); }} title="기준 추가">+</button>
+            <button className={styles.actionBtn} onClick={(e) => { e.stopPropagation(); onAddChild?.(node); }} title="기준 추가" aria-label="기준 추가">+</button>
           )}
           {type === 'criteria' && (
             <>
-              <button className={styles.actionBtn} onClick={(e) => { e.stopPropagation(); onAddChild?.(node); }} title="하위기준 추가">+</button>
-              <button className={styles.actionBtn} onClick={(e) => { e.stopPropagation(); onEdit?.(node); }} title="수정">✎</button>
-              <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={(e) => { e.stopPropagation(); onDelete?.(node); }} title="삭제">&times;</button>
+              <button className={styles.actionBtn} onClick={(e) => { e.stopPropagation(); onAddChild?.(node); }} title="하위기준 추가" aria-label="하위기준 추가">+</button>
+              <button className={styles.actionBtn} onClick={(e) => { e.stopPropagation(); onEdit?.(node); }} title="수정" aria-label="수정">✎</button>
+              <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={(e) => { e.stopPropagation(); onDelete?.(node); }} title="삭제" aria-label="삭제">&times;</button>
             </>
           )}
           {type === 'alternative' && (
             <>
-              <button className={styles.actionBtn} onClick={(e) => { e.stopPropagation(); onEdit?.(node); }} title="수정">✎</button>
-              <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={(e) => { e.stopPropagation(); onDelete?.(node); }} title="삭제">&times;</button>
+              <button className={styles.actionBtn} onClick={(e) => { e.stopPropagation(); onEdit?.(node); }} title="수정" aria-label="수정">✎</button>
+              <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={(e) => { e.stopPropagation(); onDelete?.(node); }} title="삭제" aria-label="삭제">&times;</button>
             </>
           )}
         </div>

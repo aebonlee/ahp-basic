@@ -19,9 +19,9 @@ export default function AlternativeTree({ alternatives, onNodeClick, onAddSub, o
               >
                 <span className={styles.name}>{alt.name}</span>
                 <div className={styles.actions}>
-                  <button onClick={(e) => { e.stopPropagation(); onAddSub(alt.id); }} title="하위대안 추가">+</button>
-                  <button onClick={(e) => { e.stopPropagation(); onEdit(alt); }} title="수정">&#9998;</button>
-                  <button onClick={(e) => { e.stopPropagation(); onDelete(alt.id); }} title="삭제" className={styles.deleteBtn}>&times;</button>
+                  <button onClick={(e) => { e.stopPropagation(); onAddSub(alt.id); }} title="하위대안 추가" aria-label="하위대안 추가">+</button>
+                  <button onClick={(e) => { e.stopPropagation(); onEdit(alt); }} title="수정" aria-label="수정">&#9998;</button>
+                  <button onClick={(e) => { e.stopPropagation(); onDelete(alt.id); }} title="삭제" aria-label="삭제" className={styles.deleteBtn}>&times;</button>
                 </div>
               </div>
               {subAlts(alt.id).length > 0 && (
@@ -29,7 +29,7 @@ export default function AlternativeTree({ alternatives, onNodeClick, onAddSub, o
                   {subAlts(alt.id).map(sub => (
                     <div key={sub.id} className={styles.subAlt}>
                       <span>{sub.name}</span>
-                      <button onClick={() => onDelete(sub.id)} className={styles.deleteBtn}>&times;</button>
+                      <button onClick={() => onDelete(sub.id)} className={styles.deleteBtn} aria-label="삭제">&times;</button>
                     </div>
                   ))}
                 </div>

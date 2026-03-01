@@ -15,12 +15,16 @@ export default function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} aria-live="polite" role="region">
       {toasts.map(t => (
-        <div key={t.id} className={`${styles.toast} ${styles[t.type]}`}>
-          <span className={styles.icon}>{TYPE_ICON[t.type]}</span>
+        <div
+          key={t.id}
+          className={`${styles.toast} ${styles[t.type]}`}
+          role={t.type === 'error' || t.type === 'warning' ? 'alert' : 'status'}
+        >
+          <span className={styles.icon} aria-hidden="true">{TYPE_ICON[t.type]}</span>
           <span className={styles.message}>{t.message}</span>
-          <button className={styles.close} onClick={() => removeToast(t.id)}>&times;</button>
+          <button className={styles.close} onClick={() => removeToast(t.id)} aria-label="알림 닫기">&times;</button>
         </div>
       ))}
     </div>

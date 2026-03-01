@@ -14,9 +14,9 @@ export default function CriteriaTreeNode({ node, level, onNodeClick, onAddChild,
       >
         <span className={styles.name}>{node.name}</span>
         <div className={styles.actions}>
-          <button onClick={(e) => { e.stopPropagation(); onAddChild(node.id); }} title="하위기준 추가">+</button>
-          <button onClick={(e) => { e.stopPropagation(); onEdit(node); }} title="수정">&#9998;</button>
-          <button onClick={(e) => { e.stopPropagation(); onDelete(node.id); }} title="삭제" className={styles.deleteBtn}>&times;</button>
+          <button onClick={(e) => { e.stopPropagation(); onAddChild(node.id); }} title="하위기준 추가" aria-label="하위기준 추가">+</button>
+          <button onClick={(e) => { e.stopPropagation(); onEdit(node); }} title="수정" aria-label="수정">&#9998;</button>
+          <button onClick={(e) => { e.stopPropagation(); onDelete(node.id); }} title="삭제" aria-label="삭제" className={styles.deleteBtn}>&times;</button>
         </div>
       </div>
       {node.description && <p className={styles.desc}>{node.description}</p>}

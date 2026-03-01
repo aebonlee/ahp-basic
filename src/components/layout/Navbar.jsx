@@ -75,6 +75,7 @@ export default function Navbar({ projectName }) {
             className={styles.themeBtn}
             onClick={() => setDarkMode(d => !d)}
             title={darkMode ? '라이트 모드' : '다크 모드'}
+            aria-label={darkMode ? '라이트 모드로 전환' : '다크 모드로 전환'}
           >
             {darkMode ? '\u2600' : '\u263E'}
           </button>
@@ -88,7 +89,7 @@ export default function Navbar({ projectName }) {
               )}
 
               {user?.email === 'aebon@kakao.com' && (
-                <button className={styles.saBadge} onClick={() => navigate('/superadmin')}>SA</button>
+                <button className={styles.saBadge} onClick={() => navigate('/superadmin')} aria-label="슈퍼관리자 페이지">SA</button>
               )}
 
               {isAdmin && !isPreviewMode && (

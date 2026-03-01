@@ -33,6 +33,7 @@ export default function PublicNav() {
                 key={to}
                 to={to}
                 className={`${styles.navLink} ${isActive(to) ? styles.active : ''}`}
+                aria-current={isActive(to) ? 'page' : undefined}
               >
                 {label}
               </Link>
@@ -53,7 +54,8 @@ export default function PublicNav() {
           <button
             className={styles.hamburger}
             onClick={() => setMobileOpen((v) => !v)}
-            aria-label="메뉴 열기"
+            aria-label={mobileOpen ? '메뉴 닫기' : '메뉴 열기'}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? (
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
@@ -64,13 +66,14 @@ export default function PublicNav() {
         </div>
       </header>
 
-      <div className={`${styles.mobileMenu} ${mobileOpen ? styles.open : ''}`}>
+      <div className={`${styles.mobileMenu} ${mobileOpen ? styles.open : ''}`} aria-hidden={!mobileOpen}>
         {NAV_LINKS.map(({ to, label }) => (
           <Link
             key={to}
             to={to}
             className={`${styles.mobileLink} ${isActive(to) ? styles.active : ''}`}
             onClick={() => setMobileOpen(false)}
+            aria-current={isActive(to) ? 'page' : undefined}
           >
             {label}
           </Link>

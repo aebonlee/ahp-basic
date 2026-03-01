@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import ConfirmDialog from '../components/common/ConfirmDialog';
+import { useConfirm } from '../hooks/useConfirm';
+import { useToast } from '../contexts/ToastContext';
 import { useSuperAdminUsers, useSuperAdminProjects } from '../hooks/useSuperAdmin';
 import { PROJECT_STATUS_LABELS, PROJECT_STATUS_COLORS } from '../lib/constants';
 import styles from './SuperAdminPage.module.css';
@@ -11,14 +14,14 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
 }
 
-function UsersTab() {
+function UsersTab({ toast }) {
   const { users, loading, updateRole } = useSuperAdminUsers();
 
   const handleRoleChange = async (userId, newRole) => {
     try {
       await updateRole(userId, newRole);
     } catch (err) {
-      alert('역할 변경 실패: ' + err.message);
+      toast.error('역할 변경 실패: ' + err.message);
     }
   };
 
@@ -70,15 +73,21 @@ function UsersTab() {
   );
 }
 
-function ProjectsTab() {
+function ProjectsTab({ toast, confirm }) {
   const { projects, loading, deleteProject } = useSuperAdminProjects();
 
   const handleDelete = async (project) => {
-    if (!window.confirm(`"${project.name}" 프로젝트를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+    const ok = await confirm({
+      title: '프로젝트 삭제',
+      message: `"${project.name}" 프로젝트를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`,
+      variant: 'danger',
+      confirmLabel: '삭제',
+    });
+    if (!ok) return;
     try {
       await deleteProject(project.id);
     } catch (err) {
-      alert('삭제 실패: ' + err.message);
+      toast.error('삭제 실패: ' + err.message);
     }
   };
 
@@ -136,6 +145,8 @@ function ProjectsTab() {
 
 export default function SuperAdminPage() {
   const [activeTab, setActiveTab] = useState('users');
+  const toast = useToast();
+  const { confirm, confirmDialogProps } = useConfirm();
 
   return (
     <div>
@@ -158,10 +169,11 @@ export default function SuperAdminPage() {
           </button>
         </div>
 
-        {activeTab === 'users' && <UsersTab />}
-        {activeTab === 'projects' && <ProjectsTab />}
+        {activeTab === 'users' && <UsersTab toast={toast} />}
+        {activeTab === 'projects' && <ProjectsTab toast={toast} confirm={confirm} />}
       </div>
       <Footer />
+      <ConfirmDialog {...confirmDialogProps} />
     </div>
   );
 }
