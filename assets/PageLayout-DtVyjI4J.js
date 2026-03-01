@@ -1,1 +1,0 @@
-import{j as t}from"./index-B1V5W3zs.js";import{N as a,F as e}from"./Footer-CyBwwFnC.js";const c="_layout_1qwgg_1",i="_content_1qwgg_8",r="_wide_1qwgg_16",o={layout:c,content:i,wide:r};function m({children:s,wide:n}){return t.jsxs("div",{className:o.layout,children:[t.jsx(a,{}),t.jsx("main",{className:`${o.content} ${n?o.wide:""}`,children:s}),t.jsx(e,{})]})}export{m as P};
