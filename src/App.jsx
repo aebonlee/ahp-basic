@@ -41,6 +41,7 @@ const AboutPage = lazy(() => import('./pages/AboutPage'));
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage'));
 const GuidePage = lazy(() => import('./pages/GuidePage'));
 const ManualPage = lazy(() => import('./pages/ManualPage'));
+const StatisticalAnalysisPage = lazy(() => import('./pages/StatisticalAnalysisPage'));
 
 export default function App() {
   return (
@@ -79,6 +80,7 @@ export default function App() {
               <Route path="/admin/project/:id/sensitivity" element={<AdminGuard><SensitivityPage /></AdminGuard>} />
               <Route path="/admin/project/:id/resource" element={<AdminGuard><ResourceAllocationPage /></AdminGuard>} />
               <Route path="/admin/project/:id/workshop" element={<AdminGuard><WorkshopPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/statistics" element={<AdminGuard><StatisticalAnalysisPage /></AdminGuard>} />
 
               {/* Evaluator */}
               <Route path="/eval" element={<ProtectedRoute><EvaluatorMainPage /></ProtectedRoute>} />

@@ -12,6 +12,7 @@ const STEPS = [
   { key: 'survey-result', path: '/survey-result', label: '설문 집계',     step: 8  },
   { key: 'sensitivity',   path: '/sensitivity',   label: '민감도 분석',   step: 9  },
   { key: 'resource',      path: '/resource',      label: '자원 배분',     step: 10 },
+  { key: 'statistics',   path: '/statistics',   label: '통계 분석',     step: 11 },
 ];
 
 export default function ProjectSidebar({ projectName, collapsed }) {

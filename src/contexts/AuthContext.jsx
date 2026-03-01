@@ -94,7 +94,7 @@ export function AuthProvider({ children }) {
       supabase.rpc('check_user_status', {
         target_user_id: state.user.id,
         current_domain: window.location.hostname,
-      }).catch(() => {});
+      }).then(null, () => {});
     }
   }, [state.user?.id]);
 
