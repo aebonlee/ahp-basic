@@ -148,6 +148,27 @@
   line-height: var(--line-height-relaxed);
 }
 
+/* ─── Concept Card Colors (nth-child) ─── */
+/* 1 — Blue (AB: 쌍대비교) */
+.conceptCard:nth-child(1) .conceptIcon { background: #eff6ff; color: #2563eb; }
+.conceptCard:nth-child(1)::after { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.conceptCard:nth-child(1):hover { border-color: #bfdbfe; }
+
+/* 2 — Violet (CR: 일관성) */
+.conceptCard:nth-child(2) .conceptIcon { background: #f5f3ff; color: #7c3aed; }
+.conceptCard:nth-child(2)::after { background: linear-gradient(90deg, #7c3aed, #8b5cf6); }
+.conceptCard:nth-child(2):hover { border-color: #ddd6fe; }
+
+/* 3 — Teal (EV: 고유벡터) */
+.conceptCard:nth-child(3) .conceptIcon { background: #ecfeff; color: #0891b2; }
+.conceptCard:nth-child(3)::after { background: linear-gradient(90deg, #0891b2, #06b6d4); }
+.conceptCard:nth-child(3):hover { border-color: #a5f3fc; }
+
+/* 4 — Emerald (GM: 기하평균) */
+.conceptCard:nth-child(4) .conceptIcon { background: #ecfdf5; color: #059669; }
+.conceptCard:nth-child(4)::after { background: linear-gradient(90deg, #059669, #10b981); }
+.conceptCard:nth-child(4):hover { border-color: #a7f3d0; }
+
 /* ─── Platform Features ─── */
 .platformGrid {
   display: grid;
@@ -188,6 +209,14 @@
   color: #64748b;
   line-height: var(--line-height-relaxed);
 }
+
+/* Platform item colors */
+.platformItem:nth-child(1) .platformIcon { color: #2563eb; }
+.platformItem:nth-child(1):hover { border-color: #bfdbfe; }
+.platformItem:nth-child(2) .platformIcon { color: #7c3aed; }
+.platformItem:nth-child(2):hover { border-color: #ddd6fe; }
+.platformItem:nth-child(3) .platformIcon { color: #0891b2; }
+.platformItem:nth-child(3):hover { border-color: #a5f3fc; }
 
 /* ─── CTA ─── */
 .cta {

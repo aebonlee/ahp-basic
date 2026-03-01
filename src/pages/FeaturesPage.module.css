@@ -113,6 +113,26 @@
   margin: 0;
 }
 
+/* ─── Feature Colors (nth-child via wrapper div) ─── */
+/* 1 — Blue (계층 모델 구축) */
+.featureList > :nth-child(1) .featureNum { background: #eff6ff; color: #2563eb; }
+.featureList > :nth-child(1) .featureTag { background: #eff6ff; color: #2563eb; }
+.featureList > :nth-child(1) .featureDivider { background: linear-gradient(90deg, #2563eb, transparent); }
+
+/* 2 — Violet (쌍대비교 평가) */
+.featureList > :nth-child(2) .featureNum { background: #f5f3ff; color: #7c3aed; }
+.featureList > :nth-child(2) .featureTag { background: #f5f3ff; color: #7c3aed; }
+.featureList > :nth-child(2) .featureDivider { background: linear-gradient(90deg, #7c3aed, transparent); }
+
+/* 3 — Teal (다수 평가자 집계) */
+.featureList > :nth-child(3) .featureNum { background: #ecfeff; color: #0891b2; }
+.featureList > :nth-child(3) .featureTag { background: #ecfeff; color: #0891b2; }
+.featureList > :nth-child(3) .featureDivider { background: linear-gradient(90deg, #0891b2, transparent); }
+
+/* 4 — Emerald (결과 분석) */
+.featureList > :nth-child(4) .featureNum { background: #ecfdf5; color: #059669; }
+.featureList > :nth-child(4) .featureTag { background: #ecfdf5; color: #059669; }
+
 /* ─── Extra Features ─── */
 .extraSection {
   padding: 80px var(--spacing-xl);
@@ -185,6 +205,16 @@
   color: #64748b;
   line-height: var(--line-height-relaxed);
 }
+
+/* Extra card colors */
+.extraCard:nth-child(1) .extraIcon { background: #eff6ff; color: #2563eb; }
+.extraCard:nth-child(1):hover { border-color: #bfdbfe; }
+.extraCard:nth-child(2) .extraIcon { background: #f5f3ff; color: #7c3aed; }
+.extraCard:nth-child(2):hover { border-color: #ddd6fe; }
+.extraCard:nth-child(3) .extraIcon { background: #ecfeff; color: #0891b2; }
+.extraCard:nth-child(3):hover { border-color: #a5f3fc; }
+.extraCard:nth-child(4) .extraIcon { background: #ecfdf5; color: #059669; }
+.extraCard:nth-child(4):hover { border-color: #a7f3d0; }
 
 /* ─── CTA ─── */
 .cta {

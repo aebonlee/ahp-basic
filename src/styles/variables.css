@@ -37,6 +37,12 @@
   --color-success: #059669;
   --color-warning: #f59e0b;
 
+  /* ─── Feature Colors (AHP Workflow) ─── */
+  --color-feature-1: #2563eb;  --color-feature-1-bg: #eff6ff;  --color-feature-1-light: #3b82f6;
+  --color-feature-2: #7c3aed;  --color-feature-2-bg: #f5f3ff;  --color-feature-2-light: #8b5cf6;
+  --color-feature-3: #0891b2;  --color-feature-3-bg: #ecfeff;  --color-feature-3-light: #06b6d4;
+  --color-feature-4: #059669;  --color-feature-4-bg: #ecfdf5;  --color-feature-4-light: #10b981;
+
   /* ─── UI Foundation ─── */
   --color-bg: #f8fafc;
   --color-bg-alt: #f1f5f9;
@@ -131,6 +137,12 @@
   --color-dark: #0a1428;
   --color-dark-surface: #0f1d36;
   --color-dark-border: #1e3050;
+
+  /* Feature Colors (Dark) */
+  --color-feature-1: #60a5fa;  --color-feature-1-bg: rgba(37, 99, 235, 0.15);  --color-feature-1-light: #93c5fd;
+  --color-feature-2: #a78bfa;  --color-feature-2-bg: rgba(124, 58, 237, 0.15);  --color-feature-2-light: #c4b5fd;
+  --color-feature-3: #22d3ee;  --color-feature-3-bg: rgba(8, 145, 178, 0.15);  --color-feature-3-light: #67e8f9;
+  --color-feature-4: #34d399;  --color-feature-4-bg: rgba(5, 150, 105, 0.15);  --color-feature-4-light: #6ee7b7;
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);

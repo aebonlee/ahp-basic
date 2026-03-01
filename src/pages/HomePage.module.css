@@ -17,7 +17,10 @@
   transform: translateX(-50%);
   width: 800px;
   height: 800px;
-  background: radial-gradient(circle, rgba(15, 43, 91, 0.04) 0%, rgba(37, 99, 235, 0.02) 40%, transparent 70%);
+  background:
+    radial-gradient(circle at 35% 40%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 65% 35%, rgba(124, 58, 237, 0.03) 0%, transparent 45%),
+    radial-gradient(circle at 55% 60%, rgba(8, 145, 178, 0.03) 0%, transparent 45%);
   pointer-events: none;
 }
 
@@ -204,6 +207,12 @@
   letter-spacing: 0.02em;
 }
 
+/* Stats colors */
+.statItem:nth-child(1) .statValue { color: #2563eb; }
+.statItem:nth-child(2) .statValue { color: #7c3aed; }
+.statItem:nth-child(3) .statValue { color: #0891b2; }
+.statItem:nth-child(4) .statValue { color: #059669; }
+
 /* ─── Section Common ─── */
 .sectionInner {
   max-width: 1100px;
@@ -371,6 +380,31 @@
   pointer-events: none;
 }
 
+/* ─── Feature Card Colors (nth-child) ─── */
+/* 1 — Blue (계층 모델 구축) */
+.featureCard:nth-child(1) .featureIcon { background: #eff6ff; color: #2563eb; }
+.featureCard:nth-child(1) .featureNum { color: rgba(37, 99, 235, 0.06); }
+.featureCard:nth-child(1)::after { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+.featureCard:nth-child(1):hover { border-color: #bfdbfe; }
+
+/* 2 — Violet (쌍대비교 평가) */
+.featureCard:nth-child(2) .featureIcon { background: #f5f3ff; color: #7c3aed; }
+.featureCard:nth-child(2) .featureNum { color: rgba(124, 58, 237, 0.06); }
+.featureCard:nth-child(2)::after { background: linear-gradient(90deg, #7c3aed, #8b5cf6); }
+.featureCard:nth-child(2):hover { border-color: #ddd6fe; }
+
+/* 3 — Teal (다수 평가자 집계) */
+.featureCard:nth-child(3) .featureIcon { background: #ecfeff; color: #0891b2; }
+.featureCard:nth-child(3) .featureNum { color: rgba(8, 145, 178, 0.06); }
+.featureCard:nth-child(3)::after { background: linear-gradient(90deg, #0891b2, #06b6d4); }
+.featureCard:nth-child(3):hover { border-color: #a5f3fc; }
+
+/* 4 — Emerald (결과 분석) */
+.featureCard:nth-child(4) .featureIcon { background: #ecfdf5; color: #059669; }
+.featureCard:nth-child(4) .featureNum { color: rgba(5, 150, 105, 0.06); }
+.featureCard:nth-child(4)::after { background: linear-gradient(90deg, #059669, #10b981); }
+.featureCard:nth-child(4):hover { border-color: #a7f3d0; }
+
 /* ─── Process ─── */
 .process {
   background: #0f2b5b;
@@ -434,6 +468,16 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+/* Process step colors */
+.stepCard:nth-child(1) .stepNum { color: #93c5fd; }
+.stepCard:nth-child(1) .stepLine { background: rgba(147, 197, 253, 0.3); }
+.stepCard:nth-child(2) .stepNum { color: #c4b5fd; }
+.stepCard:nth-child(2) .stepLine { background: rgba(196, 181, 253, 0.3); }
+.stepCard:nth-child(3) .stepNum { color: #67e8f9; }
+.stepCard:nth-child(3) .stepLine { background: rgba(103, 232, 249, 0.3); }
+.stepCard:nth-child(4) .stepNum { color: #6ee7b7; }
+.stepCard:nth-child(4) .stepLine { background: rgba(110, 231, 183, 0.3); }
+
 /* ─── CTA Section ─── */
 .ctaSection {
   position: relative;
@@ -450,7 +494,9 @@
   transform: translate(-50%, -50%);
   width: 600px;
   height: 400px;
-  background: radial-gradient(circle, rgba(15, 43, 91, 0.03) 0%, transparent 70%);
+  background:
+    radial-gradient(circle at 40% 50%, rgba(37, 99, 235, 0.04) 0%, transparent 60%),
+    radial-gradient(circle at 60% 50%, rgba(124, 58, 237, 0.03) 0%, transparent 60%);
   pointer-events: none;
 }
 

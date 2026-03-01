@@ -203,6 +203,42 @@
   cursor: default;
 }
 
+/* ─── Workflow Step Colors ─── */
+/* Steps 1-3: Blue (모델 구축) — default, subtle border hint */
+.stepList > :nth-child(1) .stepNum { border-color: rgba(37, 99, 235, 0.2); }
+.stepList > :nth-child(2) .stepNum { border-color: rgba(37, 99, 235, 0.2); }
+.stepList > :nth-child(3) .stepNum { border-color: rgba(37, 99, 235, 0.2); }
+
+/* Step 4: Violet (평가자 관리) */
+.stepList > :nth-child(4) .stepNum { border-color: rgba(124, 58, 237, 0.2); }
+.stepList > :nth-child(4).current .stepNum {
+  background: #7c3aed; border-color: #7c3aed;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
+}
+.stepList > :nth-child(4).current .stepLabel { color: #7c3aed; }
+
+/* Step 5: Teal (실시간 워크숍) */
+.stepList > :nth-child(5) .stepNum { border-color: rgba(8, 145, 178, 0.2); }
+.stepList > :nth-child(5).current .stepNum {
+  background: #0891b2; border-color: #0891b2;
+  box-shadow: 0 4px 14px rgba(8, 145, 178, 0.25);
+}
+.stepList > :nth-child(5).current .stepLabel { color: #0891b2; }
+
+/* Steps 6-8: Emerald (결과 분석) */
+.stepList > :nth-child(6) .stepNum { border-color: rgba(5, 150, 105, 0.2); }
+.stepList > :nth-child(7) .stepNum { border-color: rgba(5, 150, 105, 0.2); }
+.stepList > :nth-child(8) .stepNum { border-color: rgba(5, 150, 105, 0.2); }
+.stepList > :nth-child(6).current .stepNum,
+.stepList > :nth-child(7).current .stepNum,
+.stepList > :nth-child(8).current .stepNum {
+  background: #059669; border-color: #059669;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+}
+.stepList > :nth-child(6).current .stepLabel,
+.stepList > :nth-child(7).current .stepLabel,
+.stepList > :nth-child(8).current .stepLabel { color: #059669; }
+
 @media (max-width: 768px) {
   .dashboard {
     grid-template-columns: 1fr;
