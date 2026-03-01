@@ -1,0 +1,1 @@
+import{f as c,r}from"./index-DFscdEsA.js";function o(){const t=c();return r.useEffect(()=>{t.fetchProjects()},[]),t}function f(t){const e=c();return r.useEffect(()=>{t&&e.fetchProject(t)},[t]),e}export{f as a,o as u};
