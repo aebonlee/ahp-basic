@@ -393,9 +393,9 @@
 
 /* ─── Stats Bar ─── */
 .statsBar {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+  background: #0d1326;
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
   padding: 48px var(--spacing-xl);
 }
 
@@ -445,7 +445,7 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #2563eb;
+  color: #60a5fa;
   margin-bottom: 12px;
 }
 
@@ -459,7 +459,7 @@
   font-size: 2.2rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #0f172a;
+  color: #f1f5f9;
   margin-bottom: 12px;
 }
 
@@ -471,7 +471,7 @@
 .sectionSub {
   text-align: center;
   font-size: 1rem;
-  color: #64748b;
+  color: rgba(148, 163, 184, 0.6);
   margin-bottom: 56px;
 }
 
@@ -485,7 +485,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #2563eb;
+  color: #60a5fa;
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
@@ -493,7 +493,7 @@
 }
 
 .moreLink:hover {
-  color: #0f2b5b;
+  color: #93b4f5;
   gap: 10px;
 }
 
@@ -520,7 +520,7 @@
 
 /* ─── Features ─── */
 .features {
-  background: #ffffff;
+  background: #0a0f1e;
   padding: 100px 0;
 }
 
@@ -532,8 +532,8 @@
 
 .featureCard {
   position: relative;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: rgba(148, 163, 184, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.08);
   border-radius: 16px;
   padding: 36px 32px;
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -554,8 +554,8 @@
 }
 
 .featureCard:hover {
-  border-color: #bfdbfe;
-  box-shadow: 0 8px 32px rgba(15, 43, 91, 0.06);
+  border-color: rgba(37, 99, 235, 0.25);
+  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.08);
   transform: translateY(-4px);
 }
 
@@ -567,8 +567,8 @@
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: #f0f4fa;
-  color: #0f2b5b;
+  background: rgba(15, 43, 91, 0.3);
+  color: #60a5fa;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -578,13 +578,13 @@
 .featureTitle {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #f1f5f9;
   margin-bottom: 8px;
 }
 
 .featureDesc {
   font-size: 0.88rem;
-  color: #64748b;
+  color: rgba(148, 163, 184, 0.7);
   line-height: var(--line-height-relaxed);
 }
 
@@ -594,35 +594,35 @@
   right: 24px;
   font-size: 3rem;
   font-weight: 800;
-  color: rgba(15, 43, 91, 0.04);
+  color: rgba(148, 163, 184, 0.06);
   line-height: 1;
   pointer-events: none;
 }
 
 /* ─── Feature Card Colors (nth-child) ─── */
 /* 1 — Blue (계층 모델 구축) */
-.featureCard:nth-child(1) .featureIcon { background: #eff6ff; color: #2563eb; }
-.featureCard:nth-child(1) .featureNum { color: rgba(37, 99, 235, 0.06); }
+.featureCard:nth-child(1) .featureIcon { background: rgba(37, 99, 235, 0.12); color: #60a5fa; }
+.featureCard:nth-child(1) .featureNum { color: rgba(37, 99, 235, 0.08); }
 .featureCard:nth-child(1)::after { background: linear-gradient(90deg, #2563eb, #3b82f6); }
-.featureCard:nth-child(1):hover { border-color: #bfdbfe; }
+.featureCard:nth-child(1):hover { border-color: rgba(37, 99, 235, 0.25); box-shadow: 0 8px 32px rgba(37, 99, 235, 0.1); }
 
 /* 2 — Violet (쌍대비교 평가) */
-.featureCard:nth-child(2) .featureIcon { background: #f5f3ff; color: #7c3aed; }
-.featureCard:nth-child(2) .featureNum { color: rgba(124, 58, 237, 0.06); }
+.featureCard:nth-child(2) .featureIcon { background: rgba(124, 58, 237, 0.12); color: #a78bfa; }
+.featureCard:nth-child(2) .featureNum { color: rgba(124, 58, 237, 0.08); }
 .featureCard:nth-child(2)::after { background: linear-gradient(90deg, #7c3aed, #8b5cf6); }
-.featureCard:nth-child(2):hover { border-color: #ddd6fe; }
+.featureCard:nth-child(2):hover { border-color: rgba(124, 58, 237, 0.25); box-shadow: 0 8px 32px rgba(124, 58, 237, 0.1); }
 
 /* 3 — Teal (다수 평가자 집계) */
-.featureCard:nth-child(3) .featureIcon { background: #ecfeff; color: #0891b2; }
-.featureCard:nth-child(3) .featureNum { color: rgba(8, 145, 178, 0.06); }
+.featureCard:nth-child(3) .featureIcon { background: rgba(8, 145, 178, 0.12); color: #22d3ee; }
+.featureCard:nth-child(3) .featureNum { color: rgba(8, 145, 178, 0.08); }
 .featureCard:nth-child(3)::after { background: linear-gradient(90deg, #0891b2, #06b6d4); }
-.featureCard:nth-child(3):hover { border-color: #a5f3fc; }
+.featureCard:nth-child(3):hover { border-color: rgba(8, 145, 178, 0.25); box-shadow: 0 8px 32px rgba(8, 145, 178, 0.1); }
 
 /* 4 — Emerald (결과 분석) */
-.featureCard:nth-child(4) .featureIcon { background: #ecfdf5; color: #059669; }
-.featureCard:nth-child(4) .featureNum { color: rgba(5, 150, 105, 0.06); }
+.featureCard:nth-child(4) .featureIcon { background: rgba(5, 150, 105, 0.12); color: #34d399; }
+.featureCard:nth-child(4) .featureNum { color: rgba(5, 150, 105, 0.08); }
 .featureCard:nth-child(4)::after { background: linear-gradient(90deg, #059669, #10b981); }
-.featureCard:nth-child(4):hover { border-color: #a7f3d0; }
+.featureCard:nth-child(4):hover { border-color: rgba(5, 150, 105, 0.25); box-shadow: 0 8px 32px rgba(5, 150, 105, 0.1); }
 
 /* ─── Process ─── */
 .process {
@@ -699,9 +699,9 @@
 
 /* ─── Statistics Section ─── */
 .statsSection {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+  background: #0d1326;
+  border-top: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
   padding: 100px 0;
 }
 
@@ -712,8 +712,8 @@
 }
 
 .statCard {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: rgba(148, 163, 184, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.08);
   border-radius: 12px;
   padding: 24px 20px;
   text-align: center;
@@ -722,8 +722,8 @@
 
 .statCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(15, 43, 91, 0.08);
-  border-color: #bfdbfe;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1);
+  border-color: rgba(37, 99, 235, 0.2);
 }
 
 .statCardIcon {
@@ -734,13 +734,13 @@
 .statCardTitle {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #f1f5f9;
   margin-bottom: 6px;
 }
 
 .statCardDesc {
   font-size: 0.8rem;
-  color: #64748b;
+  color: rgba(148, 163, 184, 0.7);
   line-height: 1.5;
 }
 
@@ -749,7 +749,7 @@
   position: relative;
   padding: 120px var(--spacing-xl);
   text-align: center;
-  background: #f8fafc;
+  background: #0a0f1e;
   overflow: hidden;
 }
 
@@ -761,8 +761,8 @@
   width: 600px;
   height: 400px;
   background:
-    radial-gradient(circle at 40% 50%, rgba(37, 99, 235, 0.04) 0%, transparent 60%),
-    radial-gradient(circle at 60% 50%, rgba(124, 58, 237, 0.03) 0%, transparent 60%);
+    radial-gradient(circle at 40% 50%, rgba(37, 99, 235, 0.10) 0%, transparent 60%),
+    radial-gradient(circle at 60% 50%, rgba(124, 58, 237, 0.08) 0%, transparent 60%);
   pointer-events: none;
 }
 
@@ -774,14 +774,14 @@
 .ctaTitle {
   font-size: 2.4rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #f1f5f9;
   letter-spacing: -0.03em;
   margin-bottom: 16px;
 }
 
 .ctaDesc {
   font-size: 1.05rem;
-  color: #64748b;
+  color: rgba(148, 163, 184, 0.7);
   margin-bottom: 36px;
 }
 
