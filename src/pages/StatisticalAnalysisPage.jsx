@@ -9,10 +9,11 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import VariableSelector from '../components/statistics/VariableSelector';
 import ResultRenderer from '../components/statistics/ResultRenderers';
 import { useStatisticalAnalysis } from '../hooks/useStatisticalAnalysis';
+import { useToast } from '../contexts/ToastContext';
 import {
   descriptiveStats, independentTTest, pairedTTest, oneWayAnova,
-  chiSquareTest, correlationMatrix, linearRegression, cronbachAlpha,
-  crossTabulation,
+  chiSquareTest, correlationMatrix, spearmanCorrelation, linearRegression,
+  cronbachAlpha, crossTabulation,
 } from '../lib/statsEngine';
 import { exportStatsToExcel } from '../lib/statsExport';
 import common from '../styles/common.module.css';
@@ -28,6 +29,7 @@ const ANALYSIS_CARDS = [
   { key: 'regression',   icon: '\u{1F4C9}', title: '단순선형회귀',     desc: '독립-종속 변수 회귀 분석' },
   { key: 'cronbach',     icon: '\u{2705}',  title: '크론바흐 알파',    desc: '리커트 문항 신뢰도 분석' },
   { key: 'crossTab',     icon: '\u{1F5C2}', title: '교차분석',         desc: '빈도표, 비율, 기대빈도, 잔차' },
+  { key: 'spearman',     icon: '\u{1F4C7}', title: 'Spearman 순위상관', desc: '비정규 데이터 순위 상관분석' },
 ];
 
 const VALID_TYPES = new Set(ANALYSIS_CARDS.map(c => c.key));
@@ -36,8 +38,9 @@ export default function StatisticalAnalysisPage() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const {
-    loading, variables, respondentCount,
+    loading, variables, respondentCount, responseCounts,
     getNumericValues, getCategoricalValues,
     getGroupedNumericValues, getItemMatrix, getPairedValues,
   } = useStatisticalAnalysis(id);
@@ -72,78 +75,92 @@ export default function StatisticalAnalysisPage() {
   };
 
   const handleRun = useCallback((selections) => {
-    let res;
+    try {
+      let res;
 
-    switch (analysisType) {
-      case 'descriptive': {
-        const vals = getNumericValues(selections.variable);
-        res = descriptiveStats(vals);
-        break;
-      }
-      case 'independentT': {
-        const groups = getGroupedNumericValues(selections.groupVar, selections.testVar);
-        if (groups.length < 2) {
-          res = { summary: { error: '2개 집단이 필요합니다. 그룹 변수의 범주가 2개 이상인지 확인하세요.' }, details: [], chartData: [] };
-        } else {
-          res = independentTTest(groups[0].values, groups[1].values);
-          res.details = [
-            { 그룹: groups[0].label, N: groups[0].values.length, ...res.details[0] },
-            { 그룹: groups[1].label, N: groups[1].values.length, ...res.details[1] },
-          ];
+      switch (analysisType) {
+        case 'descriptive': {
+          const vals = getNumericValues(selections.variable);
+          res = descriptiveStats(vals);
+          break;
         }
-        break;
-      }
-      case 'pairedT': {
-        const { values1, values2 } = getPairedValues(selections.var1, selections.var2);
-        res = pairedTTest(values1, values2);
-        break;
-      }
-      case 'anova': {
-        const groups = getGroupedNumericValues(selections.groupVar, selections.testVar);
-        if (groups.length < 3) {
-          res = { summary: { error: '3개 이상 집단이 필요합니다.' }, details: [], chartData: [] };
-        } else {
-          res = oneWayAnova(groups);
+        case 'independentT': {
+          const groups = getGroupedNumericValues(selections.groupVar, selections.testVar);
+          if (groups.length < 2) {
+            res = { summary: { error: '2개 집단이 필요합니다. 그룹 변수의 범주가 2개 이상인지 확인하세요.' }, details: [], chartData: [] };
+          } else {
+            if (groups.length > 2) {
+              toast.warning(`${groups.length}개 그룹 감지 — 처음 2개 그룹(${groups[0].label}, ${groups[1].label})만 비교합니다.`);
+            }
+            res = independentTTest(groups[0].values, groups[1].values);
+            res.details = res.details.map((d, i) => ({
+              ...d, 그룹: groups[i]?.label || d.그룹,
+            }));
+          }
+          break;
         }
-        break;
+        case 'pairedT': {
+          const { values1, values2 } = getPairedValues(selections.var1, selections.var2);
+          res = pairedTTest(values1, values2);
+          break;
+        }
+        case 'anova': {
+          const groups = getGroupedNumericValues(selections.groupVar, selections.testVar);
+          if (groups.length < 2) {
+            res = { summary: { error: '최소 2개 집단이 필요합니다.' }, details: [], chartData: [] };
+          } else {
+            res = oneWayAnova(groups);
+          }
+          break;
+        }
+        case 'chiSquare': {
+          const v1 = getCategoricalValues(selections.var1);
+          const v2 = getCategoricalValues(selections.var2);
+          res = chiSquareTest(v1, v2);
+          break;
+        }
+        case 'correlation': {
+          const vars = selections.variables.map(qid => {
+            const q = variables.numeric.find(v => v.id === qid);
+            return { label: q?.label || qid, values: getNumericValues(qid) };
+          });
+          res = correlationMatrix(vars);
+          break;
+        }
+        case 'regression': {
+          const { values1, values2 } = getPairedValues(selections.xVar, selections.yVar);
+          res = linearRegression(values1, values2);
+          break;
+        }
+        case 'cronbach': {
+          const matrix = getItemMatrix(selections.items);
+          res = cronbachAlpha(matrix);
+          break;
+        }
+        case 'crossTab': {
+          const v1 = getCategoricalValues(selections.var1);
+          const v2 = getCategoricalValues(selections.var2);
+          res = crossTabulation(v1, v2);
+          break;
+        }
+        case 'spearman': {
+          const vars = selections.variables.map(qid => {
+            const q = variables.numeric.find(v => v.id === qid);
+            return { label: q?.label || qid, values: getNumericValues(qid) };
+          });
+          res = spearmanCorrelation(vars);
+          break;
+        }
+        default:
+          res = { summary: { error: '알 수 없는 분석 유형' }, details: [], chartData: [] };
       }
-      case 'chiSquare': {
-        const v1 = getCategoricalValues(selections.var1);
-        const v2 = getCategoricalValues(selections.var2);
-        res = chiSquareTest(v1, v2);
-        break;
-      }
-      case 'correlation': {
-        const vars = selections.variables.map(qid => {
-          const q = variables.numeric.find(v => v.id === qid);
-          return { label: q?.label || qid, values: getNumericValues(qid) };
-        });
-        res = correlationMatrix(vars);
-        break;
-      }
-      case 'regression': {
-        const { values1, values2 } = getPairedValues(selections.xVar, selections.yVar);
-        res = linearRegression(values1, values2);
-        break;
-      }
-      case 'cronbach': {
-        const matrix = getItemMatrix(selections.items);
-        res = cronbachAlpha(matrix);
-        break;
-      }
-      case 'crossTab': {
-        const v1 = getCategoricalValues(selections.var1);
-        const v2 = getCategoricalValues(selections.var2);
-        res = crossTabulation(v1, v2);
-        break;
-      }
-      default:
-        res = { summary: { error: '알 수 없는 분석 유형' }, details: [], chartData: [] };
+
+      setResult(res);
+      setStep('result');
+    } catch (err) {
+      toast.error(`분석 실행 중 오류: ${err.message || '알 수 없는 오류'}`);
     }
-
-    setResult(res);
-    setStep('result');
-  }, [analysisType, getNumericValues, getCategoricalValues, getGroupedNumericValues, getItemMatrix, getPairedValues, variables]);
+  }, [analysisType, getNumericValues, getCategoricalValues, getGroupedNumericValues, getItemMatrix, getPairedValues, variables, toast]);
 
   const handleExport = () => {
     if (result) exportStatsToExcel(analysisType, result, `project_${id}`);
@@ -188,6 +205,7 @@ export default function StatisticalAnalysisPage() {
           variables={variables}
           onRun={handleRun}
           onBack={handleBack}
+          responseCounts={responseCounts}
         />
       )}
 

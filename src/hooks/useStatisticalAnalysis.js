@@ -46,6 +46,15 @@ export function useStatisticalAnalysis(projectId) {
     return ids.size;
   }, [responses]);
 
+  // 질문별 응답 수
+  const responseCounts = useMemo(() => {
+    const counts = {};
+    for (const r of responses) {
+      counts[r.question_id] = (counts[r.question_id] || 0) + 1;
+    }
+    return counts;
+  }, [responses]);
+
   // 특정 질문의 수치 데이터 추출
   const getNumericValues = useCallback((questionId) => {
     return responses
@@ -78,7 +87,7 @@ export function useStatisticalAnalysis(projectId) {
         const v = r.answer?.value;
         evaluatorMap[r.evaluator_id] = {
           ...evaluatorMap[r.evaluator_id],
-          group: Array.isArray(v) ? v.join(', ') : String(v ?? ''),
+          group: Array.isArray(v) ? [...v].sort().join(', ') : String(v ?? ''),
         };
       }
       if (r.question_id === valueQuestionId) {
@@ -162,6 +171,7 @@ export function useStatisticalAnalysis(projectId) {
     responses,
     variables,
     respondentCount,
+    responseCounts,
     analysisType,
     setAnalysisType,
     getNumericValues,

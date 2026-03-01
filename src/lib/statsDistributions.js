@@ -25,6 +25,7 @@ export function gammln(x) {
  * Lentz 연분수법 사용
  */
 export function regularizedBeta(x, a, b) {
+  if (isNaN(x) || isNaN(a) || isNaN(b)) return NaN;
   if (x <= 0) return 0;
   if (x >= 1) return 1;
 
@@ -33,9 +34,15 @@ export function regularizedBeta(x, a, b) {
     return 1 - regularizedBeta(1 - x, b, a);
   }
 
-  const lnPre = a * Math.log(x) + b * Math.log(1 - x) - Math.log(a) -
-    (gammln(a) + gammln(b) - gammln(a + b));
+  // lnBeta(a, b) = gammln(a) + gammln(b) - gammln(a+b)
+  const lnBeta = gammln(a) + gammln(b) - gammln(a + b);
+  // 안전한 로그 계산: x 또는 (1-x)가 극도로 작을 때 보호
+  const lnX = x > 1e-300 ? Math.log(x) : -690;
+  const ln1mX = (1 - x) > 1e-300 ? Math.log(1 - x) : -690;
+  const lnPre = a * lnX + b * ln1mX - Math.log(a) - lnBeta;
   const front = Math.exp(lnPre);
+
+  if (!isFinite(front) || front === 0) return front < 0 ? 0 : (x < 0.5 ? 0 : 1);
 
   // Lentz 연분수법
   const maxIter = 200;
@@ -49,17 +56,15 @@ export function regularizedBeta(x, a, b) {
   for (let m = 0; m <= maxIter; m++) {
     let numerator;
     if (m === 0) {
-      numerator = 1; // a_0 = 1
+      numerator = 1;
     } else {
       const k = m;
       const m2 = Math.floor((k + 1) / 2);
       if (k % 2 === 1) {
-        // 홀수항: d_{2m+1}
         const num = m2 * (b - m2) * x;
         const den = (a + k - 1) * (a + k);
         numerator = num / den;
       } else {
-        // 짝수항: d_{2m}
         const num = -(a + m2 - 1) * (a + b + m2 - 1) * x;
         const den = (a + k - 1) * (a + k);
         numerator = num / den;
@@ -79,7 +84,9 @@ export function regularizedBeta(x, a, b) {
     if (Math.abs(delta - 1) < eps && m > 0) break;
   }
 
-  return front * f;
+  const result = front * f;
+  // 결과 범위 클램핑
+  return Math.max(0, Math.min(1, result));
 }
 
 /**
@@ -87,11 +94,12 @@ export function regularizedBeta(x, a, b) {
  * a가 작으면 급수전개, 크면 연분수법 사용
  */
 export function regularizedGamma(a, x) {
-  if (x < 0) return 0;
+  if (x < 0 || isNaN(a) || isNaN(x)) return 0;
   if (x === 0) return 0;
+  if (a <= 0) return 1;
 
   if (x < a + 1) {
-    // 급수전개: P(a, x) = e^(-x) x^a Σ x^n / Γ(a + n + 1)
+    // 급수전개
     let sum = 1 / a;
     let term = 1 / a;
     for (let n = 1; n < 200; n++) {
@@ -99,37 +107,12 @@ export function regularizedGamma(a, x) {
       sum += term;
       if (Math.abs(term) < Math.abs(sum) * 3e-12) break;
     }
-    return sum * Math.exp(-x + a * Math.log(x) - gammln(a));
+    const lnPre = -x + a * Math.log(x) - gammln(a);
+    if (lnPre < -700) return 0;
+    return Math.max(0, Math.min(1, sum * Math.exp(lnPre)));
   } else {
     // 연분수법으로 Q(a, x) 계산 후 P = 1 - Q
-    const tiny = 1e-30;
-    let f = tiny;
-    let C = tiny;
-    let D = 0;
-
-    for (let i = 1; i < 200; i++) {
-      const an = i % 2 === 1
-        ? (Math.ceil(i / 2)) // 홀수: n
-        : -(a + Math.floor(i / 2) - 1); // 짝수: -(a + m - 1)
-      const bn = i === 1 ? x - a + 1 : (i % 2 === 1 ? x + i - 1 : i / 2);
-
-      // 간소화된 Lentz: 표준 연분수법으로 Q(a,x) 계산
-      D = bn + an * D;
-      if (Math.abs(D) < tiny) D = tiny;
-      D = 1 / D;
-
-      C = bn + an / C;
-      if (Math.abs(C) < tiny) C = tiny;
-
-      const delta = C * D;
-      f *= delta;
-
-      if (Math.abs(delta - 1) < 3e-12 && i > 1) break;
-    }
-
-    const Q = Math.exp(-x + a * Math.log(x) - gammln(a)) * (1 / (x - a + 1)) * f;
-    // 이 방법이 불안정할 수 있으므로, 더 안정적인 방법 사용
-    return 1 - _gammaCF(a, x);
+    return Math.max(0, Math.min(1, 1 - _gammaCF(a, x)));
   }
 }
 
@@ -154,17 +137,22 @@ function _gammaCF(a, x) {
     if (Math.abs(delta - 1) < 3e-12) break;
   }
 
-  return Math.exp(-x + a * Math.log(x) - gammln(a)) * f;
+  const lnPre = -x + a * Math.log(x) - gammln(a);
+  if (lnPre < -700) return 0;
+  return Math.max(0, Math.exp(lnPre) * f);
 }
 
 /**
- * t분포 CDF → 양측 p값
- * @returns {number} 양측 p값 (two-tailed)
+ * t분포 → 양측 p값 (two-tailed)
+ * I_x(df/2, 1/2) where x = df/(df + t²)  는 양측 p값에 해당
  */
 export function tCDF(t, df) {
+  if (df <= 0 || isNaN(t) || isNaN(df)) return 1;
+  if (t === 0) return 1; // 양측이므로 t=0이면 p=1
   const x = df / (df + t * t);
   const p = regularizedBeta(x, df / 2, 0.5);
-  return p; // 양측 p값
+  // 이 공식은 P(|T| > |t|)를 직접 반환하므로 양측 p값이 맞음
+  return Math.max(0, Math.min(1, p));
 }
 
 /**
@@ -172,9 +160,10 @@ export function tCDF(t, df) {
  * P(F > f) = 1 - I_x(d1/2, d2/2)  where x = d1*f / (d1*f + d2)
  */
 export function fCDF(f, df1, df2) {
-  if (f <= 0) return 1;
+  if (f <= 0 || isNaN(f)) return 1;
+  if (df1 <= 0 || df2 <= 0) return 1;
   const x = (df1 * f) / (df1 * f + df2);
-  return 1 - regularizedBeta(x, df1 / 2, df2 / 2);
+  return Math.max(0, Math.min(1, 1 - regularizedBeta(x, df1 / 2, df2 / 2)));
 }
 
 /**
@@ -182,23 +171,26 @@ export function fCDF(f, df1, df2) {
  * P(χ² > x) = 1 - P(k/2, x/2)
  */
 export function chiSquaredCDF(x, k) {
-  if (x <= 0) return 1;
-  return 1 - regularizedGamma(k / 2, x / 2);
+  if (x <= 0 || isNaN(x)) return 1;
+  if (k <= 0) return 1;
+  return Math.max(0, Math.min(1, 1 - regularizedGamma(k / 2, x / 2)));
 }
 
 /**
- * 표준정규분포 CDF Φ(z) — 오차함수 근사법
+ * 표준정규분포 CDF Φ(z)
+ * Horner 형식의 유리 근사법 (Abramowitz & Stegun 26.2.17, 오차 < 7.5e-8)
  */
 export function normalCDF(z) {
-  // Abramowitz and Stegun 근사법
+  if (isNaN(z)) return 0.5;
   if (z < -8) return 0;
   if (z > 8) return 1;
 
-  let sum = 0;
-  let term = z;
-  for (let i = 3; sum + term !== sum; i += 2) {
-    sum += term;
-    term = term * z * z / i;
-  }
-  return 0.5 + sum * Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI);
+  const neg = z < 0;
+  const az = Math.abs(z);
+  const t = 1 / (1 + 0.2316419 * az);
+  const d = 0.3989422804014327; // 1/sqrt(2π)
+  const p = d * Math.exp(-az * az / 2) *
+    t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.8212560 + t * 1.3302744))));
+
+  return neg ? p : 1 - p;
 }

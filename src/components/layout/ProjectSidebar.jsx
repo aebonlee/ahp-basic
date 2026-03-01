@@ -26,6 +26,7 @@ const STAT_SUBS = [
   { key: 'regression',   label: '단순선형회귀' },
   { key: 'cronbach',     label: '크론바흐 알파' },
   { key: 'crossTab',     label: '교차분석' },
+  { key: 'spearman',     label: 'Spearman 순위상관' },
 ];
 
 export default function ProjectSidebar({ projectName, collapsed }) {

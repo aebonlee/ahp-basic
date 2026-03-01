@@ -14,11 +14,23 @@ const ANALYSIS_LABELS = {
   regression: '단순선형회귀',
   cronbach: '크론바흐알파',
   crossTab: '교차분석',
+  spearman: 'Spearman순위상관',
 };
 
 export function exportStatsToExcel(analysisType, result, projectName = '프로젝트') {
   const wb = XLSX.utils.book_new();
   const label = ANALYSIS_LABELS[analysisType] || analysisType;
+
+  // 메타데이터 시트
+  const now = new Date();
+  const metaRows = [
+    { 항목: '분석 유형', 값: label },
+    { 항목: '프로젝트', 값: projectName },
+    { 항목: '내보내기 일시', 값: now.toLocaleString('ko-KR') },
+    { 항목: '도구', 값: 'AHP Basic 통계분석' },
+  ];
+  const metaWs = XLSX.utils.json_to_sheet(metaRows);
+  XLSX.utils.book_append_sheet(wb, metaWs, '메타정보');
 
   // 요약 시트
   if (result.summary) {

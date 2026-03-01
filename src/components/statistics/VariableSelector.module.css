@@ -119,3 +119,15 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.respCount {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-left: 2px;
+}
+
+.hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin: var(--spacing-sm) 0 0;
+}

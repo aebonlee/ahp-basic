@@ -60,6 +60,10 @@ const ANALYSIS_CONFIG = {
       { key: 'var2', label: '열 변수 (범주형)', type: 'categorical', multi: false },
     ],
   },
+  spearman: {
+    title: 'Spearman 순위상관',
+    fields: [{ key: 'variables', label: '분석 변수 (2개 이상)', type: 'numeric', multi: true }],
+  },
 };
 
 export default function VariableSelector({
@@ -67,6 +71,7 @@ export default function VariableSelector({
   variables,
   onRun,
   onBack,
+  responseCounts,
 }) {
   const config = ANALYSIS_CONFIG[analysisType];
   const [selections, setSelections] = useState({});
@@ -135,6 +140,9 @@ export default function VariableSelector({
                         onChange={() => handleChange(field.key, opt.id, true)}
                       />
                       <span>{opt.label}</span>
+                      {responseCounts?.[opt.id] !== undefined && (
+                        <span className={styles.respCount}>({responseCounts[opt.id]}명)</span>
+                      )}
                     </label>
                   ))}
                 </div>
@@ -146,7 +154,9 @@ export default function VariableSelector({
                 >
                   <option value="">-- 선택 --</option>
                   {options.map(opt => (
-                    <option key={opt.id} value={opt.id}>{opt.label}</option>
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}{responseCounts?.[opt.id] !== undefined ? ` (${responseCounts[opt.id]}명)` : ''}
+                    </option>
                   ))}
                 </select>
               )}
@@ -160,9 +170,13 @@ export default function VariableSelector({
           className={styles.runBtn}
           onClick={() => onRun(selections)}
           disabled={!isValid()}
+          title={!isValid() ? '모든 변수를 선택해주세요 (다중 선택은 2개 이상)' : ''}
         >
           분석 실행
         </button>
+        {!isValid() && (
+          <p className={styles.hint}>모든 변수를 선택해주세요</p>
+        )}
       </div>
     </div>
   );
