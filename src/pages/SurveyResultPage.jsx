@@ -26,10 +26,15 @@ export default function SurveyResultPage() {
   const { responses, loading: rLoading, getResponsesByQuestion } = useSurveyResponses(id);
   const { evaluators } = useEvaluators(id);
 
-  const respondentCount = useMemo(() => {
-    const ids = new Set(responses.map(r => r.evaluator_id));
-    return ids.size;
-  }, [responses]);
+  const respondedIds = useMemo(
+    () => new Set(responses.map(r => r.evaluator_id)),
+    [responses],
+  );
+
+  const completedCount = useMemo(
+    () => evaluators.filter(e => e.completed).length,
+    [evaluators],
+  );
 
   if (qLoading || rLoading) {
     return <ProjectLayout><LoadingSpinner message="설문 집계 로딩 중..." /></ProjectLayout>;
@@ -40,11 +45,51 @@ export default function SurveyResultPage() {
       <h1 className={common.pageTitle}>설문 집계</h1>
 
       <div className={styles.summary}>
+        {questions.length > 0 && (
+          <div>
+            <div className={styles.summaryNum}>{respondedIds.size} / {evaluators.length}</div>
+            <div className={styles.summaryLabel}>설문 응답</div>
+          </div>
+        )}
         <div>
-          <div className={styles.summaryNum}>{respondentCount} / {evaluators.length}</div>
-          <div className={styles.summaryLabel}>응답 완료 / 전체 배정</div>
+          <div className={styles.summaryNum}>{completedCount} / {evaluators.length}</div>
+          <div className={styles.summaryLabel}>평가 완료</div>
         </div>
       </div>
+
+      {evaluators.length > 0 && (
+        <div className={styles.statusCard}>
+          <h3 className={styles.statusTitle}>평가자별 현황</h3>
+          <table className={styles.statusTable}>
+            <thead>
+              <tr>
+                <th>이름</th>
+                {questions.length > 0 && <th>설문 응답</th>}
+                <th>평가 완료</th>
+              </tr>
+            </thead>
+            <tbody>
+              {evaluators.map(ev => (
+                <tr key={ev.id}>
+                  <td>{ev.name || ev.email}</td>
+                  {questions.length > 0 && (
+                    <td>
+                      <span className={respondedIds.has(ev.id) ? styles.statusDone : styles.statusPending}>
+                        {respondedIds.has(ev.id) ? '완료' : '미응답'}
+                      </span>
+                    </td>
+                  )}
+                  <td>
+                    <span className={ev.completed ? styles.statusDone : styles.statusPending}>
+                      {ev.completed ? '완료' : '미완료'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {questions.length === 0 ? (
         <div className={styles.emptyMsg}>설계된 설문 질문이 없습니다.</div>
