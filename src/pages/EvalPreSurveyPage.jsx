@@ -353,12 +353,9 @@ function QuestionInput({ question, value, onChange }) {
               className={`${styles.likertOption}${value === opt ? ` ${styles.selected}` : ''}`}
               onClick={() => onChange(opt)}
             >
-              <input
-                type="radio"
-                name={question.id}
-                checked={value === opt}
-                onChange={() => onChange(opt)}
-              />
+              <div className={styles.likertCircle}>
+                {value === opt && <div className={styles.likertCheck} />}
+              </div>
               <span>{opt}</span>
             </div>
           ))}

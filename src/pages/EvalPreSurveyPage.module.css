@@ -284,14 +284,32 @@
   color: #fff;
 }
 
-.likertOption.selected input {
-  accent-color: #fff;
+.likertCircle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.likertOption input {
-  accent-color: var(--color-primary);
-  width: 16px;
-  height: 16px;
+.likertOption:hover .likertCircle {
+  border-color: var(--color-primary);
+}
+
+.likertOption.selected .likertCircle {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.likertCheck {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
 }
 
 .likertOption span {

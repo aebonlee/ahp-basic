@@ -67,7 +67,8 @@ const DEMOGRAPHIC_TEMPLATE = [
   { question_text: '해당 분야 전문성 자가 평가', question_type: 'likert', options: ['매우 낮음', '낮음', '보통', '높음', '매우 높음'], required: true },
   { question_text: 'AHP 평가 경험', question_type: 'radio', options: ['있음', '없음'], required: true },
   { question_text: '소속 기관명', question_type: 'short_text', options: [], required: false },
-  { question_text: '연락처 (이메일 또는 전화번호)', question_type: 'short_text', options: [], required: false },
+  { question_text: '이메일 주소', question_type: 'short_text', options: [], required: false },
+  { question_text: '연락처 (전화번호)', question_type: 'short_text', options: [], required: false },
 ];
 
 const CUSTOM_TEMPLATE = [
