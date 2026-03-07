@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 import { useProject } from '../hooks/useProjects';
 import { useEvaluators } from '../hooks/useEvaluators';
+import { useCriteria } from '../hooks/useCriteria';
+import { useAlternatives } from '../hooks/useAlternatives';
 import { useProjects } from '../contexts/ProjectContext';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirm } from '../hooks/useConfirm';
-import { PROJECT_STATUS } from '../lib/constants';
+import { PROJECT_STATUS, EVAL_METHOD } from '../lib/constants';
+import { buildPageSequence } from '../lib/pairwiseUtils';
 import ProjectLayout from '../components/layout/ProjectLayout';
 import ParticipantForm from '../components/admin/ParticipantForm';
 import Button from '../components/common/Button';
@@ -20,13 +24,46 @@ export default function EvaluatorManagementPage() {
   const navigate = useNavigate();
   const { currentProject, loading: projLoading } = useProject(id);
   const { evaluators, loading: evalLoading, addEvaluator, deleteEvaluator } = useEvaluators(id);
+  const { criteria, loading: critLoading } = useCriteria(id);
+  const { alternatives, loading: altLoading } = useAlternatives(id);
   const { updateProject } = useProjects();
   const toast = useToast();
   const { confirm, confirmDialogProps } = useConfirm();
   const [showForm, setShowForm] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [comparisonCounts, setComparisonCounts] = useState({});
 
-  if (projLoading || evalLoading) return <ProjectLayout><LoadingSpinner /></ProjectLayout>;
+  // 전체 필요 비교 수 계산
+  const totalRequired = useMemo(() => {
+    if (criteria.length === 0) return 0;
+    const pages = buildPageSequence(criteria, alternatives, id);
+    return pages.reduce((sum, p) => sum + p.pairs.length, 0);
+  }, [criteria, alternatives, id]);
+
+  // 평가자별 완료 비교 수 로드
+  useEffect(() => {
+    if (!id || evaluators.length === 0) return;
+
+    const evalMethod = currentProject?.eval_method;
+    const table = evalMethod === EVAL_METHOD.DIRECT_INPUT
+      ? 'direct_input_values'
+      : 'pairwise_comparisons';
+
+    supabase
+      .from(table)
+      .select('evaluator_id')
+      .eq('project_id', id)
+      .then(({ data }) => {
+        if (!data) return;
+        const counts = {};
+        for (const row of data) {
+          counts[row.evaluator_id] = (counts[row.evaluator_id] || 0) + 1;
+        }
+        setComparisonCounts(counts);
+      }, () => {});
+  }, [id, evaluators, currentProject?.eval_method]);
+
+  if (projLoading || evalLoading || critLoading || altLoading) return <ProjectLayout><LoadingSpinner /></ProjectLayout>;
   if (!currentProject) return <ProjectLayout><p>프로젝트를 찾을 수 없습니다.</p></ProjectLayout>;
 
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/eval/invite/${id}`;
@@ -91,27 +128,46 @@ export default function EvaluatorManagementPage() {
                 <th>이름</th>
                 <th>이메일</th>
                 <th>전화번호</th>
+                <th>구분</th>
+                <th>진행률</th>
                 <th>상태</th>
                 <th>관리</th>
               </tr>
             </thead>
             <tbody>
-              {evaluators.map(ev => (
-                <tr key={ev.id}>
-                  <td>{ev.name}</td>
-                  <td>{ev.email}</td>
-                  <td>{ev.phone_number ? formatPhone(ev.phone_number) : '-'}</td>
-                  <td>{ev.completed ? '완료' : '미완료'}</td>
-                  <td>
-                    <button className={common.linkAction} onClick={handleCopyLink}>
-                      링크 복사
-                    </button>
-                    <button className={common.linkActionDanger} onClick={() => handleDeleteEvaluator(ev.id)}>
-                      삭제
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {evaluators.map(ev => {
+                const done = comparisonCounts[ev.id] || 0;
+                const pct = totalRequired > 0 ? Math.min(100, Math.round((done / totalRequired) * 100)) : 0;
+                const isPublic = ev.registration_source === 'public';
+
+                return (
+                  <tr key={ev.id}>
+                    <td>{ev.name}</td>
+                    <td>{isPublic ? '-' : ev.email}</td>
+                    <td>{ev.phone_number ? formatPhone(ev.phone_number) : '-'}</td>
+                    <td>
+                      <span className={isPublic ? styles.badgePublic : styles.badgeAdmin}>
+                        {isPublic ? 'QR 접속' : '직접 등록'}
+                      </span>
+                    </td>
+                    <td className={styles.progressCell}>
+                      <div className={styles.progressBar}>
+                        <div className={styles.progressBarFill} style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className={styles.progressPct}>{pct}%</span>
+                    </td>
+                    <td>{ev.completed ? '완료' : '미완료'}</td>
+                    <td>
+                      <button className={common.linkAction} onClick={handleCopyLink}>
+                        링크 복사
+                      </button>
+                      <button className={common.linkActionDanger} onClick={() => handleDeleteEvaluator(ev.id)}>
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

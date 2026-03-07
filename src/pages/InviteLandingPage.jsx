@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { useSurveyConfig, useSurveyQuestions, useConsentRecords, useSurveyResponses } from '../hooks/useSurvey';
+import { formatPhone } from '../lib/evaluatorUtils';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import Button from '../components/common/Button';
 import styles from './InviteLandingPage.module.css';
@@ -21,6 +22,14 @@ export default function InviteLandingPage() {
   const [verifyError, setVerifyError] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [matchedEvaluators, setMatchedEvaluators] = useState([]);
+
+  // 공개 접근 관련 상태
+  const [accessCode, setAccessCode] = useState('');
+  const [accessError, setAccessError] = useState('');
+  const [regName, setRegName] = useState('');
+  const [regPhone, setRegPhone] = useState('');
+  const [regError, setRegError] = useState('');
+  const [registering, setRegistering] = useState(false);
 
   // 사전설문 관련 hooks
   const { config, loading: configLoading } = useSurveyConfig(token);
@@ -60,6 +69,8 @@ export default function InviteLandingPage() {
         }
         setEvaluator(evalData);
         setStatus('ready');
+      } else if (data.public_access_enabled) {
+        setStatus('need_access_code');
       } else {
         setStatus('not_assigned');
       }
@@ -74,7 +85,12 @@ export default function InviteLandingPage() {
       }
 
       setProject(data[0]);
-      setStatus('need_verify');
+
+      if (data[0].public_access_enabled) {
+        setStatus('need_access_code');
+      } else {
+        setStatus('need_verify');
+      }
     }
   }, [token, user]);
 
@@ -108,14 +124,66 @@ export default function InviteLandingPage() {
     }
 
     if (matches.length === 1) {
-      // 1명 매치 → 바로 인증 완료
       completeVerification(matches[0]);
     } else {
-      // 2명+ 매치 → 이름 선택
       setMatchedEvaluators(matches);
       setStatus('select_evaluator');
     }
     setVerifying(false);
+  };
+
+  const handleVerifyAccessCode = async () => {
+    if (accessCode.length !== 4 || !/^\d{4}$/.test(accessCode)) {
+      setAccessError('4자리 숫자를 입력해주세요.');
+      return;
+    }
+    setVerifying(true);
+    setAccessError('');
+
+    const { data, error } = await supabase
+      .rpc('public_verify_access', { p_project_id: token, p_access_code: accessCode });
+
+    if (error || !data || data.length === 0) {
+      setAccessError('비밀번호가 일치하지 않습니다.');
+      setVerifying(false);
+      return;
+    }
+
+    setStatus('need_registration');
+    setVerifying(false);
+  };
+
+  const handlePublicRegister = async () => {
+    if (!regName.trim()) {
+      setRegError('이름을 입력해주세요.');
+      return;
+    }
+    const cleanPhone = regPhone.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      setRegError('올바른 전화번호를 입력해주세요.');
+      return;
+    }
+    setRegistering(true);
+    setRegError('');
+
+    const { data, error } = await supabase
+      .rpc('public_register_evaluator', {
+        p_project_id: token,
+        p_access_code: accessCode,
+        p_name: regName.trim(),
+        p_phone: cleanPhone,
+      });
+
+    if (error) {
+      setRegError('등록 중 오류가 발생했습니다.');
+      setRegistering(false);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      completeVerification({ id: data[0].id, name: data[0].name });
+    }
+    setRegistering(false);
   };
 
   const completeVerification = (ev) => {
@@ -141,6 +209,12 @@ export default function InviteLandingPage() {
     }
 
     navigate(`/eval/project/${token}`);
+  };
+
+  const handlePhoneInput = (e) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 11);
+    setRegPhone(formatPhone(digits));
+    setRegError('');
   };
 
   if (status === 'loading') return <LoadingSpinner message="초대 확인 중..." />;
@@ -177,6 +251,57 @@ export default function InviteLandingPage() {
               />
               {verifyError && <p className={styles.errorDesc}>{verifyError}</p>}
               <Button onClick={handleVerifyPhone} loading={verifying}>확인</Button>
+            </div>
+          </>
+        )}
+
+        {status === 'need_access_code' && (
+          <>
+            <h2 className={styles.projectName}>{project?.name}</h2>
+            <p className={styles.desc}>설문에 참여하려면 비밀번호를 입력해주세요.</p>
+            <div className={styles.verifyForm}>
+              <input
+                type="tel"
+                maxLength={4}
+                value={accessCode}
+                onChange={(e) => {
+                  setAccessCode(e.target.value.replace(/\D/g, '').slice(0, 4));
+                  setAccessError('');
+                }}
+                placeholder="비밀번호 4자리"
+                className={styles.phoneInput}
+                autoFocus
+                onKeyDown={(e) => { if (e.key === 'Enter') handleVerifyAccessCode(); }}
+              />
+              {accessError && <p className={styles.errorDesc}>{accessError}</p>}
+              <Button onClick={handleVerifyAccessCode} loading={verifying}>확인</Button>
+            </div>
+          </>
+        )}
+
+        {status === 'need_registration' && (
+          <>
+            <h2 className={styles.projectName}>{project?.name}</h2>
+            <p className={styles.desc}>참여자 정보를 입력해주세요.</p>
+            <div className={styles.verifyForm}>
+              <input
+                type="text"
+                value={regName}
+                onChange={(e) => { setRegName(e.target.value); setRegError(''); }}
+                placeholder="이름"
+                className={styles.regInput}
+                autoFocus
+              />
+              <input
+                type="tel"
+                value={regPhone}
+                onChange={handlePhoneInput}
+                placeholder="전화번호 (010-0000-0000)"
+                className={styles.regInput}
+                onKeyDown={(e) => { if (e.key === 'Enter') handlePublicRegister(); }}
+              />
+              {regError && <p className={styles.errorDesc}>{regError}</p>}
+              <Button onClick={handlePublicRegister} loading={registering}>참여하기</Button>
             </div>
           </>
         )}

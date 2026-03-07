@@ -1,5 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import { useSurveyQuestions, useSurveyConfig } from '../hooks/useSurvey';
 import { useToast } from '../contexts/ToastContext';
 import ProjectLayout from '../components/layout/ProjectLayout';
@@ -13,6 +14,7 @@ const STEPS = [
   { key: 'consent',     num: 2, label: '개인정보 동의 안내' },
   { key: 'demographic', num: 3, label: '인구통계학적 설문' },
   { key: 'custom',      num: 4, label: '연구자 설문항목' },
+  { key: 'distribute',  num: 5, label: '공개 배포 설정' },
 ];
 
 const QUESTION_TYPES = [
@@ -213,6 +215,9 @@ export default function SurveyBuilderPage() {
             onAdd={handleAddQuestion}
             onLoadTemplate={handleLoadTemplate}
           />
+        )}
+        {step === 4 && (
+          <StepDistribute projectId={id} config={config} savingField={savingField} onSave={saveConfig} toast={toast} />
         )}
       </div>
 
@@ -650,6 +655,129 @@ function QuestionCard({ question, index, total, isActive, onActivate, onUpdate, 
         )}
       </div>
     </div>
+  );
+}
+
+/* ============================================
+   STEP 5: 공개 배포 설정
+   ============================================ */
+function StepDistribute({ projectId, config, savingField, onSave, toast }) {
+  const [code, setCode] = useState(config.access_code || '');
+  const [enabled, setEnabled] = useState(config.public_access_enabled || false);
+  const [saving, setSaving] = useState(false);
+  const qrRef = useRef(null);
+
+  const inviteUrl = `${window.location.origin}${window.location.pathname}#/eval/invite/${projectId}`;
+
+  const handleToggle = async (e) => {
+    const val = e.target.checked;
+    setEnabled(val);
+    setSaving(true);
+    try {
+      await onSave({ public_access_enabled: val });
+    } catch (err) {
+      toast.error('저장 실패: ' + err.message);
+    }
+    setSaving(false);
+  };
+
+  const handleCodeBlur = async () => {
+    if (code === config.access_code) return;
+    setSaving(true);
+    try {
+      await onSave({ access_code: code });
+    } catch (err) {
+      toast.error('저장 실패: ' + err.message);
+    }
+    setSaving(false);
+  };
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(inviteUrl);
+    toast.success('URL이 복사되었습니다.');
+  };
+
+  const handleDownloadQR = () => {
+    const svgEl = qrRef.current?.querySelector('svg');
+    if (!svgEl) return;
+    const svgData = new XMLSerializer().serializeToString(svgEl);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.width * 2;
+      canvas.height = img.height * 2;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const a = document.createElement('a');
+      a.download = 'qr-code.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+    };
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+
+  return (
+    <>
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <div className={styles.cardHeaderLeft}>
+            <span className={styles.cardBadge}>STEP 5</span>
+            <h2 className={styles.cardTitle}>공개 배포 설정</h2>
+          </div>
+          {saving && <span className={styles.savedMsg}>저장 중...</span>}
+        </div>
+        <p className={styles.cardDesc}>
+          QR 코드와 4자리 비밀번호를 사용하여 불특정 다수에게 설문을 배포할 수 있습니다.
+          참여자는 이름과 전화번호를 입력하면 자동으로 평가자로 등록됩니다.
+        </p>
+
+        {/* 토글 */}
+        <label className={styles.distributeToggle}>
+          <input type="checkbox" checked={enabled} onChange={handleToggle} />
+          <span className={styles.toggleLabel}>공개 접근 활성화</span>
+        </label>
+      </div>
+
+      {enabled && (
+        <>
+          {/* 비밀번호 섹션 */}
+          <div className={styles.card}>
+            <h3 className={styles.distributeSectionTitle}>접근 비밀번호 (4자리 숫자)</h3>
+            <p className={styles.cardDesc}>참여자가 설문에 접근할 때 입력해야 하는 비밀번호입니다.</p>
+            <input
+              type="text"
+              maxLength={4}
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+              onBlur={handleCodeBlur}
+              placeholder="0000"
+              className={styles.codeInput}
+            />
+            {code.length > 0 && code.length < 4 && (
+              <p className={styles.codeWarning}>4자리 숫자를 입력해주세요.</p>
+            )}
+          </div>
+
+          {/* QR 코드 섹션 */}
+          {code.length === 4 && (
+            <div className={styles.card}>
+              <h3 className={styles.distributeSectionTitle}>QR 코드</h3>
+              <p className={styles.cardDesc}>아래 QR 코드를 스캔하면 설문 페이지로 이동합니다.</p>
+              <div className={styles.qrContainer} ref={qrRef}>
+                <QRCodeSVG value={inviteUrl} size={200} level="M" includeMargin />
+              </div>
+              <div className={styles.urlPreview}>{inviteUrl}</div>
+              <div className={styles.qrActions}>
+                <button className={styles.qrBtn} onClick={handleCopyUrl}>URL 복사</button>
+                <button className={styles.qrBtn} onClick={handleDownloadQR}>QR 이미지 다운로드</button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </>
   );
 }
 

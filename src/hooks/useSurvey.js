@@ -129,7 +129,12 @@ export function useSurveyResponses(projectId) {
  * 프로젝트 연구 소개/동의서 설정
  */
 export function useSurveyConfig(projectId) {
-  const [config, setConfig] = useState({ research_description: '', consent_text: '' });
+  const [config, setConfig] = useState({
+    research_description: '',
+    consent_text: '',
+    access_code: '',
+    public_access_enabled: false,
+  });
   const [loading, setLoading] = useState(!!projectId);
 
   const fetchConfig = useCallback(async () => {
@@ -137,13 +142,15 @@ export function useSurveyConfig(projectId) {
     setLoading(true);
     const { data, error } = await supabase
       .from('projects')
-      .select('research_description, consent_text')
+      .select('research_description, consent_text, access_code, public_access_enabled')
       .eq('id', projectId)
       .single();
     if (!error && data) {
       setConfig({
         research_description: data.research_description || '',
         consent_text: data.consent_text || '',
+        access_code: data.access_code || '',
+        public_access_enabled: data.public_access_enabled || false,
       });
     }
     setLoading(false);
