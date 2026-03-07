@@ -11,6 +11,7 @@ import {
   getProfile,
   updateProfile as authUpdateProfile,
 } from '../utils/auth';
+import { clearAllApiKeys } from '../lib/aiService';
 
 export const AuthContext = createContext(null);
 
@@ -148,6 +149,7 @@ export function AuthProvider({ children }) {
 
   // 로그아웃
   const signOut = useCallback(async () => {
+    clearAllApiKeys();
     await authSignOut();
     dispatch({ type: 'SIGN_OUT' });
   }, []);

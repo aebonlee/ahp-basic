@@ -44,6 +44,10 @@ export function hasApiKey(provider) {
   return !!localStorage.getItem(STORAGE_KEYS[provider]);
 }
 
+export function clearAllApiKeys() {
+  Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+}
+
 // ─── Streaming Chat ───────────────────────────────────────
 
 /**

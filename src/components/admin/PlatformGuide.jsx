@@ -152,6 +152,35 @@ const SECTIONS = [
     ],
     tip: 'IRB 신청 시 본 플랫폼의 개인정보 보호 기능을 명시하면 심의에 도움이 됩니다.',
   },
+  {
+    id: 'section-6',
+    step: 6,
+    label: 'AI 분석도구',
+    desc: 'AI를 활용한 AHP 결과 심층 분석',
+    cards: [
+      {
+        title: 'AI 분석도구 활용',
+        body: 'AHP 결과 데이터를 AI에 전달하여 심층 분석 리포트를 생성합니다.',
+        items: [
+          'ChatGPT, Claude, 커스텀 챗봇 3종 지원',
+          '6종 분석 템플릿 (종합분석, 기준해석, 대안분석, 일관성, 보고서, 민감도)',
+          '자유 질문으로 맞춤 분석 가능',
+          'SSE 스트리밍으로 실시간 응답 표시',
+        ],
+      },
+      {
+        title: 'API 키 관리',
+        body: '보안을 위해 API 키는 1회성으로 관리됩니다.',
+        items: [
+          'API 키는 브라우저 localStorage에만 저장 (서버 전송 없음)',
+          '로그아웃 시 모든 API 키 자동 삭제',
+          '매 로그인 시 새로 등록하여 사용',
+          'OpenAI, Anthropic 각각 별도 키 관리',
+        ],
+      },
+    ],
+    tip: 'API 키는 각 AI 제공사 웹사이트에서 발급받을 수 있습니다. 로그아웃하면 자동 삭제되므로 안심하고 사용하세요.',
+  },
 ];
 
 export default function PlatformGuide() {
