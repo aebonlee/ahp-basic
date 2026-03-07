@@ -3,7 +3,19 @@
     "allow": [
       "Bash(echo:*)",
       "WebFetch(domain:www.dreamitbiz.com)",
-      "WebFetch(domain:hcmgdztsgjvzcyxyayaj.supabase.co)"
+      "WebFetch(domain:hcmgdztsgjvzcyxyayaj.supabase.co)",
+      "Bash(npm run build:*)",
+      "WebSearch",
+      "WebFetch(domain:imakeit.kr)",
+      "Bash(npx vite build)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npx gh-pages:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git stash pop:*)",
+      "Bash(gh run list:*)"
     ]
   }
 }
