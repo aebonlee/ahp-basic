@@ -56,9 +56,10 @@ export default function ForgotPasswordPage() {
             가입 시 사용한 이메일을 입력하시면 비밀번호 재설정 링크를 보내드립니다.
           </p>
 
-          <label className={styles.field}>
+          <label className={styles.field} htmlFor="resetEmail">
             <span>이메일</span>
             <input
+              id="resetEmail"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

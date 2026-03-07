@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import Button from '../common/Button';
 import styles from './DirectInputPanel.module.css';
@@ -7,19 +7,7 @@ export default function DirectInputPanel({ projectId, evaluatorId, criterionId, 
   const [values, setValues] = useState({});
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadValues();
-  }, [criterionId]);
-
-  const isComplete = items.length > 0 && items.every(item => values[item.id] > 0);
-
-  useEffect(() => {
-    if (onValidationChange) {
-      onValidationChange(criterionId, isComplete);
-    }
-  }, [isComplete, criterionId]);
-
-  const loadValues = async () => {
+  const loadValues = useCallback(async () => {
     const { data } = await supabase
       .from('direct_input_values')
       .select('*')
@@ -31,7 +19,19 @@ export default function DirectInputPanel({ projectId, evaluatorId, criterionId, 
       map[d.item_id] = d.value;
     }
     setValues(map);
-  };
+  }, [projectId, evaluatorId, criterionId]);
+
+  useEffect(() => {
+    loadValues();
+  }, [loadValues]);
+
+  const isComplete = items.length > 0 && items.every(item => values[item.id] > 0);
+
+  useEffect(() => {
+    if (onValidationChange) {
+      onValidationChange(criterionId, isComplete);
+    }
+  }, [isComplete, criterionId, onValidationChange]);
 
   const handleChange = (itemId, value) => {
     const num = parseFloat(value);
@@ -41,17 +41,19 @@ export default function DirectInputPanel({ projectId, evaluatorId, criterionId, 
 
   const handleSave = async () => {
     setSaving(true);
-    for (const [itemId, value] of Object.entries(values)) {
-      await supabase
-        .from('direct_input_values')
-        .upsert({
-          project_id: projectId,
-          evaluator_id: evaluatorId,
-          criterion_id: criterionId,
-          item_id: itemId,
-          value,
-        }, { onConflict: 'project_id,evaluator_id,criterion_id,item_id' });
-    }
+    await Promise.all(
+      Object.entries(values).map(([itemId, value]) =>
+        supabase
+          .from('direct_input_values')
+          .upsert({
+            project_id: projectId,
+            evaluator_id: evaluatorId,
+            criterion_id: criterionId,
+            item_id: itemId,
+            value,
+          }, { onConflict: 'project_id,evaluator_id,criterion_id,item_id' })
+      )
+    );
     setSaving(false);
   };
 

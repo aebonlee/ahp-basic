@@ -15,7 +15,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #0046C8;
+  color: var(--color-brand);
   margin-bottom: 20px;
   background: #fff;
 }
@@ -49,7 +49,7 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #0046C8;
+  color: var(--color-brand);
   margin-bottom: 12px;
 }
 
@@ -142,9 +142,9 @@
 }
 
 /* Survey feature colors */
-.featureList > :nth-child(1) .featureNum { background: #eff6ff; color: #0046C8; }
-.featureList > :nth-child(1) .featureTag { background: #eff6ff; color: #0046C8; }
-.featureList > :nth-child(1) .featureDivider { background: linear-gradient(90deg, #0046C8, transparent); }
+.featureList > :nth-child(1) .featureNum { background: #eff6ff; color: var(--color-brand); }
+.featureList > :nth-child(1) .featureTag { background: #eff6ff; color: var(--color-brand); }
+.featureList > :nth-child(1) .featureDivider { background: linear-gradient(90deg, var(--color-brand), transparent); }
 
 .featureList > :nth-child(2) .featureNum { background: #f5f3ff; color: #7c3aed; }
 .featureList > :nth-child(2) .featureTag { background: #f5f3ff; color: #7c3aed; }
@@ -278,7 +278,7 @@
 }
 
 /* Highlight colors */
-.highlightItem:nth-child(1) .highlightValue { color: #0046C8; }
+.highlightItem:nth-child(1) .highlightValue { color: var(--color-brand); }
 .highlightItem:nth-child(2) .highlightValue { color: #7c3aed; }
 .highlightItem:nth-child(3) .highlightValue { color: #0891b2; }
 .highlightItem:nth-child(4) .highlightValue { color: #059669; }
@@ -309,7 +309,7 @@
   padding: 14px 32px;
   border: none;
   border-radius: 12px;
-  background: #0046C8;
+  background: var(--color-brand);
   color: #fff;
   font-size: 0.95rem;
   font-weight: 600;
@@ -319,7 +319,7 @@
 }
 
 .ctaBtn:hover {
-  background: #002E8A;
+  background: var(--color-brand-dark);
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(0, 70, 200, 0.25);
 }

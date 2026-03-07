@@ -15,7 +15,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #0046C8;
+  color: var(--color-brand);
   margin-bottom: 20px;
   background: #fff;
 }
@@ -66,7 +66,7 @@
   font-size: 2rem;
   font-weight: 800;
   letter-spacing: -0.04em;
-  color: #0046C8;
+  color: var(--color-brand);
   line-height: 1;
 }
 
@@ -106,7 +106,7 @@
   display: inline-block;
   padding: 5px 14px;
   background: #f0f4fa;
-  color: #0046C8;
+  color: var(--color-brand);
   font-size: 0.78rem;
   font-weight: 600;
   border-radius: 50px;
@@ -140,7 +140,7 @@
   padding: 14px 32px;
   border: none;
   border-radius: 12px;
-  background: #0046C8;
+  background: var(--color-brand);
   color: #fff;
   font-size: 0.95rem;
   font-weight: 600;
@@ -150,7 +150,7 @@
 }
 
 .ctaBtn:hover {
-  background: #002E8A;
+  background: var(--color-brand-dark);
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(0, 70, 200, 0.25);
 }

@@ -363,6 +363,8 @@ export default function HierarchyCanvas({
     <div
       className={`${styles.canvasWrapper} ${paperMode ? styles.paperCanvas : ''} ${draggedNodeId ? styles.draggingCanvas : ''}`}
       ref={wrapperRef}
+      role="application"
+      aria-label="AHP 계층 모델 캔버스"
       onClick={handleCanvasClick}
       onContextMenu={handleCanvasContextMenu}
     >
@@ -371,7 +373,7 @@ export default function HierarchyCanvas({
         style={{ width: canvasWidth, height: canvasHeight }}
       >
         {/* SVG layer */}
-        <svg className={styles.svgLayer} width={canvasWidth} height={canvasHeight}>
+        <svg className={styles.svgLayer} width={canvasWidth} height={canvasHeight} aria-hidden="true">
           {renderConnections()}
           {separatorX && (
             <line x1={separatorX} y1={40} x2={separatorX} y2={canvasHeight - 40} className={sepClass} />
@@ -423,11 +425,13 @@ export default function HierarchyCanvas({
         <div
           className={styles.contextMenu}
           style={{ left: contextMenu.x, top: contextMenu.y }}
+          role="menu"
           onClick={(e) => e.stopPropagation()}
         >
           {contextMenuItems.map((item, i) => (
             <button
               key={i}
+              role="menuitem"
               className={`${styles.menuItem} ${item.danger ? styles.menuItemDanger : ''}`}
               onClick={() => { item.action(); setContextMenu(null); }}
             >

@@ -99,7 +99,7 @@
 }
 
 .failRow {
-  background: #fef2f2;
+  background: var(--color-error-bg);
 }
 
 .passLabel { color: var(--color-success); font-weight: 600; }
@@ -192,7 +192,7 @@
 }
 
 .sigProgressFill[data-complete] {
-  background: linear-gradient(90deg, var(--color-success), #059669);
+  background: linear-gradient(90deg, var(--color-success), var(--color-success));
 }
 
 .sigWarn {

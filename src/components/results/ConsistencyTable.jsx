@@ -29,6 +29,9 @@ export default function ConsistencyTable({ results, onNavigateToPage }) {
                 key={page.parentId}
                 className={!pass ? styles.failRow : ''}
                 onClick={() => onNavigateToPage(idx)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onNavigateToPage(idx); } }}
+                tabIndex={0}
+                role="button"
                 style={{ cursor: 'pointer' }}
               >
                 <td>{page.parentName}</td>

@@ -26,11 +26,7 @@ export default function EvaluatorMainPage() {
 
   const isAdminPreview = isAdmin && mode === USER_MODE.EVALUATOR;
 
-  useEffect(() => {
-    loadAssignedProjects();
-  }, [user]);
-
-  const loadAssignedProjects = async () => {
+  const loadAssignedProjects = useCallback(async () => {
     if (!user) return;
 
     // 1) 평가자로 배정된 프로젝트 (user_id 또는 email 매칭)
@@ -81,12 +77,48 @@ export default function EvaluatorMainPage() {
 
     setProjects(enriched);
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    loadAssignedProjects();
+  }, [loadAssignedProjects]);
 
   const handleReturnToAdmin = useCallback(() => {
     setMode(USER_MODE.ADMIN);
     navigate('/admin');
   }, [setMode, navigate]);
+
+  const handleStartEval = useCallback(async (p) => {
+    if (!p.hasEvaluator) {
+      const { error: insertErr } = await supabase.from('evaluators').insert({
+        project_id: p.id,
+        user_id: user.id,
+        name: user.user_metadata?.full_name || user.email,
+        email: user.email,
+      });
+      if (insertErr) { toast.error('평가자 등록 실패: ' + insertErr.message); return; }
+    }
+    const { data: surveyQs } = await supabase
+      .from('survey_questions')
+      .select('id')
+      .eq('project_id', p.id)
+      .limit(1);
+    const { data: projData } = await supabase
+      .from('projects')
+      .select('research_description, consent_text')
+      .eq('id', p.id)
+      .single();
+    const hasSurvey = (surveyQs && surveyQs.length > 0) ||
+      (projData?.research_description) ||
+      (projData?.consent_text);
+    if (hasSurvey) {
+      navigate(`/eval/project/${p.id}/pre-survey`);
+    } else if (p.eval_method === EVAL_METHOD.DIRECT_INPUT) {
+      navigate(`/eval/project/${p.id}/direct`);
+    } else {
+      navigate(`/eval/project/${p.id}`);
+    }
+  }, [user, navigate, toast]);
 
   const activeProjects = projects.filter(p => !p.completed);
   const completedProjects = projects.filter(p => p.completed);
@@ -162,38 +194,7 @@ export default function EvaluatorMainPage() {
                     <h3 className={styles.cardTitle}>{p.name}</h3>
                     {p.description && <p className={styles.cardDesc}>{p.description}</p>}
                     <div className={styles.cardFooter}>
-                      <Button onClick={async () => {
-                        if (!p.hasEvaluator) {
-                          const { error: insertErr } = await supabase.from('evaluators').insert({
-                            project_id: p.id,
-                            user_id: user.id,
-                            name: user.user_metadata?.full_name || user.email,
-                            email: user.email,
-                          });
-                          if (insertErr) { toast.error('평가자 등록 실패: ' + insertErr.message); return; }
-                        }
-                        // 설문이 설정된 프로젝트인지 확인
-                        const { data: surveyQs } = await supabase
-                          .from('survey_questions')
-                          .select('id')
-                          .eq('project_id', p.id)
-                          .limit(1);
-                        const { data: projData } = await supabase
-                          .from('projects')
-                          .select('research_description, consent_text')
-                          .eq('id', p.id)
-                          .single();
-                        const hasSurvey = (surveyQs && surveyQs.length > 0) ||
-                          (projData?.research_description) ||
-                          (projData?.consent_text);
-                        if (hasSurvey) {
-                          navigate(`/eval/project/${p.id}/pre-survey`);
-                        } else if (p.eval_method === EVAL_METHOD.DIRECT_INPUT) {
-                          navigate(`/eval/project/${p.id}/direct`);
-                        } else {
-                          navigate(`/eval/project/${p.id}`);
-                        }
-                      }}>
+                      <Button onClick={() => handleStartEval(p)}>
                         평가 시작하기
                       </Button>
                     </div>

@@ -7,7 +7,7 @@
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid var(--color-border);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -40,7 +40,7 @@
 }
 
 .logoMark {
-  background: linear-gradient(135deg, #0046C8 0%, #002E8A 100%);
+  background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-dark) 100%);
   color: #fff;
   font-size: 1rem;
   font-weight: 800;
@@ -53,7 +53,7 @@
 .logoText {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #111827;
+  color: var(--color-text);
   letter-spacing: -0.02em;
 }
 
@@ -70,7 +70,7 @@
 .navLink {
   display: block;
   padding: 12px 14px;
-  color: #111827;
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -92,14 +92,14 @@
   left: 14px;
   right: 14px;
   height: 3px;
-  background: #0046C8;
+  background: var(--color-brand);
   border-radius: 2px;
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
 
 .navLink:hover {
-  color: #0046C8;
+  color: var(--color-brand);
 }
 
 .navLink:hover::after {
@@ -107,7 +107,7 @@
 }
 
 .navLink.active {
-  color: #0046C8;
+  color: var(--color-brand);
   font-weight: 600;
 }
 
@@ -127,7 +127,7 @@
   justify-content: center;
   padding: 7px 18px;
   border-radius: 20px;
-  background: #0046C8;
+  background: var(--color-brand);
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -139,7 +139,7 @@
 }
 
 .navBtn:hover {
-  background: #002E8A;
+  background: var(--color-brand-dark);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 70, 200, 0.3);
 }
@@ -154,7 +154,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #4B5563;
+  color: var(--color-text-light);
   font-size: 13px;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -164,8 +164,8 @@
 }
 
 .navBtnGhost:hover {
-  background: #f3f4f6;
-  color: #0046C8;
+  background: var(--color-bg-alt);
+  color: var(--color-brand);
 }
 
 /* Hamburger for mobile */
@@ -177,7 +177,7 @@
   border: none;
   cursor: pointer;
   padding: 8px;
-  color: #111827;
+  color: var(--color-text);
 }
 
 @media (min-width: 1024px) {
@@ -199,7 +199,7 @@
     left: 0;
     right: 0;
     background: #fff;
-    border-top: 1px solid #E5E7EB;
+    border-top: 1px solid var(--color-border);
     padding: 12px 0;
     flex-direction: column;
     z-index: 99;
@@ -212,7 +212,7 @@
   .mobileLink {
     display: block;
     padding: 12px 24px;
-    color: #111827;
+    color: var(--color-text);
     font-size: 15px;
     font-weight: 500;
     text-decoration: none;
@@ -222,12 +222,12 @@
   .mobileLink:hover,
   .mobileLink.active {
     background: rgba(0, 70, 200, 0.04);
-    color: #0046C8;
+    color: var(--color-brand);
   }
 
   .mobileDivider {
     height: 1px;
-    background: #E5E7EB;
+    background: var(--color-border);
     margin: 8px 24px;
   }
 
@@ -246,19 +246,19 @@
 
   .mobileBtnPrimary {
     composes: mobileBtn;
-    background: #0046C8;
+    background: var(--color-brand);
     color: #fff;
   }
 
   .mobileBtnPrimary:hover {
-    background: #002E8A;
+    background: var(--color-brand-dark);
   }
 
   .mobileBtnGhost {
     composes: mobileBtn;
     background: transparent;
-    color: #0046C8;
-    border: 1px solid #0046C8;
+    color: var(--color-brand);
+    border: 1px solid var(--color-brand);
     margin-bottom: 8px;
   }
 }

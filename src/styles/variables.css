@@ -43,6 +43,31 @@
   --color-feature-3: #0891b2;  --color-feature-3-bg: #ecfeff;  --color-feature-3-light: #06b6d4;
   --color-feature-4: #059669;  --color-feature-4-bg: #ecfdf5;  --color-feature-4-light: #10b981;
 
+  /* ─── Public Page Brand ─── */
+  --color-brand: #0046C8;
+  --color-brand-dark: #002E8A;
+
+  /* Error */
+  --color-error: #dc2626;
+  --color-error-bg: #fef2f2;
+  --color-error-text: #b91c1c;
+  --color-error-border: #fecaca;
+
+  /* Warning */
+  --color-warning-bg: #fffbeb;
+  --color-warning-text: #92400e;
+  --color-warning-border: #fde68a;
+
+  /* Success */
+  --color-success-bg: #ecfdf5;
+  --color-success-text: #065f46;
+  --color-success-border: #a7f3d0;
+
+  /* Info */
+  --color-info-bg: #e8f4fd;
+  --color-info-text: #1a6fa8;
+  --color-info-border: #93c5fd;
+
   /* ─── UI Foundation ─── */
   --color-bg: #f8fafc;
   --color-bg-alt: #f1f5f9;
@@ -143,6 +168,31 @@
   --color-feature-2: #a78bfa;  --color-feature-2-bg: rgba(124, 58, 237, 0.15);  --color-feature-2-light: #c4b5fd;
   --color-feature-3: #22d3ee;  --color-feature-3-bg: rgba(8, 145, 178, 0.15);  --color-feature-3-light: #67e8f9;
   --color-feature-4: #34d399;  --color-feature-4-bg: rgba(5, 150, 105, 0.15);  --color-feature-4-light: #6ee7b7;
+
+  /* Public Page Brand (Dark) */
+  --color-brand: #60a5fa;
+  --color-brand-dark: #93c5fd;
+
+  /* Error (Dark) */
+  --color-error: #f87171;
+  --color-error-bg: rgba(220, 38, 38, 0.1);
+  --color-error-text: #fca5a5;
+  --color-error-border: rgba(220, 38, 38, 0.3);
+
+  /* Warning (Dark) */
+  --color-warning-bg: rgba(245, 158, 11, 0.1);
+  --color-warning-text: #fcd34d;
+  --color-warning-border: rgba(245, 158, 11, 0.3);
+
+  /* Success (Dark) */
+  --color-success-bg: rgba(5, 150, 105, 0.1);
+  --color-success-text: #6ee7b7;
+  --color-success-border: rgba(5, 150, 105, 0.3);
+
+  /* Info (Dark) */
+  --color-info-bg: rgba(59, 130, 246, 0.1);
+  --color-info-text: #93c5fd;
+  --color-info-border: rgba(59, 130, 246, 0.3);
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);

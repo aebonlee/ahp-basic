@@ -31,17 +31,18 @@ export default function ParticipantForm({ evaluator, onSave, onClose }) {
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       {error && <div className={styles.error}>{error}</div>}
-      <label className={styles.field}>
+      <label className={styles.field} htmlFor="participantEmail">
         <span>이메일</span>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" autoFocus />
+        <input id="participantEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" autoFocus />
       </label>
-      <label className={styles.field}>
+      <label className={styles.field} htmlFor="participantName">
         <span>이름</span>
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="이름" />
+        <input id="participantName" value={name} onChange={(e) => setName(e.target.value)} placeholder="이름" />
       </label>
-      <label className={styles.field}>
+      <label className={styles.field} htmlFor="participantPhone">
         <span>전화번호</span>
         <input
+          id="participantPhone"
           type="tel"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(formatPhone(e.target.value))}

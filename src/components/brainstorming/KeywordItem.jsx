@@ -12,9 +12,22 @@ export default function KeywordItem({ item, color, onUpdate, onDelete, onDragSta
     setEditing(false);
   };
 
+  const handleKeyDown = (e) => {
+    if (editing) return;
+    if (e.key === 'Enter' || e.key === 'F2') {
+      e.preventDefault();
+      setEditing(true);
+    } else if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
+      onDelete(item.id);
+    }
+  };
+
   return (
     <div
       className={styles.item}
+      role="listitem"
+      tabIndex={0}
       draggable={!editing}
       onDragStart={(e) => {
         e.dataTransfer.setData('text/plain', item.id);
@@ -27,6 +40,7 @@ export default function KeywordItem({ item, color, onUpdate, onDelete, onDragSta
         onDrop(item.id);
       }}
       onDoubleClick={() => setEditing(true)}
+      onKeyDown={handleKeyDown}
     >
       {editing ? (
         <input
@@ -40,7 +54,7 @@ export default function KeywordItem({ item, color, onUpdate, onDelete, onDragSta
       ) : (
         <>
           <span className={styles.text} style={{ borderLeftColor: color }}>{item.text}</span>
-          <button className={styles.deleteBtn} onClick={() => onDelete(item.id)}>&times;</button>
+          <button className={styles.deleteBtn} onClick={() => onDelete(item.id)} aria-label={`${item.text} 삭제`}>&times;</button>
         </>
       )}
     </div>

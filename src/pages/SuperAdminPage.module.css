@@ -169,7 +169,7 @@
 }
 
 .domainBadge[data-site="ahp"] {
-  background: #dbeafe;
+  background: var(--color-primary-surface);
   color: #1d4ed8;
 }
 

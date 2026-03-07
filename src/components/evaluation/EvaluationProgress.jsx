@@ -26,7 +26,14 @@ export default function EvaluationProgress({ current, total, pageSequence, compa
           ({Math.round(pairPercent)}%)
         </span>
       </div>
-      <div className={styles.bar}>
+      <div
+        className={styles.bar}
+        role="progressbar"
+        aria-valuenow={Math.round(pairPercent)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`평가 진행률 ${Math.round(pairPercent)}%`}
+      >
         <div className={styles.fill} style={{ width: `${pairPercent}%` }} />
       </div>
     </div>

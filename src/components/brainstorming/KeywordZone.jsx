@@ -40,6 +40,8 @@ export default function KeywordZone({ zone, items, onAdd, onUpdate, onDelete, on
     <div
       className={`${styles.zone} ${isDragging ? styles.dropTarget : ''}`}
       style={{ borderTopColor: zone.color }}
+      role="region"
+      aria-label={`${zone.label} 영역`}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => { e.preventDefault(); onDrop(null); }}
     >
@@ -48,7 +50,7 @@ export default function KeywordZone({ zone, items, onAdd, onUpdate, onDelete, on
         <span className={styles.count}>{items.length}</span>
       </div>
 
-      <div className={styles.items}>
+      <div className={styles.items} role="list">
         {items.map(item => (
           <KeywordItem
             key={item.id}
@@ -64,7 +66,9 @@ export default function KeywordZone({ zone, items, onAdd, onUpdate, onDelete, on
 
       {showInput ? (
         <div className={styles.inputArea}>
+          <label className="srOnly" htmlFor={`keyword-input-${zone.key}`}>{zone.label} 키워드 입력</label>
           <input
+            id={`keyword-input-${zone.key}`}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}

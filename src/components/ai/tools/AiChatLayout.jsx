@@ -5,7 +5,7 @@ import AiProviderSelector from '../AiProviderSelector';
 import AiApiKeyModal from '../AiApiKeyModal';
 import AiChatMessage from '../AiChatMessage';
 import LoadingSpinner from '../../common/LoadingSpinner';
-import styles from '../../../pages/AiAnalysisPage.module.css';
+import styles from './AiChatLayout.module.css';
 
 export default function AiChatLayout({
   projectId,

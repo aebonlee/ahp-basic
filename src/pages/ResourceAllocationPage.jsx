@@ -30,7 +30,7 @@ const UNIT_OPTIONS = [
 /**
  * Calculate global weight of a criterion through the hierarchy.
  */
-function getCriteriaGlobal(criteria, criterionId, comparisons, goalId) {
+function getCriteriaGlobalFromComparisons(criteria, criterionId, comparisons, goalId) {
   const criterion = criteria.find(c => c.id === criterionId);
   if (!criterion) return 0;
 
@@ -184,7 +184,7 @@ export default function ResourceAllocationPage() {
       const contributions = [];
 
       for (const leaf of leafCriteria) {
-        const criteriaGlobal = getCriteriaGlobal(criteria, leaf.id, comparisons, id);
+        const criteriaGlobal = getCriteriaGlobalFromComparisons(criteria, leaf.id, comparisons, id);
 
         const altValues = {};
         for (let i = 0; i < altIds.length; i++) {

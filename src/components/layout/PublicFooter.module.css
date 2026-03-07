@@ -3,7 +3,7 @@
    ============================================ */
 
 .footer {
-  background: linear-gradient(180deg, #111827 0%, #0A0F1A 100%);
+  background: linear-gradient(180deg, var(--color-dark) 0%, #0A0F1A 100%);
   color: #fff;
   padding: 80px 0 32px;
   margin-top: 0;
@@ -136,7 +136,7 @@
 
 .footerFamily select option {
   background: #1f2937;
-  color: #e5e7eb;
+  color: var(--color-text-light);
 }
 
 /* ── 하단 저작권 ── */

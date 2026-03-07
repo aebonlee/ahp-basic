@@ -44,7 +44,7 @@ export default function ProjectLayout({ children, projectName }) {
         </div>
 
         {/* ─── Main ─── */}
-        <main className={styles.content}>
+        <main id="main-content" className={styles.content}>
           {children}
         </main>
 

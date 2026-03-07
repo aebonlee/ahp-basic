@@ -346,18 +346,24 @@ function QuestionInput({ question, value, onChange }) {
 
     case 'likert':
       return (
-        <div className={styles.likertGroup}>
+        <div className={styles.likertGroup} role="radiogroup" aria-label={question.question_text}>
           {options.map((opt, i) => (
-            <div
+            <label
               key={i}
               className={`${styles.likertOption}${value === opt ? ` ${styles.selected}` : ''}`}
-              onClick={() => onChange(opt)}
             >
-              <div className={styles.likertCircle}>
+              <input
+                type="radio"
+                className={styles.srOnly}
+                name={`likert-${question.id}`}
+                checked={value === opt}
+                onChange={() => onChange(opt)}
+              />
+              <div className={styles.likertCircle} aria-hidden="true">
                 {value === opt && <div className={styles.likertCheck} />}
               </div>
               <span>{opt}</span>
-            </div>
+            </label>
           ))}
         </div>
       );

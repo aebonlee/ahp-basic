@@ -38,9 +38,10 @@ export default function ProjectForm({ project, onClose }) {
     <form className={styles.form} onSubmit={handleSubmit}>
       {error && <div className={styles.error}>{error}</div>}
 
-      <label className={styles.field}>
+      <label className={styles.field} htmlFor="projectName">
         <span>프로젝트 이름 <HelpButton helpKey="projectName" /></span>
         <input
+          id="projectName"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="예: 대학원생의 연구역량"
@@ -48,9 +49,10 @@ export default function ProjectForm({ project, onClose }) {
         />
       </label>
 
-      <label className={styles.field}>
+      <label className={styles.field} htmlFor="projectDesc">
         <span>설명 <HelpButton helpKey="projectDesc" /></span>
         <textarea
+          id="projectDesc"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="프로젝트 설명"
@@ -58,9 +60,9 @@ export default function ProjectForm({ project, onClose }) {
         />
       </label>
 
-      <label className={styles.field}>
+      <label className={styles.field} htmlFor="evalMethod">
         <span>평가방법 <HelpButton helpKey="evalMethod" /></span>
-        <select value={evalMethod} onChange={(e) => setEvalMethod(Number(e.target.value))}>
+        <select id="evalMethod" value={evalMethod} onChange={(e) => setEvalMethod(Number(e.target.value))}>
           {Object.entries(EVAL_METHOD).map(([key, val]) => (
             <option key={val} value={val}>{EVAL_METHOD_LABELS[val]}</option>
           ))}

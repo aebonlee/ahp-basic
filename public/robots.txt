@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# SPA: HashRouter 사용 — 크롤러는 index.html만 접근
+Sitemap: https://ahp-basic.dreamitbiz.com/sitemap.xml

@@ -153,31 +153,38 @@ export default function BrainstormingBoard({ projectId }) {
           className={styles.importBtn}
           onClick={handleImportToModel}
           disabled={importing || !hasImportableItems}
+          aria-busy={importing}
         >
           {importing ? '반영 중...' : '모델에 반영하기'}
         </button>
         {!hasImportableItems && (
           <span className={styles.importHint}>대안 또는 판단 기준을 먼저 추가하세요</span>
         )}
-        {result && !result.error && (
-          <span className={styles.importResult}>
-            기준 {result.importedCriteria}개, 대안 {result.importedAlternatives}개 반영 완료
-            {result.skipped > 0 && ` (중복 ${result.skipped}개 스킵)`}
-            <button className={styles.dismissBtn} onClick={clearResult}>✕</button>
-          </span>
-        )}
-        {result?.error && (
-          <span className={styles.importError}>
-            오류: {result.error}
-            <button className={styles.dismissBtn} onClick={clearResult}>✕</button>
-          </span>
-        )}
+        <span aria-live="polite">
+          {result && !result.error && (
+            <span className={styles.importResult}>
+              기준 {result.importedCriteria}개, 대안 {result.importedAlternatives}개 반영 완료
+              {result.skipped > 0 && ` (중복 ${result.skipped}개 스킵)`}
+              <button className={styles.dismissBtn} onClick={clearResult} aria-label="알림 닫기">✕</button>
+            </span>
+          )}
+          {result?.error && (
+            <span className={styles.importError}>
+              오류: {result.error}
+              <button className={styles.dismissBtn} onClick={clearResult} aria-label="오류 알림 닫기">✕</button>
+            </span>
+          )}
+        </span>
       </div>
 
       <div
         className={`${styles.trash} ${dragItem ? styles.trashActive : ''}`}
+        role="button"
+        tabIndex={0}
+        aria-label="삭제 영역 — 드래그한 항목을 여기에 놓으면 삭제됩니다"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleTrashDrop}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleTrashDrop(); }}
       >
         삭제 (여기에 놓기)
       </div>

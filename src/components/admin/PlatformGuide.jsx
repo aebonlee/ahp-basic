@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import styles from './PlatformGuide.module.css';
+import GuideShell from './GuideShell';
 
 const SECTIONS = [
   {
@@ -184,80 +183,5 @@ const SECTIONS = [
 ];
 
 export default function PlatformGuide() {
-  const [view, setView] = useState('overview');
-
-  const currentSection = SECTIONS.find(s => s.id === view);
-
-  return (
-    <div className={styles.guide}>
-      {/* ─── Section Tabs (1~5) ─── */}
-      <div className={styles.sectionTabs}>
-        {SECTIONS.map((s) => (
-          <button
-            key={s.id}
-            className={`${styles.sectionTab} ${view === s.id ? styles.sectionTabActive : ''}`}
-            onClick={() => setView(s.id)}
-            title={s.label}
-          >
-            {s.step}
-          </button>
-        ))}
-      </div>
-
-      {view === 'overview' ? (
-        <div className={styles.overviewGrid}>
-          {SECTIONS.map((s) => (
-            <button
-              key={s.id}
-              className={styles.overviewCard}
-              onClick={() => setView(s.id)}
-            >
-              <span className={styles.stepNum}>{s.step}</span>
-              <div className={styles.overviewInfo}>
-                <span className={styles.overviewLabel}>{s.label}</span>
-                <span className={styles.overviewDesc}>{s.desc}</span>
-              </div>
-              <span className={styles.overviewArrow}>&rsaquo;</span>
-            </button>
-          ))}
-        </div>
-      ) : currentSection ? (
-        <div className={styles.detailSection}>
-          <button className={styles.backBtn} onClick={() => setView('overview')}>
-            &larr; 개요로 돌아가기
-          </button>
-
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>{currentSection.label}</span>
-          </div>
-
-          <div className={styles.detailCards}>
-            {currentSection.cards.map((card, idx) => (
-              <div key={idx} className={styles.detailCard}>
-                <div className={styles.detailCardTitle}>
-                  {card.title}
-                </div>
-                <div className={styles.detailCardBody}>
-                  {card.body}
-                  {card.items && (
-                    <ul>
-                      {card.items.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {currentSection.tip && (
-            <div className={styles.tipBox}>
-              <strong>Tip:</strong> {currentSection.tip}
-            </div>
-          )}
-        </div>
-      ) : null}
-    </div>
-  );
+  return <GuideShell sections={SECTIONS} />;
 }

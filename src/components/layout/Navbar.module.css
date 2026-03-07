@@ -32,6 +32,9 @@
   align-items: center;
   gap: var(--spacing-sm);
   user-select: none;
+  border: none;
+  background: none;
+  padding: 0;
 }
 
 .logoText {

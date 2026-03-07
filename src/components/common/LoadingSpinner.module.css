@@ -22,3 +22,9 @@
   color: var(--color-text-light);
   font-size: 0.9rem;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 4s;
+  }
+}

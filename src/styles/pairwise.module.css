@@ -138,3 +138,9 @@
     font-size: 0.65rem;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .cell:hover {
+    transform: none;
+  }
+}

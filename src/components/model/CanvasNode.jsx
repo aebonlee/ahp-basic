@@ -75,6 +75,22 @@ export default function CanvasNode({
     onDragStart?.(node, e);
   };
 
+  const handleNodeKeyDown = (e) => {
+    if (editing) return;
+    if (e.key === 'Enter' || e.key === 'F2') {
+      if (type !== 'goal' && !paperMode) {
+        e.preventDefault();
+        setEditValue(label);
+        setEditing(true);
+      }
+    } else if (e.key === 'Delete') {
+      if (type !== 'goal') {
+        e.preventDefault();
+        onDelete?.(node);
+      }
+    }
+  };
+
   const nodeClasses = [
     styles.node,
     typeClass,
@@ -94,10 +110,12 @@ export default function CanvasNode({
         borderLeftColor: levelColor || undefined,
         cursor: canDrag ? (isDragging ? 'grabbing' : 'grab') : 'pointer',
       }}
+      tabIndex={0}
       onClick={(e) => { e.stopPropagation(); if (!editing) onClick?.(node); }}
       onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); onContextMenu?.(e, node); }}
       onDoubleClick={handleDoubleClick}
       onMouseDown={handleMouseDown}
+      onKeyDown={handleNodeKeyDown}
       title={editing ? '' : label}
     >
       {editing ? (

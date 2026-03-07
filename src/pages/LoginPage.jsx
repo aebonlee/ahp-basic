@@ -95,9 +95,10 @@ export default function LoginPage() {
             </button>
 
             <form onSubmit={handleEmailSubmit} className={styles.form}>
-              <label className={styles.field}>
+              <label className={styles.field} htmlFor="loginEmail">
                 <span>이메일</span>
                 <input
+                  id="loginEmail"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -109,9 +110,10 @@ export default function LoginPage() {
                 />
               </label>
 
-              <label className={styles.field}>
+              <label className={styles.field} htmlFor="loginPassword">
                 <span>비밀번호</span>
                 <input
+                  id="loginPassword"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

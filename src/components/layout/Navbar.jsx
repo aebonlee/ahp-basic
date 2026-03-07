@@ -48,9 +48,9 @@ export default function Navbar({ projectName }) {
       <div className={styles.inner}>
         {/* Left: Logo → 메인페이지 */}
         <div className={styles.logoGroup}>
-          <div className={styles.logo} onClick={() => navigate('/')}>
+          <button className={styles.logo} onClick={() => navigate('/')} aria-label="홈으로 이동">
             <span className={styles.logoText}>AHP Basic</span>
-          </div>
+          </button>
           <button
             className={styles.homeBtn}
             onClick={() => navigate(isAdminPath ? '/admin' : isAdmin ? '/admin' : '/eval')}

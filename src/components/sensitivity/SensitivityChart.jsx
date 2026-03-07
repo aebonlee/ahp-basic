@@ -1,5 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { LEVEL_COLORS } from '../../lib/constants';
+import styles from './SensitivityChart.module.css';
 
 export default function SensitivityChart({ data, alternatives, criterionName }) {
   if (!data || !alternatives) return null;
@@ -13,8 +14,8 @@ export default function SensitivityChart({ data, alternatives, criterionName }) 
   });
 
   return (
-    <div style={{ background: 'var(--color-surface)', borderRadius: 8, padding: 24, boxShadow: 'var(--shadow-sm)', marginTop: 16 }}>
-      <h3 style={{ fontSize: '1rem', marginBottom: 16 }}>
+    <div className={styles.chartContainer} role="img" aria-label={`${criterionName} 가중치 변화에 따른 대안 순위 차트`}>
+      <h3 className={styles.chartTitle}>
         {criterionName} 가중치 변화에 따른 대안 순위
       </h3>
       <ResponsiveContainer width="100%" height={400}>

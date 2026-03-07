@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProjectProvider } from './contexts/ProjectContext';
 import { EvaluationProvider } from './contexts/EvaluationContext';
@@ -45,6 +45,7 @@ const StatisticalAnalysisPage = lazy(() => import('./pages/StatisticalAnalysisPa
 const AiAnalysisPage = lazy(() => import('./pages/AiAnalysisPage'));
 const SurveyStatsPage = lazy(() => import('./pages/SurveyStatsPage'));
 const ManagementPage = lazy(() => import('./pages/ManagementPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 export default function App() {
   return (
@@ -97,7 +98,7 @@ export default function App() {
 
               {/* Default */}
               <Route path="/" element={<HomePage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
             </Suspense>
             </ToastProvider>

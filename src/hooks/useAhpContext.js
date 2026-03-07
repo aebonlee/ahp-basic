@@ -10,6 +10,7 @@ import { aggregateComparisons } from '../lib/ahpAggregation';
 import { aggregateDirectInputs } from '../lib/directInputEngine';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import { EVAL_METHOD, EVAL_METHOD_LABELS, CR_THRESHOLD } from '../lib/constants';
+import { getCriteriaGlobal } from '../lib/exportUtils';
 
 export function useAhpContext(projectId) {
   const { currentProject, loading: projLoading } = useProject(projectId);
@@ -132,7 +133,7 @@ export function useAhpContext(projectId) {
         cr = pageResult.cr;
       }
 
-      const globalPriority = getGlobalPriority(criterion.id, criteria, results);
+      const globalPriority = getCriteriaGlobal(criteria, criterion.id, results);
       const connector = isLast ? '└── ' : '├── ';
       const crText = cr !== null && cr !== undefined && !criterion.parent_id
         ? `, CR: ${cr.toFixed(3)}`
@@ -164,7 +165,7 @@ export function useAhpContext(projectId) {
           if (pageResult) {
             const idx = pageResult.items.findIndex(i => i.id === alt.id);
             const altPriority = idx >= 0 ? (pageResult.priorities[idx] || 0) : 0;
-            const criteriaGlobal = getGlobalPriority(leaf.id, criteria, results);
+            const criteriaGlobal = getCriteriaGlobal(criteria, leaf.id, results);
             totalScore += altPriority * criteriaGlobal;
           }
         }
@@ -213,25 +214,4 @@ export function useAhpContext(projectId) {
   const hasData = !!results && contextText.length > 0;
 
   return { contextText, loading, hasData };
-}
-
-// ─── Helper ──────────────────────────────────────────────
-
-function getGlobalPriority(criterionId, criteria, results) {
-  let global = 1;
-  let current = criteria.find(c => c.id === criterionId);
-  const chain = [];
-  while (current) {
-    chain.unshift(current);
-    current = criteria.find(c => c.id === current.parent_id);
-  }
-  for (const node of chain) {
-    const parentId = node.parent_id || results.goalId;
-    const pageResult = results.pageResults[parentId];
-    if (pageResult) {
-      const idx = pageResult.items.findIndex(i => i.id === node.id);
-      if (idx >= 0) global *= pageResult.priorities[idx] || 0;
-    }
-  }
-  return global;
 }
