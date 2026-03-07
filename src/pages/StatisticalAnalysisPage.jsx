@@ -312,8 +312,8 @@ export default function StatisticalAnalysisPage() {
     }
   }, [analysisType, getNumericValues, getCategoricalValues, getGroupedNumericValues, getItemMatrix, getPairedValues, variables, toast]);
 
-  const handleExport = () => {
-    if (result) exportStatsToExcel(analysisType, result, `project_${id}`);
+  const handleExport = async () => {
+    if (result) await exportStatsToExcel(analysisType, result, `project_${id}`);
   };
 
   if (loading) {

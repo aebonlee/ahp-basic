@@ -1,9 +1,6 @@
 /**
  * 통계 결과 Excel 내보내기
  */
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
-
 const ANALYSIS_LABELS = {
   descriptive: '기술통계',
   independentT: '독립표본T검정',
@@ -17,7 +14,9 @@ const ANALYSIS_LABELS = {
   spearman: 'Spearman순위상관',
 };
 
-export function exportStatsToExcel(analysisType, result, projectName = '프로젝트') {
+export async function exportStatsToExcel(analysisType, result, projectName = '프로젝트') {
+  const XLSX = await import('xlsx');
+  const { saveAs } = await import('file-saver');
   const wb = XLSX.utils.book_new();
   const label = ANALYSIS_LABELS[analysisType] || analysisType;
 

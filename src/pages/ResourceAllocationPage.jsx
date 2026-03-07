@@ -4,7 +4,6 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   PieChart, Pie, Legend,
 } from 'recharts';
-import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { useProject } from '../hooks/useProjects';
 import { useAlternatives } from '../hooks/useAlternatives';
@@ -401,7 +400,8 @@ export default function ResourceAllocationPage() {
     saveAs(blob, `${safeName}_자원배분_${today}.csv`);
   }, [sortedAllocations, effectivePcts, totalResource, unit, leafCriteria, breakdownMap, totalScore, currentProject]);
 
-  const handleExportExcel = useCallback(() => {
+  const handleExportExcel = useCallback(async () => {
+    const XLSX = await import('xlsx');
     const wb = XLSX.utils.book_new();
 
     // Sheet 1: Summary

@@ -67,7 +67,7 @@ export default function SignupPage() {
         <p className={styles.subtitle}>회원가입</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.error}>{error}</div>}
+          {error && <div className={styles.error} role="alert">{error}</div>}
 
           <label className={styles.field}>
             <span>이름</span>

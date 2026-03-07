@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import PublicLayout from '../components/layout/PublicLayout';
@@ -7,7 +6,7 @@ import styles from './HomePage.module.css';
 const FEATURES = [
   {
     icon: (
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
         <rect x="3" y="6" width="22" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
         <path d="M3 10h22" stroke="currentColor" strokeWidth="1.5" />
         <circle cx="8" cy="18" r="2" stroke="currentColor" strokeWidth="1.5" />
@@ -19,7 +18,7 @@ const FEATURES = [
   },
   {
     icon: (
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
         <path d="M14 4v6M14 18v6M4 14h6M18 14h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         <circle cx="14" cy="14" r="4" stroke="currentColor" strokeWidth="1.5" />
         <path d="M7.5 7.5l3 3M17.5 17.5l3 3M7.5 20.5l3-3M17.5 10.5l3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -30,7 +29,7 @@ const FEATURES = [
   },
   {
     icon: (
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
         <circle cx="10" cy="10" r="4" stroke="currentColor" strokeWidth="1.5" />
         <circle cx="18" cy="10" r="4" stroke="currentColor" strokeWidth="1.5" />
         <circle cx="14" cy="18" r="4" stroke="currentColor" strokeWidth="1.5" />
@@ -42,7 +41,7 @@ const FEATURES = [
   },
   {
     icon: (
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
         <path d="M4 22L10 14L16 18L24 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx="24" cy="6" r="2" fill="currentColor" />
         <path d="M4 24h20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -109,13 +108,13 @@ export default function HomePage() {
             {isLoggedIn ? (
               <button className={styles.ctaPrimary} onClick={() => navigate('/admin')}>
                 대시보드로 이동
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
             ) : (
               <>
                 <button className={styles.ctaPrimary} onClick={() => navigate('/register')}>
                   무료로 시작하기
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </button>
                 <button className={styles.ctaSecondary} onClick={() => navigate('/login')}>
                   로그인
@@ -157,7 +156,7 @@ export default function HomePage() {
           <div className={styles.sectionMore}>
             <Link to="/features" className={styles.moreLink}>
               자세히 보기
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
           </div>
         </div>
@@ -181,11 +180,11 @@ export default function HomePage() {
           <div className={styles.sectionMoreLight}>
             <Link to="/guide" className={styles.moreLinkLight}>
               자세히 보기
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
             <Link to="/manual" className={styles.moreLinkLight} style={{ marginLeft: 24 }}>
               사용설명서
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
           </div>
         </div>
@@ -225,12 +224,12 @@ export default function HomePage() {
           {isLoggedIn ? (
             <button className={styles.ctaPrimary} onClick={() => navigate('/admin')}>
               대시보드로 이동
-              <svg width="16" height="16" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           ) : (
             <button className={styles.ctaPrimary} onClick={() => navigate('/register')}>
               무료로 시작하기
-              <svg width="16" height="16" viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
           )}
         </div>

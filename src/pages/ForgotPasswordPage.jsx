@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
         <p className={styles.subtitle}>비밀번호 재설정</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.error}>{error}</div>}
+          {error && <div className={styles.error} role="alert">{error}</div>}
 
           <p style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', marginBottom: 8 }}>
             가입 시 사용한 이메일을 입력하시면 비밀번호 재설정 링크를 보내드립니다.

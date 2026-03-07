@@ -59,7 +59,7 @@ export default function LoginPage() {
         <h1 className={styles.title}><Link to="/" className={styles.titleLink}>AHP Basic</Link></h1>
         <p className={styles.subtitle}>로그인</p>
 
-        {error && <div className={styles.error}>{error}</div>}
+        {error && <div className={styles.error} role="alert">{error}</div>}
 
         {step === 'method' ? (
           <>

@@ -150,17 +150,13 @@ export function AuthProvider({ children }) {
   // 로그아웃
   const signOut = useCallback(async () => {
     clearAllApiKeys();
-    await authSignOut();
+    try { await authSignOut(); } catch { /* 서버 오류 시에도 로컬 상태 정리 */ }
     dispatch({ type: 'SIGN_OUT' });
   }, []);
 
   // 비밀번호 재설정
   const resetPassword = useCallback(async (email) => {
-    try {
-      await authResetPassword(email);
-    } catch (error) {
-      throw error;
-    }
+    await authResetPassword(email);
   }, []);
 
   // 프로필 새로고침

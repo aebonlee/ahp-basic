@@ -1,5 +1,3 @@
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 import { CR_THRESHOLD } from './constants';
 
 /** 파일명에 사용할 수 없는 문자 치환 */
@@ -19,7 +17,9 @@ function todayStr() {
  * @param {Object} results
  * @param {string} [projectName]
  */
-export function exportToExcel(criteria, alternatives, results, projectName) {
+export async function exportToExcel(criteria, alternatives, results, projectName) {
+  const XLSX = await import('xlsx');
+  const { saveAs } = await import('file-saver');
   const wb = XLSX.utils.book_new();
 
   // Sheet 1: 기준 종합중요도

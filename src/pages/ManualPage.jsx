@@ -107,9 +107,9 @@ function FaqItem({ item }) {
   const [open, setOpen] = useState(false);
   return (
     <div className={`${styles.faqItem} ${open ? styles.faqOpen : ''}`}>
-      <button className={styles.faqQuestion} onClick={() => setOpen(!open)}>
+      <button className={styles.faqQuestion} onClick={() => setOpen(!open)} aria-expanded={open}>
         <span>{item.q}</span>
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className={styles.faqChevron}>
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className={styles.faqChevron} aria-hidden="true">
           <path d="M5 7l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>

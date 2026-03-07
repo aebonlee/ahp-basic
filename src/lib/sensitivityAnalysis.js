@@ -1,5 +1,3 @@
-import { calculatePriorities, buildMatrix } from './ahpEngine';
-
 /**
  * Perform sensitivity analysis by varying one criterion's weight.
  * Returns data points for a line chart showing alternative rankings
