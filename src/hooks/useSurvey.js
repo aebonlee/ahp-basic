@@ -113,7 +113,7 @@ export function useSurveyResponses(projectId) {
       project_id: projectId,
       evaluator_id: evaluatorId,
       question_id: questionId,
-      answer: typeof answer === 'object' ? answer : { value: answer },
+      answer: (typeof answer === 'object' && !Array.isArray(answer)) ? answer : { value: answer },
     }));
     const { error } = await supabase
       .from('survey_responses')

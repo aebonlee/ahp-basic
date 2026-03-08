@@ -189,7 +189,8 @@ function ChoiceResults({ question, responses }) {
     for (const opt of options) counts[opt] = 0;
 
     for (const r of responses) {
-      const val = r.answer?.value;
+      // checkbox 응답이 배열로 직접 저장된 경우(legacy) 또는 { value: [...] }인 경우 모두 처리
+      const val = r.answer?.value !== undefined ? r.answer.value : (Array.isArray(r.answer) ? r.answer : undefined);
       if (Array.isArray(val)) {
         for (const v of val) {
           counts[v] = (counts[v] || 0) + 1;
