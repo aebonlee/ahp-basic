@@ -13,11 +13,12 @@ export default function EvaluatorWeightEditor({ evaluators, weights, onChange })
     <div className={styles.container}>
       <h3 className={styles.title}>평가자 가중치</h3>
       <div className={styles.list}>
-        {evaluators.map(ev => {
+        {evaluators.map((ev, idx) => {
           const w = weights[ev.id] || 1;
           const pct = totalWeight > 0 ? ((w / totalWeight) * 100).toFixed(1) : '0.0';
           return (
             <div key={ev.id} className={styles.row}>
+              <span className={styles.number}>{idx + 1}</span>
               <span className={styles.name}>{ev.name}</span>
               <input
                 type="range"
