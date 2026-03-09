@@ -62,6 +62,19 @@ export function useSurveyQuestions(projectId) {
     setQuestions(prev => prev.filter(q => q.id !== id));
   }, []);
 
+  const deleteQuestionsByCategory = useCallback(async (category) => {
+    const ids = questionsRef.current
+      .filter(q => (q.category || 'demographic') === category)
+      .map(q => q.id);
+    if (ids.length === 0) return;
+    const { error } = await supabase
+      .from('survey_questions')
+      .delete()
+      .in('id', ids);
+    if (error) throw error;
+    setQuestions(prev => prev.filter(q => !ids.includes(q.id)));
+  }, []);
+
   const reorderQuestions = useCallback(async (reorderedIds) => {
     const updates = reorderedIds.map((id, idx) => ({ id, sort_order: idx }));
     await Promise.all(
@@ -76,7 +89,7 @@ export function useSurveyQuestions(projectId) {
     });
   }, []);
 
-  return { questions, loading, fetchQuestions, addQuestion, updateQuestion, deleteQuestion, reorderQuestions };
+  return { questions, loading, fetchQuestions, addQuestion, updateQuestion, deleteQuestion, deleteQuestionsByCategory, reorderQuestions };
 }
 
 /**

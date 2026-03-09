@@ -5,6 +5,7 @@ import { useSurveyQuestions, useSurveyConfig } from '../hooks/useSurvey';
 import { useToast } from '../contexts/ToastContext';
 import ProjectLayout from '../components/layout/ProjectLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ConfirmDialog from '../components/common/ConfirmDialog';
 import common from '../styles/common.module.css';
 import styles from './SurveyBuilderPage.module.css';
 
@@ -82,7 +83,7 @@ const CUSTOM_TEMPLATE = [
    ============================================ */
 export default function SurveyBuilderPage() {
   const { id } = useParams();
-  const { questions, loading: qLoading, addQuestion, updateQuestion, deleteQuestion, reorderQuestions } = useSurveyQuestions(id);
+  const { questions, loading: qLoading, addQuestion, updateQuestion, deleteQuestion, deleteQuestionsByCategory, reorderQuestions } = useSurveyQuestions(id);
   const { config, loading: cLoading, saveConfig } = useSurveyConfig(id);
   const toast = useToast();
 
@@ -90,6 +91,34 @@ export default function SurveyBuilderPage() {
   const [savingField, setSavingField] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const [templateLoading, setTemplateLoading] = useState(false);
+  const [confirmState, setConfirmState] = useState({ open: false, title: '', message: '', onConfirm: null });
+
+  const closeConfirm = useCallback(() => setConfirmState(s => ({ ...s, open: false })), []);
+
+  const handleDeleteWithConfirm = useCallback((questionId) => {
+    setConfirmState({
+      open: true,
+      title: '질문 삭제',
+      message: '이 질문을 삭제하시겠습니까?',
+      onConfirm: async () => {
+        try { await deleteQuestion(questionId); } catch (e) { toast.error('삭제 실패: ' + e.message); }
+        setConfirmState(s => ({ ...s, open: false }));
+      },
+    });
+  }, [deleteQuestion, toast]);
+
+  const handleDeleteAllWithConfirm = useCallback((category, count) => {
+    const categoryLabel = category === 'demographic' ? '인구통계학적 설문' : '연구자 설문항목';
+    setConfirmState({
+      open: true,
+      title: '전체 삭제',
+      message: `모든 ${categoryLabel} 질문(${count}개)을 삭제하시겠습니까?`,
+      onConfirm: async () => {
+        try { await deleteQuestionsByCategory(category); } catch (e) { toast.error('삭제 실패: ' + e.message); }
+        setConfirmState(s => ({ ...s, open: false }));
+      },
+    });
+  }, [deleteQuestionsByCategory, toast]);
 
   const demographicQs = useMemo(() => questions.filter(q => (q.category || 'demographic') === 'demographic'), [questions]);
   const customQs = useMemo(() => questions.filter(q => q.category === 'custom'), [questions]);
@@ -197,8 +226,9 @@ export default function SurveyBuilderPage() {
             category="demographic" questions={demographicQs} allQuestions={questions}
             templateData={DEMOGRAPHIC_TEMPLATE} templateLabel="인구통계 기본 템플릿 로드 (11개)"
             templateLoading={templateLoading} activeId={activeId} setActiveId={setActiveId}
-            onUpdate={handleQuestionUpdate} onDelete={deleteQuestion} onDuplicate={handleDuplicate}
+            onUpdate={handleQuestionUpdate} onDelete={handleDeleteWithConfirm} onDuplicate={handleDuplicate}
             onMove={handleMove} onAdd={handleAddQuestion} onLoadTemplate={handleLoadTemplate}
+            onDeleteAll={() => handleDeleteAllWithConfirm('demographic', demographicQs.length)}
           />
         )}
         {step === 3 && (
@@ -210,11 +240,12 @@ export default function SurveyBuilderPage() {
             activeId={activeId}
             setActiveId={setActiveId}
             onUpdate={handleQuestionUpdate}
-            onDelete={deleteQuestion}
+            onDelete={handleDeleteWithConfirm}
             onDuplicate={handleDuplicate}
             onMove={handleMove}
             onAdd={handleAddQuestion}
             onLoadTemplate={handleLoadTemplate}
+            onDeleteAll={() => handleDeleteAllWithConfirm('custom', customQs.length)}
           />
         )}
         {step === 4 && (
@@ -228,6 +259,16 @@ export default function SurveyBuilderPage() {
         <span className={styles.navIndicator}>{step + 1} / {STEPS.length}</span>
         <button className={`${styles.navBtn} ${styles.navBtnPrimary}`} onClick={() => setStep(s => s + 1)} disabled={step === STEPS.length - 1}>다음 →</button>
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmState.open}
+        onClose={closeConfirm}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmLabel="삭제"
+        variant="danger"
+      />
     </ProjectLayout>
   );
 }
@@ -304,6 +345,7 @@ function StepQuestions({
   templateData, templateLabel, templateLoading,
   activeId, setActiveId,
   onUpdate, onDelete, onDuplicate, onMove, onAdd, onLoadTemplate,
+  onDeleteAll,
 }) {
   const stepNum = category === 'demographic' ? 3 : 4;
   return (
@@ -317,6 +359,16 @@ function StepQuestions({
           <span className={styles.questionCount}>{filteredQs.length}개 질문</span>
         </div>
         <p className={styles.cardDesc}>{desc}</p>
+        {filteredQs.length > 0 && (
+          <div className={styles.headerActions}>
+            <button className={styles.headerActionBtn} onClick={() => onLoadTemplate(templateData, category)} disabled={templateLoading}>
+              {templateLoading ? '로딩 중...' : '+ 템플릿 추가'}
+            </button>
+            <button className={styles.headerActionBtnDanger} onClick={onDeleteAll}>
+              전체 삭제
+            </button>
+          </div>
+        )}
       </div>
       {filteredQs.length === 0 && (
         <div className={styles.templateArea}>
@@ -385,6 +437,7 @@ function StepCustomGoogleForm({
   templateData, templateLoading,
   activeId, setActiveId,
   onUpdate, onDelete, onDuplicate, onMove, onAdd, onLoadTemplate,
+  onDeleteAll,
 }) {
   return (
     <>
@@ -400,6 +453,16 @@ function StepCustomGoogleForm({
         <p className={styles.cardDesc}>
           연구 주제에 맞는 추가 질문을 자유롭게 설계하세요. 구글 폼처럼 각 질문의 유형을 선택하고, 선택지를 편집할 수 있습니다.
         </p>
+        {filteredQs.length > 0 && (
+          <div className={styles.headerActions}>
+            <button className={styles.headerActionBtn} onClick={() => onLoadTemplate(templateData, 'custom')} disabled={templateLoading}>
+              {templateLoading ? '로딩 중...' : '+ 템플릿 추가'}
+            </button>
+            <button className={styles.headerActionBtnDanger} onClick={onDeleteAll}>
+              전체 삭제
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 질문 없을 때 */}
