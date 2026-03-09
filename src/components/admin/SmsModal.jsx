@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
 import { formatPhone } from '../../lib/evaluatorUtils';
@@ -6,12 +6,27 @@ import { getByteInfo } from '../../lib/smsUtils';
 import { sendSmsBulk } from '../../lib/smsService';
 import styles from './SmsModal.module.css';
 
+const SYMBOLS = [
+  '★','☆','♥','♡','◆','◇','■','□','●','○',
+  '▶','◀','△','▽','☎','♠','♣','♧','→','←','↑','↓',
+];
+
+const TEMPLATES = [
+  { name: '평가 참여 요청', content: '[AHP 설문] 평가에 참여해 주세요.\n{링크}' },
+  { name: '평가 독려', content: '[AHP 설문] 아직 평가가 완료되지 않았습니다. 참여 부탁드립니다.\n{링크}' },
+  { name: '평가 감사', content: '[AHP 설문] 평가에 참여해 주셔서 감사합니다.' },
+];
+
 export default function SmsModal({ isOpen, onClose, evaluators, projectId }) {
   const [message, setMessage] = useState('');
   const [selected, setSelected] = useState(new Set());
   const [sending, setSending] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [results, setResults] = useState(null);
+  const [activeTab, setActiveTab] = useState('symbols');
+  const textareaRef = useRef(null);
+
+  const inviteUrl = `${window.location.origin}${window.location.pathname}#/eval/invite/${projectId}`;
 
   // 전화번호 있는 평가자만 선택 가능
   const selectableEvaluators = useMemo(
@@ -36,6 +51,32 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId }) {
       return new Set(selectableEvaluators.map((ev) => ev.id));
     });
   }, [selectableEvaluators]);
+
+  const insertAtCursor = useCallback((text) => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const before = message.slice(0, start);
+    const after = message.slice(end);
+    const newMsg = before + text + after;
+    setMessage(newMsg);
+    // 커서 복원 — requestAnimationFrame으로 state 반영 후 실행
+    requestAnimationFrame(() => {
+      ta.focus();
+      const pos = start + text.length;
+      ta.setSelectionRange(pos, pos);
+    });
+  }, [message]);
+
+  const applyTemplate = useCallback((content) => {
+    if (message.trim() && !window.confirm('기존 메시지를 덮어쓰시겠습니까?')) return;
+    const resolved = content.replace('{링크}', inviteUrl);
+    setMessage(resolved);
+    requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+    });
+  }, [message, inviteUrl]);
 
   const handleSend = async () => {
     if (selected.size === 0 || !message.trim()) return;
@@ -135,7 +176,63 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId }) {
           {/* 메시지 입력 */}
           <div className={styles.section}>
             <label className={styles.sectionLabel}>메시지</label>
+
+            {/* 특수문자 / 기본문구 탭 */}
+            <div className={styles.toolbar}>
+              <div className={styles.tabBar}>
+                <button
+                  type="button"
+                  className={`${styles.tabBtn} ${activeTab === 'symbols' ? styles.tabBtnActive : ''}`}
+                  onClick={() => setActiveTab('symbols')}
+                  disabled={sending}
+                >
+                  특수문자
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tabBtn} ${activeTab === 'templates' ? styles.tabBtnActive : ''}`}
+                  onClick={() => setActiveTab('templates')}
+                  disabled={sending}
+                >
+                  기본문구
+                </button>
+              </div>
+
+              {activeTab === 'symbols' && (
+                <div className={styles.symbolGrid}>
+                  {SYMBOLS.map((sym) => (
+                    <button
+                      key={sym}
+                      type="button"
+                      className={styles.symbolBtn}
+                      onClick={() => insertAtCursor(sym)}
+                      disabled={sending}
+                    >
+                      {sym}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'templates' && (
+                <div className={styles.templateList}>
+                  {TEMPLATES.map((tpl) => (
+                    <button
+                      key={tpl.name}
+                      type="button"
+                      className={styles.templateItem}
+                      onClick={() => applyTemplate(tpl.content)}
+                      disabled={sending}
+                    >
+                      {tpl.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <textarea
+              ref={textareaRef}
               className={styles.textarea}
               value={message}
               onChange={(e) => setMessage(e.target.value)}

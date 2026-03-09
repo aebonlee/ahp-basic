@@ -186,3 +186,99 @@
   color: var(--color-text-light);
   text-align: center;
 }
+
+/* 특수문자 / 기본문구 툴바 */
+.toolbar {
+  margin-bottom: var(--spacing-xs);
+}
+
+.tabBar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.tabBtn {
+  padding: 4px 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-bg, #f9fafb);
+  color: var(--color-text-light);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tabBtn:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.tabBtnActive {
+  background: var(--color-primary, #3b82f6);
+  color: #fff;
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.tabBtnActive:hover:not(:disabled) {
+  background: var(--color-primary-hover, #2563eb);
+}
+
+/* 특수문자 그리드 */
+.symbolGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-bg, #f9fafb);
+}
+
+.symbolBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border-light);
+  border-radius: 4px;
+  background: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.1s;
+}
+
+.symbolBtn:hover:not(:disabled) {
+  background: #dbeafe;
+  transform: scale(1.12);
+}
+
+.symbolBtn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* 기본문구 목록 */
+.templateList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.templateItem {
+  text-align: left;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-bg, #f9fafb);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.templateItem:hover:not(:disabled) {
+  background: #dbeafe;
+  border-color: var(--color-primary, #3b82f6);
+}
