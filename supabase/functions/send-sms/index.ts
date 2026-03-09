@@ -66,15 +66,17 @@ function buildRequestJson(
   cb: string,
   msg: string
 ): string {
-  // Normalize newlines
+  // Normalize newlines (match Java: strData.replaceAll("\r\n", "\n"))
   const cleanMsg = msg.replace(/\r\n/g, "\n");
 
-  // Determine SMS vs LMS
+  // Determine SMS vs LMS (match Java: byteLength <= 90 → SMS, else LMS)
   const byteLen = eucKrByteLength(cleanMsg);
   const title = byteLen <= 90 ? "" : "LMS";
 
-  // Build JSON manually to match Java implementation:
-  // The msg and title parts are Unicode-encoded
+  // Build JSON matching Java SMSComponent structure exactly:
+  // Java builds: jsonB = "\"msg\":\""+msg+"\",\"title\":\""+title+"\"}"
+  // Then encodes Korean chars in jsonB
+  // Then: json = "{\"key\":\"...\",\"tel\":\"...\",\"cb\":\"...\",\"date\":\"...\"," + encodedJsonB
   const encodedMsg = encodeKorean(cleanMsg);
   const encodedTitle = encodeKorean(title);
 
@@ -105,22 +107,65 @@ function buildFrame(json: string): Uint8Array {
 }
 
 /**
- * Parse response frame: [2-byte type "02"][4-byte length][result body]
- * Result body: first 2 chars = "00" success, else failure
+ * Read exactly n bytes from a Deno.Conn, accumulating chunks.
+ * Java DataInputStream.readByte() blocks until data arrives;
+ * Deno conn.read() may return partial data, so we must loop.
  */
-function parseResponse(buf: Uint8Array, n: number): { success: boolean; raw: string } {
-  if (n < 6) {
-    return { success: false, raw: "응답 데이터 부족" };
+async function readExact(
+  conn: Deno.Conn,
+  n: number,
+  timeoutMs: number
+): Promise<Uint8Array> {
+  const result = new Uint8Array(n);
+  let offset = 0;
+  const deadline = Date.now() + timeoutMs;
+
+  while (offset < n) {
+    if (Date.now() > deadline) {
+      throw new Error(`TCP 읽기 타임아웃 (${offset}/${n} bytes 수신)`);
+    }
+    const chunk = new Uint8Array(n - offset);
+    const bytesRead = await conn.read(chunk);
+    if (bytesRead === null) {
+      throw new Error(`연결 종료 (${offset}/${n} bytes 수신)`);
+    }
+    result.set(chunk.subarray(0, bytesRead), offset);
+    offset += bytesRead;
   }
+  return result;
+}
+
+/**
+ * Read response from icodekorea TCP server.
+ * Protocol: [2-byte type "02"][4-byte length][result body]
+ * Result body format: "00" + phone(12) + msgid(10) = success
+ */
+async function readResponse(conn: Deno.Conn): Promise<{ success: boolean; raw: string }> {
   const decoder = new TextDecoder();
-  const msgType = decoder.decode(buf.subarray(0, 2));
-  if (msgType !== "02") {
-    return { success: false, raw: `알 수 없는 응답 타입: ${msgType}` };
+
+  // Read type (2 bytes)
+  const typeBuf = await readExact(conn, 2, SOCKET_TIMEOUT_MS);
+  const msgType = decoder.decode(typeBuf);
+
+  // Read length (4 bytes)
+  const lenBuf = await readExact(conn, 4, SOCKET_TIMEOUT_MS);
+  const lenStr = decoder.decode(lenBuf).trim();
+  const bodyLen = parseInt(lenStr, 10);
+
+  if (isNaN(bodyLen) || bodyLen <= 0) {
+    return { success: false, raw: `잘못된 응답 길이: "${lenStr}", type: "${msgType}"` };
   }
 
-  const body = decoder.decode(buf.subarray(6, n));
-  const resultCode = body.substring(0, 2);
+  // Read body
+  const bodyBuf = await readExact(conn, bodyLen, SOCKET_TIMEOUT_MS);
+  const body = decoder.decode(bodyBuf);
 
+  if (msgType !== "02") {
+    return { success: false, raw: `알 수 없는 응답 타입: ${msgType}, body: ${body}` };
+  }
+
+  // Result: first 2 chars = "00" means success
+  const resultCode = body.substring(0, 2);
   return {
     success: resultCode === "00",
     raw: body,
@@ -160,30 +205,18 @@ Deno.serve(async (req: Request) => {
     const json = buildRequestJson(token, tel, senderNumber, message);
     const frame = buildFrame(json);
 
-    // TCP connection with timeout
+    // TCP connection
     const conn = await Deno.connect({
       hostname: ICODE_HOST,
       port: ICODE_PORT,
     });
 
     try {
-      // Set read timeout via AbortSignal
-      const timeoutId = setTimeout(() => conn.close(), SOCKET_TIMEOUT_MS);
-
+      // Send frame
       await conn.write(frame);
 
-      const buf = new Uint8Array(4096);
-      const n = await conn.read(buf);
-      clearTimeout(timeoutId);
-
-      if (n === null || n === 0) {
-        return new Response(
-          JSON.stringify({ error: "서버 응답이 없습니다." }),
-          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      const result = parseResponse(buf, n);
+      // Read response (blocking reads with timeout, matching Java behavior)
+      const result = await readResponse(conn);
 
       return new Response(
         JSON.stringify({
