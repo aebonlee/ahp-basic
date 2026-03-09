@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useSurveyQuestions, useSurveyResponses } from '../hooks/useSurvey';
 import { useEvaluators } from '../hooks/useEvaluators';
+import { useProject } from '../hooks/useProjects';
 import ProjectLayout from '../components/layout/ProjectLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import SmsModal from '../components/admin/SmsModal';
@@ -26,6 +27,7 @@ export default function SurveyResultPage() {
   const { questions, loading: qLoading } = useSurveyQuestions(id);
   const { responses, loading: rLoading, getResponsesByQuestion } = useSurveyResponses(id);
   const { evaluators } = useEvaluators(id);
+  const { currentProject } = useProject(id);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
 
   const respondedIds = useMemo(
@@ -93,6 +95,7 @@ export default function SurveyResultPage() {
         evaluators={evaluators}
         projectId={id}
         respondedIds={respondedIds}
+        projectName={currentProject?.name}
       />
 
       {questions.length === 0 ? (

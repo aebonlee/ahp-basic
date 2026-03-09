@@ -193,6 +193,7 @@ export default function EvaluatorManagementPage() {
         onClose={() => setSmsModalOpen(false)}
         evaluators={evaluators}
         projectId={id}
+        projectName={currentProject?.name}
       />
     </ProjectLayout>
   );

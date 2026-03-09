@@ -11,11 +11,23 @@ const SYMBOLS = [
   '▶','◀','△','▽','☎','♠','♣','♧','→','←','↑','↓',
 ];
 
-const TEMPLATES = [
-  { name: '평가 참여 요청', content: '[AHP 설문] 평가에 참여해 주세요.\n{링크}' },
-  { name: '평가 독려', content: '[AHP 설문] 아직 평가가 완료되지 않았습니다. 참여 부탁드립니다.\n{링크}' },
-  { name: '평가 감사', content: '[AHP 설문] 평가에 참여해 주셔서 감사합니다.' },
-];
+function getTemplates(projectName) {
+  const topic = projectName || 'AHP 평가';
+  return [
+    {
+      name: '평가 참여 요청',
+      content: `안녕하세요, {이름}님.\n\n[${topic}] 연구에 전문가로 참여해 주셔서 감사합니다.\n\n아래 링크에서 설문 및 평가에 참여 부탁드립니다.\n{링크}\n\n감사합니다.`,
+    },
+    {
+      name: '평가 독려',
+      content: `안녕하세요, {이름}님.\n\n[${topic}] 연구 평가가 아직 완료되지 않았습니다.\n바쁘시겠지만 잠시 시간을 내어 참여해 주시면 큰 도움이 됩니다.\n\n{링크}\n\n감사합니다.`,
+    },
+    {
+      name: '평가 감사',
+      content: `안녕하세요, {이름}님.\n\n[${topic}] 연구 평가에 참여해 주셔서 진심으로 감사드립니다.\n귀한 의견이 연구에 큰 도움이 됩니다.\n\n감사합니다.`,
+    },
+  ];
+}
 
 const PAGE_SIZE = 10;
 
@@ -42,7 +54,7 @@ const FILTERS = [
   { key: 'no_phone', label: '번호 없음' },
 ];
 
-export default function SmsModal({ isOpen, onClose, evaluators, projectId, respondedIds }) {
+export default function SmsModal({ isOpen, onClose, evaluators, projectId, respondedIds, projectName }) {
   const [message, setMessage] = useState('');
   const [selected, setSelected] = useState(new Set());
   const [sending, setSending] = useState(false);
@@ -54,6 +66,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
   const textareaRef = useRef(null);
 
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/eval/invite/${projectId}`;
+  const templates = useMemo(() => getTemplates(projectName), [projectName]);
 
   // 설문 관련 필터가 의미있는지 (respondedIds가 전달된 경우만)
   const hasSurveyData = !!respondedIds;
@@ -347,7 +360,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
 
                 {activeTab === 'templates' && (
                   <div className={styles.templateList}>
-                    {TEMPLATES.map((tpl) => (
+                    {templates.map((tpl) => (
                       <button
                         key={tpl.name}
                         type="button"
