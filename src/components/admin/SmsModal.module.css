@@ -168,6 +168,53 @@
   font-size: 0.82rem;
 }
 
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
+  margin-top: var(--spacing-sm);
+}
+
+.pageBtn {
+  min-width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  background: #fff;
+  color: #15803d;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0 4px;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: #dcfce7;
+  border-color: #4ade80;
+}
+
+.pageBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pageBtnActive {
+  background: #16a34a;
+  color: #fff;
+  border-color: #16a34a;
+  box-shadow: 0 1px 4px rgba(22, 163, 74, 0.3);
+}
+
+.pageBtnActive:hover:not(:disabled) {
+  background: #15803d;
+}
+
 /* 메시지 입력 */
 .textarea {
   width: 100%;

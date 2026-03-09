@@ -17,6 +17,8 @@ const TEMPLATES = [
   { name: '평가 감사', content: '[AHP 설문] 평가에 참여해 주셔서 감사합니다.' },
 ];
 
+const PAGE_SIZE = 10;
+
 const FILTERS = [
   { key: 'all', label: '전체' },
   { key: 'eval_done', label: '평가 완료' },
@@ -36,6 +38,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
   const [results, setResults] = useState(null);
   const [activeTab, setActiveTab] = useState('templates');
   const [filter, setFilter] = useState('all');
+  const [page, setPage] = useState(1);
   const textareaRef = useRef(null);
 
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/eval/invite/${projectId}`;
@@ -85,6 +88,19 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
     () => FILTERS.filter((f) => hasSurveyData || (f.key !== 'survey_done' && f.key !== 'survey_pending')),
     [hasSurveyData]
   );
+
+  // 페이지네이션
+  const totalPages = Math.max(1, Math.ceil(filteredEvaluators.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pagedEvaluators = useMemo(
+    () => filteredEvaluators.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [filteredEvaluators, safePage]
+  );
+
+  const handleFilterChange = useCallback((key) => {
+    setFilter(key);
+    setPage(1);
+  }, []);
 
   const byteInfo = useMemo(() => getByteInfo(message), [message]);
 
@@ -209,7 +225,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
                     key={f.key}
                     type="button"
                     className={`${styles.filterChip} ${filter === f.key ? styles.filterChipActive : ''}`}
-                    onClick={() => setFilter(f.key)}
+                    onClick={() => handleFilterChange(f.key)}
                     disabled={sending}
                   >
                     {f.label}
@@ -230,7 +246,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
                     전체 선택 ({selectableEvaluators.length}명)
                   </span>
                 </label>
-                {filteredEvaluators.map((ev) => {
+                {pagedEvaluators.map((ev) => {
                   const hasPhone = !!ev.phone_number;
                   return (
                     <label
@@ -254,6 +270,38 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
                   <div className={styles.emptyFilter}>해당 조건의 평가자가 없습니다.</div>
                 )}
               </div>
+
+              {/* 페이지네이션 */}
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    type="button"
+                    className={styles.pageBtn}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={safePage <= 1}
+                  >
+                    &lsaquo;
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      className={`${styles.pageBtn} ${p === safePage ? styles.pageBtnActive : ''}`}
+                      onClick={() => setPage(p)}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className={styles.pageBtn}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={safePage >= totalPages}
+                  >
+                    &rsaquo;
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* 오른쪽: 메시지 입력 */}
