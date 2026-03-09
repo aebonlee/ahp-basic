@@ -35,7 +35,7 @@
 
 .barList {
   display: grid;
-  grid-template-columns: minmax(80px, auto) 1fr minmax(76px, auto);
+  grid-template-columns: minmax(80px, auto) minmax(120px, 360px) minmax(76px, auto);
   gap: 6px var(--spacing-md);
   align-items: center;
 }
