@@ -19,6 +19,18 @@ const TEMPLATES = [
 
 const PAGE_SIZE = 10;
 
+function getPageNumbers(total, current) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages = [1];
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  if (start > 2) pages.push('...');
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (end < total - 1) pages.push('...');
+  pages.push(total);
+  return pages;
+}
+
 const FILTERS = [
   { key: 'all', label: '전체' },
   { key: 'eval_done', label: '평가 완료' },
@@ -282,16 +294,20 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
                   >
                     &lsaquo;
                   </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                    <button
-                      key={p}
-                      type="button"
-                      className={`${styles.pageBtn} ${p === safePage ? styles.pageBtnActive : ''}`}
-                      onClick={() => setPage(p)}
-                    >
-                      {p}
-                    </button>
-                  ))}
+                  {getPageNumbers(totalPages, safePage).map((p, i) =>
+                    p === '...' ? (
+                      <span key={`e${i}`} className={styles.pageEllipsis}>...</span>
+                    ) : (
+                      <button
+                        key={p}
+                        type="button"
+                        className={`${styles.pageBtn} ${p === safePage ? styles.pageBtnActive : ''}`}
+                        onClick={() => setPage(p)}
+                      >
+                        {p}
+                      </button>
+                    )
+                  )}
                   <button
                     type="button"
                     className={styles.pageBtn}
