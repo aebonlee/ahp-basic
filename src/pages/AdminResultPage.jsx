@@ -234,25 +234,28 @@ export default function AdminResultPage() {
                   <table className={common.dataTable}>
                     <thead>
                       <tr>
-                        <th>비교 항목</th>
-                        {evaluators.map(ev => (
-                          <th key={ev.id} style={{ textAlign: 'center' }}>{ev.name}</th>
+                        <th>평가자</th>
+                        {evaluatorCRs.map((row, idx) => (
+                          <th key={idx} style={{ textAlign: 'center' }}>{row.parentName}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {evaluatorCRs.map((row, idx) => (
-                        <tr key={idx}>
-                          <td>{row.parentName}</td>
-                          {row.evalCRs.map((cr, ci) => (
-                            <td
-                              key={ci}
-                              className={cr > CR_THRESHOLD ? styles.crFail : styles.crPass}
-                              style={{ textAlign: 'center' }}
-                            >
-                              {cr.toFixed(4)}
-                            </td>
-                          ))}
+                      {evaluators.map((ev, ei) => (
+                        <tr key={ev.id}>
+                          <td>{ev.name}</td>
+                          {evaluatorCRs.map((row, ri) => {
+                            const cr = row.evalCRs[ei];
+                            return (
+                              <td
+                                key={ri}
+                                className={cr > CR_THRESHOLD ? styles.crFail : styles.crPass}
+                                style={{ textAlign: 'center' }}
+                              >
+                                {cr.toFixed(4)}
+                              </td>
+                            );
+                          })}
                         </tr>
                       ))}
                     </tbody>
