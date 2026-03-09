@@ -346,7 +346,7 @@ export default function StatisticalAnalysisPage() {
         case 'independentT': {
           const groups = getGroupedNumericValues(selections.groupVar, selections.testVar);
           if (groups.length < 2) {
-            res = { summary: { error: '2개 집단이 필요합니다. 그룹 변수의 범주가 2개 이상인지 확인하세요.' }, details: [], chartData: [] };
+            res = { summary: { error: '비교할 집단이 부족합니다. 선택한 그룹 변수(예: 성별)에 서로 다른 값(예: 남/여)이 최소 2개 있어야 하며, 각 집단에 검정 변수의 응답이 있어야 합니다.' }, details: [], chartData: [] };
           } else {
             if (groups.length > 2) {
               toast.warning(`${groups.length}개 그룹 감지 — 처음 2개 그룹(${groups[0].label}, ${groups[1].label})만 비교합니다.`);
@@ -366,7 +366,7 @@ export default function StatisticalAnalysisPage() {
         case 'anova': {
           const groups = getGroupedNumericValues(selections.groupVar, selections.testVar);
           if (groups.length < 2) {
-            res = { summary: { error: '최소 2개 집단이 필요합니다.' }, details: [], chartData: [] };
+            res = { summary: { error: '비교할 집단이 부족합니다. 선택한 그룹 변수에 서로 다른 값이 최소 2개 있어야 하며, 각 집단에 검정 변수의 응답이 있어야 합니다.' }, details: [], chartData: [] };
           } else {
             res = oneWayAnova(groups);
           }

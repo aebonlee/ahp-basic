@@ -233,7 +233,7 @@ export function descriptiveStats(values) {
 export function independentTTest(group1, group2) {
   const n1 = group1.length, n2 = group2.length;
   if (n1 < 2 || n2 < 2) {
-    return errorResult('각 그룹에 최소 2개 데이터가 필요합니다.');
+    return errorResult('각 그룹에 최소 2개의 응답 데이터가 필요합니다. 현재 한쪽 그룹의 응답이 부족합니다.');
   }
 
   const m1 = mean(group1), m2 = mean(group2);
@@ -346,11 +346,11 @@ export function pairedTTest(values1, values2) {
 /* ── 4. 일원분산분석(ANOVA) + 사후검정 ── */
 export function oneWayAnova(groups) {
   const k = groups.length;
-  if (k < 2) return errorResult('최소 2개 그룹이 필요합니다.');
+  if (k < 2) return errorResult('비교할 그룹이 2개 이상이어야 합니다. 그룹 변수에 서로 다른 범주가 있는지 확인하세요.');
 
   // 빈 그룹 필터링
   const validGroups = groups.filter(g => g.values.length > 0);
-  if (validGroups.length < 2) return errorResult('유효한 데이터가 있는 그룹이 2개 미만입니다.');
+  if (validGroups.length < 2) return errorResult('실제 응답 데이터가 있는 그룹이 2개 미만입니다. 각 그룹에 응답이 있는지 확인하세요.');
 
   const allValues = validGroups.flatMap(g => g.values);
   const N = allValues.length;
