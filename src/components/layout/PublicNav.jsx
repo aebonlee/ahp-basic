@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { to: '/guide', label: '이용 가이드' },
   { to: '/learn', label: '학습 가이드' },
   { to: '/manual', label: '사용설명서' },
+  { to: '/pricing', label: '사용요금' },
 ];
 
 export default function PublicNav() {
