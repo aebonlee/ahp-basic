@@ -60,34 +60,23 @@ export default function SurveyResultPage() {
       {evaluators.length > 0 && (
         <div className={styles.statusCard}>
           <h3 className={styles.statusTitle}>평가자별 현황</h3>
-          <table className={styles.statusTable}>
-            <thead>
-              <tr>
-                <th>이름</th>
-                {questions.length > 0 && <th>설문 응답</th>}
-                <th>평가 완료</th>
-              </tr>
-            </thead>
-            <tbody>
-              {evaluators.map(ev => (
-                <tr key={ev.id}>
-                  <td>{ev.name || ev.email}</td>
+          <div className={styles.statusGrid}>
+            {evaluators.map(ev => (
+              <div key={ev.id} className={styles.statusItem}>
+                <div className={styles.statusName}>{ev.name || ev.email}</div>
+                <div className={styles.statusBadges}>
                   {questions.length > 0 && (
-                    <td>
-                      <span className={respondedIds.has(ev.id) ? styles.statusDone : styles.statusPending}>
-                        {respondedIds.has(ev.id) ? '완료' : '미응답'}
-                      </span>
-                    </td>
-                  )}
-                  <td>
-                    <span className={ev.completed ? styles.statusDone : styles.statusPending}>
-                      {ev.completed ? '완료' : '미완료'}
+                    <span className={respondedIds.has(ev.id) ? styles.statusDone : styles.statusPending}>
+                      설문 {respondedIds.has(ev.id) ? '완료' : '미응답'}
                     </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  )}
+                  <span className={ev.completed ? styles.statusDone : styles.statusPending}>
+                    평가 {ev.completed ? '완료' : '미완료'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

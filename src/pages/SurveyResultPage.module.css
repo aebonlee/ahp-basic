@@ -128,28 +128,35 @@
   margin-bottom: var(--spacing-md);
 }
 
-.statusTable {
-  width: 100%;
-  border-collapse: collapse;
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.statusItem {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.statusName {
   font-size: 0.88rem;
-}
-
-.statusTable th {
-  text-align: left;
-  padding: 8px 12px;
-  border-bottom: 2px solid var(--color-border-light);
-  color: var(--color-text-muted);
   font-weight: 600;
-  font-size: 0.8rem;
+  color: var(--color-text);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.statusTable td {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--color-border-light);
-}
-
-.statusTable tbody tr:last-child td {
-  border-bottom: none;
+.statusBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
 }
 
 .statusDone {
@@ -179,8 +186,18 @@
   font-size: 0.9rem;
 }
 
+@media (max-width: 900px) {
+  .statusGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .statusGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 
