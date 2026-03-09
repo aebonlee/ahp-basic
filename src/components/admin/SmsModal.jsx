@@ -60,7 +60,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
   const [sending, setSending] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [results, setResults] = useState(null);
-  const [activeTab, setActiveTab] = useState('templates');
+  const [activeTab, setActiveTab] = useState('tpl_0'); // 'tpl_0' | 'tpl_1' | 'tpl_2' | 'symbols'
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(1);
   const textareaRef = useRef(null);
@@ -337,20 +337,23 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
             <div className={styles.panelRight}>
               <label className={styles.sectionLabel}>메시지</label>
 
-              {/* 특수문자 / 기본문구 탭 */}
+              {/* 기본문구 탭 (각 항목별) + 특수문자 탭 */}
               <div className={styles.toolbar}>
                 <div className={styles.tabBar}>
+                  {templates.map((tpl, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={`${styles.tabBtn} ${styles[`tabColor${idx}`] || ''} ${activeTab === `tpl_${idx}` ? styles.tabBtnActive : ''}`}
+                      onClick={() => setActiveTab(`tpl_${idx}`)}
+                      disabled={sending}
+                    >
+                      {tpl.name}
+                    </button>
+                  ))}
                   <button
                     type="button"
-                    className={`${styles.tabBtn} ${activeTab === 'templates' ? styles.tabBtnActive : ''}`}
-                    onClick={() => setActiveTab('templates')}
-                    disabled={sending}
-                  >
-                    기본문구
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.tabBtn} ${activeTab === 'symbols' ? styles.tabBtnActive : ''}`}
+                    className={`${styles.tabBtn} ${styles.tabColorSymbol || ''} ${activeTab === 'symbols' ? styles.tabBtnActive : ''}`}
                     onClick={() => setActiveTab('symbols')}
                     disabled={sending}
                   >
@@ -358,21 +361,20 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
                   </button>
                 </div>
 
-                {activeTab === 'templates' && (
-                  <div className={styles.templateList}>
-                    {templates.map((tpl) => (
+                {templates.map((tpl, idx) =>
+                  activeTab === `tpl_${idx}` ? (
+                    <div key={idx} className={`${styles.templatePreview} ${styles[`tplPreview${idx}`] || ''}`}>
+                      <div className={styles.templatePreviewContent}>{tpl.content}</div>
                       <button
-                        key={tpl.name}
                         type="button"
-                        className={styles.templateItem}
+                        className={`${styles.templateApplyBtn} ${styles[`tplApplyBtn${idx}`] || ''}`}
                         onClick={() => applyTemplate(tpl.content)}
                         disabled={sending}
                       >
-                        <span className={styles.templateName}>{tpl.name}</span>
-                        <span className={styles.templateContent}>{tpl.content}</span>
+                        이 문구 적용
                       </button>
-                    ))}
-                  </div>
+                    </div>
+                  ) : null
                 )}
 
                 {activeTab === 'symbols' && (
