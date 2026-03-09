@@ -6,7 +6,7 @@ import Button from '../common/Button';
 import ConfirmDialog from '../common/ConfirmDialog';
 import styles from '../../styles/results.module.css';
 
-export default function SignaturePanel({ projectId, evaluatorId, allComplete, allConsistent, completedCells, totalCells }) {
+export default function SignaturePanel({ projectId, evaluatorId, allComplete, allConsistent, completedCells, totalCells, hasSurveyResponses }) {
   const [signed, setSigned] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
@@ -18,6 +18,7 @@ export default function SignaturePanel({ projectId, evaluatorId, allComplete, al
     let msg = '평가를 완료하시겠습니까?';
     if (!allComplete) msg = `아직 미완료 항목이 있습니다 (${completedCells}/${totalCells}). 그래도 완료하시겠습니까?`;
     else if (!allConsistent) msg = '비일관성비율이 높은 항목이 있습니다. 그래도 완료하시겠습니까?';
+    if (hasSurveyResponses) msg += '\n\n설문 응답을 확인하셨습니까? "설문 응답" 탭에서 본인의 응답을 확인할 수 있습니다.';
 
     if (!(await confirm({ title: '평가 완료', message: msg, variant: 'warning' }))) return;
 

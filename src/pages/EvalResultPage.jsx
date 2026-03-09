@@ -4,6 +4,7 @@ import { useEvaluation } from '../contexts/EvaluationContext';
 import { useAuth } from '../hooks/useAuth';
 import { useProject } from '../hooks/useProjects';
 import { useEvaluators } from '../hooks/useEvaluators';
+import { useSurveyQuestions, useSurveyResponses } from '../hooks/useSurvey';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import { calculateAHP } from '../lib/ahpEngine';
 import { CR_THRESHOLD } from '../lib/constants';
@@ -13,12 +14,13 @@ import ResultSummary from '../components/results/ResultSummary';
 import ComprehensiveChart from '../components/results/ComprehensiveChart';
 import ConsistencyTable from '../components/results/ConsistencyTable';
 import DetailView from '../components/results/DetailView';
+import SurveyResponseView from '../components/results/SurveyResponseView';
 import SignaturePanel from '../components/results/SignaturePanel';
 import ExportButtons from '../components/results/ExportButtons';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import Button from '../components/common/Button';
-import { supabase } from '../lib/supabaseClient';
 import styles from './EvalResultPage.module.css';
+
 
 export default function EvalResultPage() {
   const { id } = useParams();
@@ -27,8 +29,9 @@ export default function EvalResultPage() {
   const { currentProject } = useProject(id);
   const { evaluators } = useEvaluators(id);
   const { criteria, alternatives, comparisons, loading, loadProjectData } = useEvaluation();
+  const { questions: surveyQuestions } = useSurveyQuestions(id);
+  const { responses: surveyResponses } = useSurveyResponses(id);
   const [activeTab, setActiveTab] = useState('summary');
-  const [hasSurvey, setHasSurvey] = useState(false);
 
   // 평가 완료(잠금) 여부
   const isCompleted = useMemo(() => {
@@ -47,20 +50,10 @@ export default function EvalResultPage() {
     }
   }, [id, evaluatorId, loadProjectData]);
 
-  // Check if project has pre-survey
-  useEffect(() => {
-    if (!id) return;
-    const check = async () => {
-      const { data: qs } = await supabase
-        .from('survey_questions').select('id').eq('project_id', id).limit(1);
-      const { data: proj } = await supabase
-        .from('projects').select('research_description, consent_text').eq('id', id).single();
-      setHasSurvey(
-        (qs && qs.length > 0) || !!proj?.research_description || !!proj?.consent_text
-      );
-    };
-    check();
-  }, [id]);
+  const hasSurveyResponses = useMemo(() => {
+    if (!evaluatorId || surveyQuestions.length === 0) return false;
+    return surveyResponses.some(r => r.evaluator_id === evaluatorId);
+  }, [evaluatorId, surveyQuestions, surveyResponses]);
 
   // Calculate all results
   const results = useMemo(() => {
@@ -138,6 +131,7 @@ export default function EvalResultPage() {
     { key: 'summary', label: '종합결과' },
     { key: 'detail', label: '세부내용' },
     { key: 'consistency', label: '비일관성비율' },
+    ...(surveyQuestions.length > 0 ? [{ key: 'survey', label: '설문 응답' }] : []),
   ];
 
   return (
@@ -151,11 +145,6 @@ export default function EvalResultPage() {
         )}
         {isCompleted && <div />}
         <div className={styles.navRight}>
-          {hasSurvey && (
-            <Button variant="secondary" onClick={() => navigate(`/eval/project/${id}/pre-survey`)}>
-              설문 응답 확인
-            </Button>
-          )}
           <Button variant="secondary" onClick={() => navigate('/evaluator')}>
             평가 목록
           </Button>
@@ -211,6 +200,13 @@ export default function EvalResultPage() {
           <ConsistencyTable
             results={results}
             onNavigateToPage={isCompleted ? undefined : (pageIdx) => navigate(`/eval/project/${id}#page=${pageIdx}`)}
+          />
+        )}
+        {activeTab === 'survey' && (
+          <SurveyResponseView
+            questions={surveyQuestions}
+            responses={surveyResponses}
+            evaluatorId={evaluatorId}
           />
         )}
       </div>
@@ -273,6 +269,7 @@ export default function EvalResultPage() {
         allConsistent={results.allConsistent}
         completedCells={results.completedCells}
         totalCells={results.totalCells}
+        hasSurveyResponses={hasSurveyResponses}
       />
     </PageLayout>
   );
