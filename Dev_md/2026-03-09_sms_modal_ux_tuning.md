@@ -33,5 +33,18 @@ SMS 발송 모달에 특수문자 빠른 삽입과 기본문구 템플릿 기능
 - `.symbolGrid` / `.symbolBtn` — 특수문자 flex wrap 그리드 (32x32 버튼, hover 확대)
 - `.templateList` / `.templateItem` — 템플릿 카드 목록
 
+### 4. 데스크톱 2단 가로 레이아웃
+- 모달 너비 480px → **780px** 확장
+- **좌우 2단 배치**: 왼쪽(수신자 260px 고정) / 오른쪽(메시지 flex)
+- 수신자 목록 max-height 200px → 320px 확장
+- `.body` (flex 컨테이너), `.panelLeft`, `.panelRight` CSS 추가
+- 발송 버튼은 하단 전체 너비 유지
+
+## 커밋 이력
+| 커밋 | 내용 |
+|------|------|
+| `b7884f7` | feat: SMS 모달에 특수문자 빠른삽입 & 기본문구 템플릿 추가 |
+| `18ae089` | style: SMS 모달 2단 가로 레이아웃 (780px, 좌:수신자 / 우:메시지) |
+
 ## 검증
-- `npm run build` 성공
+- `npm run build` 성공 (2회)
