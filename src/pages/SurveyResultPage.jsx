@@ -209,8 +209,22 @@ export default function SurveyResultPage() {
     const total = evaluators.length;
     const surveyed = evaluators.filter(e => respondedIds.has(e.id)).length;
     const completed = evaluators.filter(e => totalRequired > 0 && (evalProgress[e.id] || 0) >= totalRequired).length;
-    return { total, surveyed, completed };
+    const inProgress = evaluators.filter(e => {
+      const c = evalProgress[e.id] || 0;
+      return c > 0 && (totalRequired === 0 || c < totalRequired);
+    }).length;
+    const notStarted = total - completed - inProgress;
+    return { total, surveyed, completed, inProgress, notStarted };
   }, [evaluators, respondedIds, evalProgress, totalRequired]);
+
+  // 질문별 응답률 (대시보드용)
+  const questionStats = useMemo(() => {
+    if (questions.length === 0) return [];
+    return questions.map(q => {
+      const qResponses = responses.filter(r => r.question_id === q.id);
+      return { id: q.id, text: q.question_text, type: q.question_type, count: qResponses.length, total: evaluators.length };
+    });
+  }, [questions, responses, evaluators.length]);
 
   const selectedEvaluator = useMemo(
     () => evaluators.find(e => e.id === selectedEval) || null,
@@ -225,17 +239,41 @@ export default function SurveyResultPage() {
     <ProjectLayout>
       <h1 className={common.pageTitle}>설문 집계</h1>
 
-      <div className={styles.summary}>
+      {/* ── 대시보드형 집계 ── */}
+      <div className={styles.dashboard}>
+        <div className={styles.dashCard}>
+          <div className={styles.dashNum}>{stats.total}</div>
+          <div className={styles.dashLabel}>총 평가자</div>
+        </div>
         {questions.length > 0 && (
-          <div>
-            <div className={styles.summaryNum}>{stats.surveyed} / {stats.total}</div>
-            <div className={styles.summaryLabel}>설문 응답</div>
+          <div className={styles.dashCard}>
+            <div className={styles.dashNum}>{stats.surveyed}<span className={styles.dashSub}> / {stats.total}</span></div>
+            <div className={styles.dashLabel}>설문 응답</div>
+            <div className={styles.dashBar}><div className={styles.dashBarFill} style={{ width: `${stats.total > 0 ? (stats.surveyed / stats.total) * 100 : 0}%` }} /></div>
           </div>
         )}
-        <div>
-          <div className={styles.summaryNum}>{stats.completed} / {stats.total}</div>
-          <div className={styles.summaryLabel}>평가 완료</div>
+        <div className={styles.dashCard}>
+          <div className={styles.dashNum}>{stats.completed}<span className={styles.dashSub}> / {stats.total}</span></div>
+          <div className={styles.dashLabel}>평가 완료</div>
+          <div className={styles.dashBar}><div className={styles.dashBarFill} style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%`, background: 'var(--color-success)' }} /></div>
         </div>
+        <div className={styles.dashCard}>
+          <div className={styles.dashNum}>{stats.inProgress}</div>
+          <div className={styles.dashLabel}>평가 진행중</div>
+        </div>
+        <div className={styles.dashCard}>
+          <div className={styles.dashNum}>{stats.notStarted}</div>
+          <div className={styles.dashLabel}>미시작</div>
+        </div>
+
+        {/* 질문별 응답률 카드 */}
+        {questionStats.map(qs => (
+          <div key={qs.id} className={styles.dashCardSm}>
+            <div className={styles.dashSmLabel}>{qs.text}</div>
+            <div className={styles.dashSmVal}>{qs.count}<span className={styles.dashSub}> / {qs.total}</span></div>
+            <div className={styles.dashBar}><div className={styles.dashBarFill} style={{ width: `${qs.total > 0 ? (qs.count / qs.total) * 100 : 0}%` }} /></div>
+          </div>
+        ))}
       </div>
 
       {evaluators.length > 0 && (
@@ -477,22 +515,19 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
           {myResponses.length === 0 ? (
             <div className={styles.detailEmpty}>설문에 응답하지 않았습니다.</div>
           ) : (
-            <table className={styles.answerTable}>
-              <tbody>
-                {questions.map((q, qi) => {
-                  const ans = answerMap[q.id];
-                  return (
-                    <tr key={q.id}>
-                      <td className={styles.answerNum}>Q{qi + 1}</td>
-                      <td className={styles.answerQuestion}>{q.question_text}</td>
-                      <td className={styles.answerValue}>
-                        {ans ? formatAnswer(ans) : <span className={styles.answerNone}>-</span>}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className={styles.answerGrid}>
+              {questions.map((q, qi) => {
+                const ans = answerMap[q.id];
+                return (
+                  <div key={q.id} className={styles.answerCell}>
+                    <div className={styles.answerLabel}>{q.question_text}</div>
+                    <div className={styles.answerVal}>
+                      {ans ? formatAnswer(ans) : <span className={styles.answerNone}>-</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       )}
