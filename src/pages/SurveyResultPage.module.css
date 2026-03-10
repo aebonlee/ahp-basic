@@ -290,6 +290,100 @@
   font-weight: 400;
 }
 
+/* ── 개인 평가 결과 ── */
+.miniChart {
+  margin: 4px 0;
+}
+
+.crList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.crItem {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+}
+
+.crHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.crName {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.crPass {
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--color-success);
+}
+
+.crFail {
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--color-danger);
+  background: #fef2f2;
+  padding: 1px 6px;
+  border-radius: var(--radius-round);
+}
+
+.priBars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.priRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.priName {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  min-width: 50px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.priBarWrap {
+  flex: 1;
+  height: 10px;
+  background: var(--color-border-light);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.priBar {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s;
+}
+
+.priVal {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--color-text);
+  min-width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
 /* ── 설문 전체 집계 ── */
 .questionCard {
   background: var(--color-surface);

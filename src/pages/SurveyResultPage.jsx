@@ -8,7 +8,9 @@ import { useCriteria } from '../hooks/useCriteria';
 import { useAlternatives } from '../hooks/useAlternatives';
 import { useProject } from '../hooks/useProjects';
 import { buildPageSequence } from '../lib/pairwiseUtils';
-import { EVAL_METHOD } from '../lib/constants';
+import { aggregateComparisons } from '../lib/ahpAggregation';
+import { aggregateDirectInputs } from '../lib/directInputEngine';
+import { EVAL_METHOD, CR_THRESHOLD } from '../lib/constants';
 import ProjectLayout from '../components/layout/ProjectLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ProgressBar from '../components/common/ProgressBar';
@@ -39,26 +41,19 @@ export default function SurveyResultPage() {
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [selectedEval, setSelectedEval] = useState(null);
   const [rawCompData, setRawCompData] = useState([]);
+  const [rawDirectData, setRawDirectData] = useState([]);
 
   const isDirectInput = currentProject?.eval_method === EVAL_METHOD.DIRECT_INPUT;
 
+  // value 포함해서 로드 (개인 결과 계산용)
   const loadCompData = useCallback(async () => {
-    if (isDirectInput) {
-      const { data } = await supabase
-        .from('direct_input_values')
-        .select('evaluator_id, criterion_id, item_id')
-        .eq('project_id', id)
-        .limit(10000);
-      setRawCompData(data || []);
-    } else {
-      const { data } = await supabase
-        .from('pairwise_comparisons')
-        .select('evaluator_id, criterion_id, row_id, col_id')
-        .eq('project_id', id)
-        .limit(10000);
-      setRawCompData(data || []);
-    }
-  }, [id, isDirectInput]);
+    const [compRes, directRes] = await Promise.all([
+      supabase.from('pairwise_comparisons').select('evaluator_id, criterion_id, row_id, col_id, value').eq('project_id', id).limit(10000),
+      supabase.from('direct_input_values').select('evaluator_id, criterion_id, item_id, value').eq('project_id', id).limit(10000),
+    ]);
+    setRawCompData(compRes.data || []);
+    setRawDirectData(directRes.data || []);
+  }, [id]);
 
   useEffect(() => {
     if (currentProject) loadCompData();
@@ -69,25 +64,30 @@ export default function SurveyResultPage() {
     [responses],
   );
 
+  const pageSequence = useMemo(() => {
+    if (criteria.length === 0) return [];
+    return buildPageSequence(criteria, alternatives, id);
+  }, [criteria, alternatives, id]);
+
   const { totalRequired, validKeys } = useMemo(() => {
-    if (criteria.length === 0) return { totalRequired: 0, validKeys: new Set() };
-    const pages = buildPageSequence(criteria, alternatives, id);
     const keys = new Set();
     if (isDirectInput) {
-      for (const page of pages) {
+      for (const page of pageSequence) {
         for (const item of page.items) keys.add(`${page.parentId}:${item.id}`);
       }
     } else {
-      for (const page of pages) {
+      for (const page of pageSequence) {
         for (const pair of page.pairs) keys.add(`${page.parentId}:${pair.left.id}:${pair.right.id}`);
       }
     }
     return { totalRequired: keys.size, validKeys: keys };
-  }, [criteria, alternatives, id, isDirectInput]);
+  }, [pageSequence, isDirectInput]);
 
+  // 평가자별 진행률
   const evalProgress = useMemo(() => {
     const counts = {};
-    for (const row of rawCompData) {
+    const data = isDirectInput ? rawDirectData : rawCompData;
+    for (const row of data) {
       const key = isDirectInput
         ? `${row.criterion_id}:${row.item_id}`
         : `${row.criterion_id}:${row.row_id}:${row.col_id}`;
@@ -96,7 +96,27 @@ export default function SurveyResultPage() {
       }
     }
     return counts;
-  }, [rawCompData, validKeys, isDirectInput]);
+  }, [rawCompData, rawDirectData, validKeys, isDirectInput]);
+
+  // 평가자별 비교 데이터 맵 (개인 결과 계산용)
+  const compByEvaluator = useMemo(() => {
+    const byEval = {};
+    for (const c of rawCompData) {
+      if (!byEval[c.evaluator_id]) byEval[c.evaluator_id] = {};
+      byEval[c.evaluator_id][`${c.criterion_id}:${c.row_id}:${c.col_id}`] = c.value;
+    }
+    return byEval;
+  }, [rawCompData]);
+
+  const directByEvaluator = useMemo(() => {
+    const byEval = {};
+    for (const d of rawDirectData) {
+      if (!byEval[d.evaluator_id]) byEval[d.evaluator_id] = {};
+      if (!byEval[d.evaluator_id][d.criterion_id]) byEval[d.evaluator_id][d.criterion_id] = {};
+      byEval[d.evaluator_id][d.criterion_id][d.item_id] = d.value;
+    }
+    return byEval;
+  }, [rawDirectData]);
 
   const stats = useMemo(() => {
     const total = evaluators.length;
@@ -131,18 +151,14 @@ export default function SurveyResultPage() {
         </div>
       </div>
 
-      {/* ── 평가자 마스터-디테일 ── */}
       {evaluators.length > 0 && (
         <div className={styles.statusCard}>
           <div className={styles.statusHeader}>
             <h3 className={styles.statusTitle}>평가자별 현황</h3>
-            <button className={styles.smsBtn} onClick={() => setSmsModalOpen(true)}>
-              SMS 발송
-            </button>
+            <button className={styles.smsBtn} onClick={() => setSmsModalOpen(true)}>SMS 발송</button>
           </div>
 
           <div className={styles.masterDetail}>
-            {/* 왼쪽: 이름 2열 */}
             <div className={styles.masterList}>
               {evaluators.map((ev, idx) => {
                 const hasSurvey = respondedIds.has(ev.id);
@@ -150,10 +166,7 @@ export default function SurveyResultPage() {
                 const isDone = totalRequired > 0 && count >= totalRequired;
                 const isSelected = selectedEval === ev.id;
                 return (
-                  <div
-                    key={ev.id}
-                    className={`${styles.evalRow} ${isSelected ? styles.evalRowSelected : ''}`}
-                  >
+                  <div key={ev.id} className={`${styles.evalRow} ${isSelected ? styles.evalRowSelected : ''}`}>
                     <span className={styles.evalIdx}>{idx + 1}</span>
                     <span className={styles.evalName}>{ev.name || ev.email}</span>
                     {questions.length > 0 && (
@@ -175,7 +188,6 @@ export default function SurveyResultPage() {
               })}
             </div>
 
-            {/* 오른쪽: 상세 패널 */}
             <div className={styles.detailPanel}>
               {selectedEvaluator ? (
                 <EvalDetail
@@ -186,10 +198,17 @@ export default function SurveyResultPage() {
                   totalRequired={totalRequired}
                   isDone={totalRequired > 0 && (evalProgress[selectedEvaluator.id] || 0) >= totalRequired}
                   hasSurvey={respondedIds.has(selectedEvaluator.id)}
+                  pageSequence={pageSequence}
+                  compMap={compByEvaluator[selectedEvaluator.id] || {}}
+                  directMap={directByEvaluator[selectedEvaluator.id] || {}}
+                  isDirectInput={isDirectInput}
+                  criteria={criteria}
+                  alternatives={alternatives}
+                  goalId={id}
                 />
               ) : (
                 <div className={styles.detailPlaceholder}>
-                  [세부내역] 버튼을 클릭하면<br />설문 응답과 평가 현황을 확인할 수 있습니다.
+                  [세부내역] 버튼을 클릭하면<br />설문 응답과 평가 결과를 확인할 수 있습니다.
                 </div>
               )}
             </div>
@@ -206,17 +225,11 @@ export default function SurveyResultPage() {
         projectName={currentProject?.name}
       />
 
-      {/* ── 설문 결과 (전체 집계) ── */}
       {questions.length === 0 ? (
         <div className={styles.emptyMsg}>설계된 설문 질문이 없습니다.</div>
       ) : (
         questions.map((q, idx) => (
-          <QuestionResult
-            key={q.id}
-            question={q}
-            index={idx}
-            responses={getResponsesByQuestion(q.id)}
-          />
+          <QuestionResult key={q.id} question={q} index={idx} responses={getResponsesByQuestion(q.id)} />
         ))
       )}
     </ProjectLayout>
@@ -224,7 +237,7 @@ export default function SurveyResultPage() {
 }
 
 /* ── 개인 상세 패널 ── */
-function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, totalRequired, isDone, hasSurvey }) {
+function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, totalRequired, isDone, hasSurvey, pageSequence, compMap, directMap, isDirectInput, criteria, alternatives, goalId }) {
   const myResponses = useMemo(
     () => getResponsesByEvaluator(evaluator.id),
     [getResponsesByEvaluator, evaluator.id],
@@ -232,11 +245,50 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
 
   const answerMap = useMemo(() => {
     const map = {};
-    for (const r of myResponses) {
-      map[r.question_id] = r.answer;
-    }
+    for (const r of myResponses) map[r.question_id] = r.answer;
     return map;
   }, [myResponses]);
+
+  // 개인 AHP 결과 계산
+  const individualResults = useMemo(() => {
+    if (evalCount === 0) return null;
+
+    const pageResults = [];
+    for (const page of pageSequence) {
+      const itemIds = page.items.map(i => i.id);
+      if (itemIds.length < 2) continue;
+
+      let agg;
+      if (isDirectInput) {
+        const values = directMap[page.parentId] || {};
+        agg = aggregateDirectInputs(itemIds, [{ values, weight: 1 }]);
+      } else {
+        const values = {};
+        for (let i = 0; i < itemIds.length; i++) {
+          for (let j = i + 1; j < itemIds.length; j++) {
+            const key = `${page.parentId}:${itemIds[i]}:${itemIds[j]}`;
+            if (compMap[key] !== undefined) {
+              values[`${itemIds[i]}:${itemIds[j]}`] = compMap[key] === 0 ? 1 : compMap[key];
+            }
+          }
+        }
+        agg = aggregateComparisons(itemIds, [{ values, weight: 1 }]);
+      }
+
+      pageResults.push({
+        parentName: page.parentName,
+        type: page.type,
+        items: page.items,
+        priorities: agg.priorities,
+        cr: agg.cr,
+      });
+    }
+
+    // 최종 대안 점수 계산
+    const altScores = computeAltScores(pageResults, criteria, alternatives, goalId);
+
+    return { pageResults, altScores };
+  }, [pageSequence, compMap, directMap, isDirectInput, evalCount, criteria, alternatives, goalId]);
 
   return (
     <div className={styles.evalDetail}>
@@ -252,6 +304,65 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
         </div>
         <ProgressBar value={evalCount} max={totalRequired || 1} color={isDone ? 'var(--color-success)' : 'var(--color-primary)'} />
       </div>
+
+      {/* 평가 결과 (차트 + CR) */}
+      {individualResults && individualResults.altScores.length > 0 && (
+        <div className={styles.detailSection}>
+          <div className={styles.detailSectionTitle}>최종 대안 점수</div>
+          <div className={styles.miniChart}>
+            <ResponsiveContainer width="100%" height={Math.max(individualResults.altScores.length * 32, 80)}>
+              <BarChart data={individualResults.altScores} layout="vertical" margin={{ left: 60, right: 30, top: 2, bottom: 2 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} unit="%" />
+                <YAxis type="category" dataKey="name" width={55} tick={{ fontSize: 11 }} />
+                <Tooltip formatter={(v) => [`${v.toFixed(1)}%`, '점수']} />
+                <Bar dataKey="score" radius={[0, 4, 4, 0]}>
+                  {individualResults.altScores.map((_, i) => (
+                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {individualResults && individualResults.pageResults.length > 0 && (
+        <div className={styles.detailSection}>
+          <div className={styles.detailSectionTitle}>비교별 우선순위 &amp; CR</div>
+          <div className={styles.crList}>
+            {individualResults.pageResults.map((pr, idx) => (
+              <div key={idx} className={styles.crItem}>
+                <div className={styles.crHeader}>
+                  <span className={styles.crName}>{pr.parentName}</span>
+                  {!isDirectInput && (
+                    <span className={pr.cr > CR_THRESHOLD ? styles.crFail : styles.crPass}>
+                      CR {pr.cr.toFixed(4)}
+                    </span>
+                  )}
+                </div>
+                <div className={styles.priBars}>
+                  {pr.items.map((item, ii) => (
+                    <div key={item.id} className={styles.priRow}>
+                      <span className={styles.priName}>{item.name}</span>
+                      <div className={styles.priBarWrap}>
+                        <div
+                          className={styles.priBar}
+                          style={{
+                            width: `${(pr.priorities[ii] || 0) * 100}%`,
+                            background: COLORS[ii % COLORS.length],
+                          }}
+                        />
+                      </div>
+                      <span className={styles.priVal}>{((pr.priorities[ii] || 0) * 100).toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 설문 응답 */}
       {questions.length > 0 && (
@@ -286,6 +397,59 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
       )}
     </div>
   );
+}
+
+/* ── 최종 대안 점수 계산 ── */
+function computeAltScores(pageResults, criteria, alternatives, goalId) {
+  if (alternatives.length === 0) return [];
+
+  // 기준 우선순위 맵 (parentId → { itemId: priority })
+  const priMap = {};
+  for (const pr of pageResults) {
+    priMap[pr.parentName] = {};
+    pr.items.forEach((item, i) => {
+      priMap[pr.parentName][item.id] = pr.priorities[i] || 0;
+    });
+  }
+
+  // 기준별 글로벌 가중치 계산 (단순화: 루트 기준 우선순위만 사용)
+  const rootCriteria = criteria.filter(c => !c.parent_id || c.parent_id === goalId);
+  const rootPriorities = {};
+  const goalPage = pageResults.find(pr => pr.type === 'criteria' && pr.items.some(i => rootCriteria.find(rc => rc.id === i.id)));
+  if (goalPage) {
+    goalPage.items.forEach((item, i) => {
+      rootPriorities[item.id] = goalPage.priorities[i] || 0;
+    });
+  } else {
+    // 단일 기준인 경우
+    rootCriteria.forEach(c => { rootPriorities[c.id] = 1 / rootCriteria.length; });
+  }
+
+  // 대안별 점수
+  const altIds = alternatives.map(a => a.id);
+  const scores = altIds.map(() => 0);
+
+  for (const pr of pageResults) {
+    if (pr.type !== 'alternative') continue;
+    // 이 페이지의 부모 기준 찾기
+    const parentCrit = criteria.find(c => c.name === pr.parentName);
+    if (!parentCrit) continue;
+
+    const globalWeight = rootPriorities[parentCrit.id] || (1 / rootCriteria.length);
+
+    pr.items.forEach((item, i) => {
+      const altIdx = altIds.indexOf(item.id);
+      if (altIdx >= 0) {
+        scores[altIdx] += (pr.priorities[i] || 0) * globalWeight;
+      }
+    });
+  }
+
+  const total = scores.reduce((a, b) => a + b, 0);
+  return alternatives.map((alt, i) => ({
+    name: alt.name,
+    score: total > 0 ? (scores[i] / total) * 100 : 0,
+  }));
 }
 
 function formatAnswer(answer) {
@@ -325,9 +489,7 @@ function TextResults({ responses }) {
   return (
     <ul className={styles.textList}>
       {responses.map(r => (
-        <li key={r.id} className={styles.textItem}>
-          {r.answer?.value ?? JSON.stringify(r.answer)}
-        </li>
+        <li key={r.id} className={styles.textItem}>{r.answer?.value ?? JSON.stringify(r.answer)}</li>
       ))}
     </ul>
   );
@@ -340,8 +502,7 @@ function NumberResults({ responses }) {
     const sorted = [...values].sort((a, b) => a - b);
     const sum = values.reduce((a, b) => a + b, 0);
     return {
-      min: sorted[0],
-      max: sorted[sorted.length - 1],
+      min: sorted[0], max: sorted[sorted.length - 1],
       avg: (sum / values.length).toFixed(1),
       median: sorted.length % 2 === 0
         ? ((sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2).toFixed(1)
@@ -366,17 +527,10 @@ function ChoiceResults({ question, responses }) {
     for (const opt of options) counts[opt] = 0;
     for (const r of responses) {
       const val = r.answer?.value !== undefined ? r.answer.value : (Array.isArray(r.answer) ? r.answer : undefined);
-      if (Array.isArray(val)) {
-        for (const v of val) counts[v] = (counts[v] || 0) + 1;
-      } else if (val !== undefined) {
-        counts[val] = (counts[val] || 0) + 1;
-      }
+      if (Array.isArray(val)) { for (const v of val) counts[v] = (counts[v] || 0) + 1; }
+      else if (val !== undefined) { counts[val] = (counts[val] || 0) + 1; }
     }
-    return options.map(opt => ({
-      name: opt,
-      count: counts[opt] || 0,
-      pct: responses.length > 0 ? ((counts[opt] || 0) / responses.length * 100).toFixed(1) : '0',
-    }));
+    return options.map(opt => ({ name: opt, count: counts[opt] || 0, pct: responses.length > 0 ? ((counts[opt] || 0) / responses.length * 100).toFixed(1) : '0' }));
   }, [question, responses]);
   if (data.length === 0) return <p className={styles.emptyMsg}>선택지 없음</p>;
   return (
@@ -388,9 +542,7 @@ function ChoiceResults({ question, responses }) {
           <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
           <Tooltip formatter={(value, name, props) => [`${value}명 (${props.payload.pct}%)`, '응답 수']} />
           <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-            {data.map((_, i) => (
-              <Cell key={i} fill={COLORS[i % COLORS.length]} />
-            ))}
+            {data.map((_, i) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
