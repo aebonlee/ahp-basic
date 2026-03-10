@@ -35,12 +35,17 @@ export default function EvaluatorManagementPage() {
   const [comparisonCounts, setComparisonCounts] = useState({});
   const [smsModalOpen, setSmsModalOpen] = useState(false);
 
-  // 전체 필요 비교 수 계산
+  const isDirectInput = currentProject?.eval_method === EVAL_METHOD.DIRECT_INPUT;
+
+  // 전체 필요 수 계산 (직접입력: 항목 수, 쌍대비교: 쌍 수)
   const totalRequired = useMemo(() => {
     if (criteria.length === 0) return 0;
     const pages = buildPageSequence(criteria, alternatives, id);
+    if (isDirectInput) {
+      return pages.reduce((sum, p) => sum + p.items.length, 0);
+    }
     return pages.reduce((sum, p) => sum + p.pairs.length, 0);
-  }, [criteria, alternatives, id]);
+  }, [criteria, alternatives, id, isDirectInput]);
 
   // 평가자별 완료 비교 수 로드
   useEffect(() => {

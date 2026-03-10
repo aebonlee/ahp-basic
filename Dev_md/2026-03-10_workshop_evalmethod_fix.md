@@ -41,6 +41,15 @@
    - 직접입력: `criterion_id:item_id`
    - 쌍대비교: `criterion_id:row_id:col_id`
 
+### `src/pages/EvaluatorManagementPage.jsx`
+
+1. **`isDirectInput` 플래그 추가**
+2. **`totalRequired` 계산 분기**:
+   - 기존: 항상 `p.pairs.length` (쌍대비교 쌍 수)로 계산
+   - 수정: 직접입력은 `p.items.length` (항목 수), 쌍대비교는 `p.pairs.length` (쌍 수)
+   - DB 조회 테이블은 이미 올바르게 분기되어 있었으나, 분모(totalRequired)가 잘못됨
+
 ## 영향 범위
 - 워크숍 페이지(`/project/:id/workshop`)의 평가자 진행률 표시
+- 평가자 관리 페이지(`/project/:id/eval`)의 진행률 퍼센트 표시
 - 직접입력 방식 프로젝트에서만 영향 (쌍대비교 프로젝트는 기존과 동일)
