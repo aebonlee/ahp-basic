@@ -7,7 +7,18 @@ export async function sendSms({ receiver, message }) {
   const { data, error } = await supabase.functions.invoke('send-sms', {
     body: { receiver, message },
   });
-  if (error) throw error;
+  if (error) {
+    // FunctionsHttpError의 경우 응답 본문에서 상세 에러 추출
+    const detail = typeof data === 'object' && data?.error
+      ? data.error
+      : typeof data === 'string'
+        ? data
+        : error.message || '알 수 없는 오류';
+    throw new Error(detail);
+  }
+  if (data && !data.success) {
+    throw new Error(data.message || '발송 실패');
+  }
   return data;
 }
 
