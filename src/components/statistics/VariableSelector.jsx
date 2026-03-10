@@ -2,6 +2,7 @@
  * 통계분석 변수 선택 UI
  * 분석 유형에 따라 적절한 변수 선택 폼 표시
  * 변수별 데이터 미리보기 + 선택 후 데이터 진단 표시
+ * 변수 부족 시 안내 + 중복 선택 방지
  */
 import { useState, useMemo } from 'react';
 import styles from './VariableSelector.module.css';
@@ -11,6 +12,7 @@ const ANALYSIS_CONFIG = {
     title: '기술통계',
     help: '선택한 변수의 평균, 중앙값, 표준편차 등 기본 통계량을 산출합니다.',
     fields: [{ key: 'variable', label: '분석 변수', type: 'numeric', multi: false }],
+    minNumeric: 1, minCategorical: 0,
   },
   independentT: {
     title: '독립표본 T검정',
@@ -19,14 +21,17 @@ const ANALYSIS_CONFIG = {
       { key: 'groupVar', label: '그룹 변수 (2집단)', type: 'categorical', multi: false },
       { key: 'testVar', label: '검정 변수', type: 'numeric', multi: false },
     ],
+    minNumeric: 1, minCategorical: 1,
   },
   pairedT: {
     title: '대응표본 T검정',
-    help: '동일 대상의 두 시점/조건(예: 사전-사후) 평균을 비교합니다. 두 변수의 응답자 수가 같아야 합니다.',
+    help: '동일 대상의 두 시점/조건(예: 사전-사후) 평균을 비교합니다. 서로 다른 2개의 수치 변수를 선택해야 합니다.',
     fields: [
       { key: 'var1', label: '변수 1 (사전/조건A)', type: 'numeric', multi: false },
       { key: 'var2', label: '변수 2 (사후/조건B)', type: 'numeric', multi: false },
     ],
+    minNumeric: 2, minCategorical: 0,
+    noDuplicate: ['var1', 'var2'],
   },
   anova: {
     title: '일원분산분석 (ANOVA)',
@@ -35,6 +40,7 @@ const ANALYSIS_CONFIG = {
       { key: 'groupVar', label: '그룹 변수 (3+집단)', type: 'categorical', multi: false },
       { key: 'testVar', label: '검정 변수', type: 'numeric', multi: false },
     ],
+    minNumeric: 1, minCategorical: 1,
   },
   chiSquare: {
     title: '카이제곱 검정',
@@ -43,24 +49,30 @@ const ANALYSIS_CONFIG = {
       { key: 'var1', label: '변수 1 (범주형)', type: 'categorical', multi: false },
       { key: 'var2', label: '변수 2 (범주형)', type: 'categorical', multi: false },
     ],
+    minNumeric: 0, minCategorical: 2,
+    noDuplicate: ['var1', 'var2'],
   },
   correlation: {
     title: '상관분석',
     help: '선택한 수치 변수들 간의 Pearson 상관계수를 계산하여 선형 관계를 파악합니다.',
     fields: [{ key: 'variables', label: '분석 변수 (2개 이상)', type: 'numeric', multi: true }],
+    minNumeric: 2, minCategorical: 0,
   },
   regression: {
     title: '단순선형회귀',
-    help: '독립변수(X)로 종속변수(Y)를 예측하는 회귀식을 구합니다. 두 변수 모두 수치형이어야 합니다.',
+    help: '독립변수(X)로 종속변수(Y)를 예측하는 회귀식을 구합니다. 서로 다른 2개의 수치 변수를 선택해야 합니다.',
     fields: [
       { key: 'xVar', label: '독립변수 (X) \u2014 예측에 사용', type: 'numeric', multi: false },
       { key: 'yVar', label: '종속변수 (Y) \u2014 예측 대상', type: 'numeric', multi: false },
     ],
+    minNumeric: 2, minCategorical: 0,
+    noDuplicate: ['xVar', 'yVar'],
   },
   cronbach: {
     title: '크론바흐 알파',
     help: '같은 척도(리커트)의 문항들이 내적으로 일관되게 측정하는지 신뢰도를 분석합니다.',
     fields: [{ key: 'items', label: '리커트 문항 (2개 이상)', type: 'numeric', multi: true }],
+    minNumeric: 2, minCategorical: 0,
   },
   crossTab: {
     title: '교차분석',
@@ -69,11 +81,14 @@ const ANALYSIS_CONFIG = {
       { key: 'var1', label: '행 변수 (범주형)', type: 'categorical', multi: false },
       { key: 'var2', label: '열 변수 (범주형)', type: 'categorical', multi: false },
     ],
+    minNumeric: 0, minCategorical: 2,
+    noDuplicate: ['var1', 'var2'],
   },
   spearman: {
     title: 'Spearman 순위상관',
     help: '순위 기반 비모수 상관분석입니다. 비정규 데이터나 순서형 변수에 적합합니다.',
     fields: [{ key: 'variables', label: '분석 변수 (2개 이상)', type: 'numeric', multi: true }],
+    minNumeric: 2, minCategorical: 0,
   },
 };
 
@@ -104,8 +119,108 @@ function VarSummaryBadge({ summary }) {
   return null;
 }
 
+/** 변수 부족 안내 패널 */
+function InsufficientVarsNotice({ analysisType, variables, onBack }) {
+  const config = ANALYSIS_CONFIG[analysisType];
+  if (!config) return null;
+
+  const numCount = variables.numeric.length;
+  const catCount = variables.categorical.length;
+  const needNum = config.minNumeric || 0;
+  const needCat = config.minCategorical || 0;
+  const numOk = numCount >= needNum;
+  const catOk = catCount >= needCat;
+
+  if (numOk && catOk) return null;
+
+  const messages = [];
+  if (!numOk) {
+    messages.push(`수치/리커트형 변수가 ${needNum}개 이상 필요하지만 현재 ${numCount}개뿐입니다.`);
+  }
+  if (!catOk) {
+    messages.push(`범주형 변수가 ${needCat}개 이상 필요하지만 현재 ${catCount}개뿐입니다.`);
+  }
+
+  const suggestions = [];
+  if (!numOk && needNum >= 2) {
+    suggestions.push('설문 설계에서 리커트(척도) 또는 숫자 입력 질문을 추가하세요.');
+    if (analysisType === 'pairedT') {
+      suggestions.push('대응표본 T검정은 서로 다른 2개의 수치 변수(예: 사전 점수, 사후 점수)가 필요합니다.');
+    }
+    if (analysisType === 'correlation' || analysisType === 'spearman') {
+      suggestions.push('상관분석은 2개 이상의 수치 변수 간 관계를 분석합니다.');
+    }
+    if (analysisType === 'cronbach') {
+      suggestions.push('크론바흐 알파는 같은 척도를 측정하는 리커트 문항이 2개 이상 필요합니다.');
+    }
+    if (analysisType === 'regression') {
+      suggestions.push('회귀분석은 독립변수(X)와 종속변수(Y) 2개의 수치 변수가 필요합니다.');
+    }
+  }
+  if (!catOk && needCat >= 1) {
+    suggestions.push('설문 설계에서 객관식(라디오) 또는 드롭다운 질문을 추가하세요.');
+  }
+
+  // 대체 분석 제안
+  const alternatives = [];
+  if (analysisType === 'pairedT' && numCount === 1) {
+    alternatives.push({ label: '기술통계', key: 'descriptive', desc: '1개 변수의 분포를 파악할 수 있습니다.' });
+  }
+  if ((analysisType === 'correlation' || analysisType === 'spearman') && numCount === 1) {
+    alternatives.push({ label: '기술통계', key: 'descriptive', desc: '1개 변수의 기본 통계량을 확인할 수 있습니다.' });
+  }
+  if (analysisType === 'cronbach' && numCount === 1) {
+    alternatives.push({ label: '기술통계', key: 'descriptive', desc: '1개 문항의 응답 분포를 확인할 수 있습니다.' });
+  }
+  if (analysisType === 'regression' && numCount === 1 && catCount >= 1) {
+    alternatives.push({ label: '독립표본 T검정', key: 'independentT', desc: '범주형 변수와 수치형 변수의 관계를 분석할 수 있습니다.' });
+  }
+
+  return (
+    <div className={styles.insufficientWrap}>
+      <div className={styles.insufficientIcon}>&#9888;&#65039;</div>
+      <h3 className={styles.insufficientTitle}>
+        {config.title} — 변수가 부족합니다
+      </h3>
+      <div className={styles.insufficientMessages}>
+        {messages.map((m, i) => (
+          <p key={i} className={styles.insufficientMsg}>{m}</p>
+        ))}
+      </div>
+
+      {suggestions.length > 0 && (
+        <div className={styles.insufficientSuggestions}>
+          <h4>해결 방법</h4>
+          <ul>
+            {suggestions.map((s, i) => <li key={i}>{s}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {alternatives.length > 0 && (
+        <div className={styles.insufficientAlternatives}>
+          <h4>사용 가능한 분석</h4>
+          <p className={styles.insufficientAltNote}>현재 변수로 아래 분석을 실행할 수 있습니다:</p>
+          {alternatives.map((alt, i) => (
+            <div key={i} className={styles.insufficientAltItem}>
+              <strong>{alt.label}</strong> — {alt.desc}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className={styles.insufficientInfo}>
+        <strong>현재 설문 변수 현황:</strong>
+        <span>수치/리커트형 {numCount}개, 범주형 {catCount}개</span>
+      </div>
+
+      <button className={styles.backBtn} onClick={onBack}>&larr; 다른 분석 선택</button>
+    </div>
+  );
+}
+
 /** 선택 후 데이터 진단 패널 */
-function DataDiagnostic({ analysisType, selections, variableSummaries, variables }) {
+function DataDiagnostic({ analysisType, selections, variableSummaries }) {
   const diagnostics = useMemo(() => {
     const msgs = [];
     const warns = [];
@@ -134,7 +249,9 @@ function DataDiagnostic({ analysisType, selections, variableSummaries, variables
     if (analysisType === 'pairedT') {
       const s1 = variableSummaries[selections.var1];
       const s2 = variableSummaries[selections.var2];
-      if (s1 && s2) {
+      if (selections.var1 && selections.var2 && selections.var1 === selections.var2) {
+        warns.push('같은 변수를 2번 선택했습니다. 서로 다른 변수를 선택해주세요.');
+      } else if (s1 && s2) {
         if (s1.count === 0) warns.push('변수 1에 유효한 수치 응답이 없습니다.');
         if (s2.count === 0) warns.push('변수 2에 유효한 수치 응답이 없습니다.');
         if (s1.count > 0 && s2.count > 0) msgs.push(`변수 1: ${s1.count}명, 변수 2: ${s2.count}명 (대응쌍은 공통 응답자 기준)`);
@@ -144,7 +261,9 @@ function DataDiagnostic({ analysisType, selections, variableSummaries, variables
     if (analysisType === 'chiSquare' || analysisType === 'crossTab') {
       const s1 = variableSummaries[selections.var1];
       const s2 = variableSummaries[selections.var2];
-      if (s1 && s2) {
+      if (selections.var1 && selections.var2 && selections.var1 === selections.var2) {
+        warns.push('같은 변수를 2번 선택했습니다. 서로 다른 변수를 선택해주세요.');
+      } else if (s1 && s2) {
         if (s1.count === 0) warns.push('변수 1에 응답이 없습니다.');
         if (s2.count === 0) warns.push('변수 2에 응답이 없습니다.');
         if (s1.count > 0) msgs.push(`변수 1: ${s1.categoryCount}개 범주`);
@@ -166,7 +285,9 @@ function DataDiagnostic({ analysisType, selections, variableSummaries, variables
     if (analysisType === 'regression') {
       const sx = variableSummaries[selections.xVar];
       const sy = variableSummaries[selections.yVar];
-      if (sx && sy) {
+      if (selections.xVar && selections.yVar && selections.xVar === selections.yVar) {
+        warns.push('같은 변수를 독립변수와 종속변수로 선택했습니다. 서로 다른 변수를 선택해주세요.');
+      } else if (sx && sy) {
         if (sx.count === 0) warns.push('독립변수(X)에 유효한 수치 응답이 없습니다.');
         if (sy.count === 0) warns.push('종속변수(Y)에 유효한 수치 응답이 없습니다.');
         if (sx.count > 0 && sy.count > 0) msgs.push(`X: ${sx.count}명, Y: ${sy.count}명 (공통 응답자 기준)`);
@@ -214,6 +335,15 @@ export default function VariableSelector({
 
   if (!config) return null;
 
+  // 변수 부족 체크 — 부족하면 안내 패널만 표시
+  const numCount = variables.numeric.length;
+  const catCount = variables.categorical.length;
+  const needNum = config.minNumeric || 0;
+  const needCat = config.minCategorical || 0;
+  if (numCount < needNum || catCount < needCat) {
+    return <InsufficientVarsNotice analysisType={analysisType} variables={variables} onBack={onBack} />;
+  }
+
   const handleChange = (key, value, multi) => {
     if (multi) {
       setSelections(prev => {
@@ -229,6 +359,14 @@ export default function VariableSelector({
     }
   };
 
+  // 중복 선택 체크
+  const hasDuplicate = () => {
+    if (!config.noDuplicate) return false;
+    const keys = config.noDuplicate;
+    const vals = keys.map(k => selections[k]).filter(Boolean);
+    return new Set(vals).size < vals.length;
+  };
+
   const isValid = () => {
     for (const field of config.fields) {
       const val = selections[field.key];
@@ -238,6 +376,7 @@ export default function VariableSelector({
         if (!val) return false;
       }
     }
+    if (hasDuplicate()) return false;
     return true;
   };
 
@@ -266,7 +405,19 @@ export default function VariableSelector({
     return variables.all;
   };
 
+  // 같은 타입의 다른 필드에서 이미 선택된 변수를 제외 (중복 방지 드롭다운 필터)
+  const getFilteredOptions = (field) => {
+    const baseOptions = getOptions(field.type);
+    if (!config.noDuplicate || !config.noDuplicate.includes(field.key)) return baseOptions;
+
+    // 같은 noDuplicate 그룹에서 다른 필드에 선택된 변수 제외
+    const otherKeys = config.noDuplicate.filter(k => k !== field.key);
+    const usedIds = otherKeys.map(k => selections[k]).filter(Boolean);
+    return baseOptions.filter(opt => !usedIds.includes(opt.id));
+  };
+
   const canRun = isValid() && !hasDataIssue();
+  const duplicateError = hasDuplicate();
 
   return (
     <div className={styles.container}>
@@ -279,7 +430,7 @@ export default function VariableSelector({
 
       <div className={styles.fieldsWrap}>
         {config.fields.map(field => {
-          const options = getOptions(field.type);
+          const options = field.multi ? getOptions(field.type) : getFilteredOptions(field);
           return (
             <div key={field.key} className={styles.field}>
               <label className={styles.fieldLabel}>{field.label}</label>
@@ -288,6 +439,11 @@ export default function VariableSelector({
                   {options.length === 0 && (
                     <p className={styles.noVars}>
                       {field.type === 'numeric' ? '수치/리커트형' : '범주형'} 변수가 없습니다
+                    </p>
+                  )}
+                  {options.length === 1 && (
+                    <p className={styles.hintWarn}>
+                      {field.type === 'numeric' ? '수치/리커트형' : '범주형'} 변수가 1개뿐입니다. 이 분석은 2개 이상 필요합니다.
                     </p>
                   )}
                   {options.map(opt => {
@@ -335,7 +491,6 @@ export default function VariableSelector({
                     <SelectedVarPreview
                       varId={selections[field.key]}
                       summary={variableSummaries[selections[field.key]]}
-                      variables={variables}
                     />
                   )}
                 </>
@@ -350,7 +505,6 @@ export default function VariableSelector({
         analysisType={analysisType}
         selections={selections}
         variableSummaries={variableSummaries}
-        variables={variables}
       />
 
       <div className={styles.actions}>
@@ -358,14 +512,17 @@ export default function VariableSelector({
           className={styles.runBtn}
           onClick={() => onRun(selections)}
           disabled={!canRun}
-          title={!canRun ? (hasDataIssue() ? '선택한 변수에 유효한 데이터가 없습니다' : '모든 변수를 선택해주세요') : ''}
+          title={!canRun ? (duplicateError ? '같은 변수가 중복 선택되었습니다' : hasDataIssue() ? '선택한 변수에 유효한 데이터가 없습니다' : '모든 변수를 선택해주세요') : ''}
         >
           분석 실행
         </button>
-        {!isValid() && (
+        {duplicateError && (
+          <p className={styles.hintWarn}>같은 변수를 중복 선택할 수 없습니다. 서로 다른 변수를 선택하세요.</p>
+        )}
+        {!duplicateError && !isValid() && (
           <p className={styles.hint}>모든 변수를 선택해주세요{config.fields.some(f => f.multi) ? ' (다중 선택은 2개 이상)' : ''}</p>
         )}
-        {isValid() && hasDataIssue() && (
+        {!duplicateError && isValid() && hasDataIssue() && (
           <p className={styles.hintWarn}>선택한 변수에 유효한 데이터가 없습니다. 다른 변수를 선택하세요.</p>
         )}
       </div>

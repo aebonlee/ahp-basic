@@ -187,7 +187,7 @@ export function DescriptiveResult({ result }) {
       {result.chartData?.length > 0 && (
         <div className={styles.chartContainer}>
           <h4 className={styles.chartTitle}>히스토그램</h4>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="99%" height={280}>
             <BarChart data={result.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="bin" tick={{ fontSize: 11 }} angle={-30} textAnchor="end" height={60} />
@@ -238,7 +238,7 @@ export function TTestResult({ result }) {
       <StatsTable data={result.details} title="그룹별 기술통계" />
       {result.chartData?.length > 0 && (
         <div className={styles.chartContainer}>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="99%" height={250}>
             <BarChart data={result.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
@@ -299,7 +299,7 @@ export function PairedTTestResult({ result }) {
       <StatsTable data={result.details} title="변수별 기술통계" />
       {result.chartData?.length > 0 && (
         <div className={styles.chartContainer}>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="99%" height={250}>
             <BarChart data={result.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
@@ -364,7 +364,7 @@ export function AnovaResult({ result }) {
       )}
       {result.chartData?.length > 0 && (
         <div className={styles.chartContainer}>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="99%" height={280}>
             <BarChart data={result.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
@@ -420,7 +420,7 @@ export function ChiSquareResult({ result }) {
       <StatsTable data={result.details} title="교차표 (관측빈도)" />
       {result.chartData?.length > 0 && result.categories && (
         <div className={styles.chartContainer}>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="99%" height={280}>
             <BarChart data={result.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
@@ -492,7 +492,7 @@ export function CorrelationResult({ result }) {
           <h4 className={styles.chartTitle}>
             산점도 ({result.labels?.[0]} vs {result.labels?.[1]})
           </h4>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="99%" height={300}>
             <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="x" name={result.labels?.[0] || 'X'} type="number" />
@@ -574,7 +574,7 @@ export function RegressionResult({ result }) {
       {result.chartData?.length > 0 && (
         <div className={styles.chartContainer}>
           <h4 className={styles.chartTitle}>회귀선 + 산점도</h4>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="99%" height={300}>
             <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="x" type="number" name="X" />
@@ -591,7 +591,7 @@ export function RegressionResult({ result }) {
             </ScatterChart>
           </ResponsiveContainer>
           <h4 className={styles.chartTitle}>잔차도</h4>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="99%" height={200}>
             <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="x" type="number" name="X" />
@@ -661,7 +661,7 @@ export function CronbachResult({ result }) {
       {result.chartData?.length > 0 && (
         <div className={styles.chartContainer}>
           <h4 className={styles.chartTitle}>항목 삭제 시 알파</h4>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="99%" height={280}>
             <BarChart data={result.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
@@ -744,7 +744,7 @@ export function CrossTabResult({ result }) {
       )}
       {result.chartData?.length > 0 && result.categories && (
         <div className={styles.chartContainer}>
-          <ResponsiveContainer width="100%" height={280}>
+          <ResponsiveContainer width="99%" height={280}>
             <BarChart data={result.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
@@ -806,7 +806,7 @@ export function SpearmanResult({ result }) {
           <h4 className={styles.chartTitle}>
             산점도 ({result.labels?.[0]} vs {result.labels?.[1]})
           </h4>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="99%" height={300}>
             <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="x" name={result.labels?.[0] || 'X'} type="number" />
