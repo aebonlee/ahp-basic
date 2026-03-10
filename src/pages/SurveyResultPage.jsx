@@ -105,7 +105,6 @@ export default function SurveyResultPage() {
     return { total, surveyed, completed };
   }, [evaluators, respondedIds, evalProgress, totalRequired]);
 
-  // 선택된 평가자 객체
   const selectedEvaluator = useMemo(
     () => evaluators.find(e => e.id === selectedEval) || null,
     [evaluators, selectedEval],
@@ -143,7 +142,7 @@ export default function SurveyResultPage() {
           </div>
 
           <div className={styles.masterDetail}>
-            {/* 왼쪽: 이름 2열 목록 */}
+            {/* 왼쪽: 이름 2열 */}
             <div className={styles.masterList}>
               {evaluators.map((ev, idx) => {
                 const hasSurvey = respondedIds.has(ev.id);
@@ -153,29 +152,30 @@ export default function SurveyResultPage() {
                 return (
                   <div
                     key={ev.id}
-                    className={`${styles.evalItem} ${isSelected ? styles.evalItemSelected : ''} ${isDone ? styles.evalItemDone : count > 0 ? styles.evalItemProgress : ''}`}
-                    onClick={() => setSelectedEval(isSelected ? null : ev.id)}
+                    className={`${styles.evalRow} ${isSelected ? styles.evalRowSelected : ''}`}
                   >
                     <span className={styles.evalIdx}>{idx + 1}</span>
                     <span className={styles.evalName}>{ev.name || ev.email}</span>
-                    <span className={styles.evalDots}>
-                      {questions.length > 0 && (
-                        <span
-                          className={hasSurvey ? styles.dotDone : styles.dotPending}
-                          title={hasSurvey ? '설문 완료' : '설문 미응답'}
-                        />
-                      )}
-                      <span
-                        className={isDone ? styles.dotDone : count > 0 ? styles.dotProgress : styles.dotPending}
-                        title={`평가 ${count}/${totalRequired}`}
-                      />
+                    {questions.length > 0 && (
+                      <span className={hasSurvey ? styles.badgeDone : styles.badgePending}>
+                        {hasSurvey ? '설문완료' : '미응답'}
+                      </span>
+                    )}
+                    <span className={isDone ? styles.badgeDone : count > 0 ? styles.badgeProgress : styles.badgePending}>
+                      {isDone ? '평가완료' : count > 0 ? `${count}/${totalRequired}` : '미시작'}
                     </span>
+                    <button
+                      className={`${styles.detailBtn} ${isSelected ? styles.detailBtnActive : ''}`}
+                      onClick={() => setSelectedEval(isSelected ? null : ev.id)}
+                    >
+                      세부내역
+                    </button>
                   </div>
                 );
               })}
             </div>
 
-            {/* 오른쪽: 선택된 평가자 상세 */}
+            {/* 오른쪽: 상세 패널 */}
             <div className={styles.detailPanel}>
               {selectedEvaluator ? (
                 <EvalDetail
@@ -189,7 +189,7 @@ export default function SurveyResultPage() {
                 />
               ) : (
                 <div className={styles.detailPlaceholder}>
-                  평가자를 선택하면 설문 응답과 평가 현황을 확인할 수 있습니다.
+                  [세부내역] 버튼을 클릭하면<br />설문 응답과 평가 현황을 확인할 수 있습니다.
                 </div>
               )}
             </div>
@@ -244,9 +244,9 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
 
       {/* 평가 진행 */}
       <div className={styles.detailSection}>
-        <div className={styles.detailLabel}>평가 진행</div>
-        <div className={styles.detailStatus}>
-          <span className={isDone ? styles.statusDone : styles.statusPending}>
+        <div className={styles.detailSectionTitle}>평가 진행</div>
+        <div className={styles.detailStatusRow}>
+          <span className={isDone ? styles.badgeDone : styles.badgePending}>
             {evalCount} / {totalRequired}{isDone ? ' (완료)' : ''}
           </span>
         </div>
@@ -256,29 +256,31 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
       {/* 설문 응답 */}
       {questions.length > 0 && (
         <div className={styles.detailSection}>
-          <div className={styles.detailLabel}>
+          <div className={styles.detailSectionTitle}>
             설문 응답
-            <span className={hasSurvey ? styles.statusDone : styles.statusPending} style={{ marginLeft: 8 }}>
+            <span className={hasSurvey ? styles.badgeDone : styles.badgePending} style={{ marginLeft: 8 }}>
               {hasSurvey ? '완료' : '미응답'}
             </span>
           </div>
           {myResponses.length === 0 ? (
             <div className={styles.detailEmpty}>설문에 응답하지 않았습니다.</div>
           ) : (
-            <div className={styles.detailAnswers}>
-              {questions.map((q, qi) => {
-                const ans = answerMap[q.id];
-                return (
-                  <div key={q.id} className={styles.detailAnswer}>
-                    <span className={styles.detailQ}>Q{qi + 1}.</span>
-                    <span className={styles.detailQText}>{q.question_text}</span>
-                    <span className={styles.detailA}>
-                      {ans ? formatAnswer(ans) : <span className={styles.detailNoAns}>-</span>}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+            <table className={styles.answerTable}>
+              <tbody>
+                {questions.map((q, qi) => {
+                  const ans = answerMap[q.id];
+                  return (
+                    <tr key={q.id}>
+                      <td className={styles.answerNum}>Q{qi + 1}</td>
+                      <td className={styles.answerQuestion}>{q.question_text}</td>
+                      <td className={styles.answerValue}>
+                        {ans ? formatAnswer(ans) : <span className={styles.answerNone}>-</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           )}
         </div>
       )}
@@ -346,9 +348,7 @@ function NumberResults({ responses }) {
         : sorted[Math.floor(sorted.length / 2)],
     };
   }, [responses]);
-
   if (!stats) return <p className={styles.emptyMsg}>응답 없음</p>;
-
   return (
     <div className={styles.statsGrid}>
       <div className={styles.statBox}><div className={styles.statValue}>{stats.min}</div><div className={styles.statLabel}>최솟값</div></div>
@@ -378,9 +378,7 @@ function ChoiceResults({ question, responses }) {
       pct: responses.length > 0 ? ((counts[opt] || 0) / responses.length * 100).toFixed(1) : '0',
     }));
   }, [question, responses]);
-
   if (data.length === 0) return <p className={styles.emptyMsg}>선택지 없음</p>;
-
   return (
     <div className={styles.chartWrap}>
       <ResponsiveContainer width="100%" height="100%">

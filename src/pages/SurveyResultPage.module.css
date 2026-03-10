@@ -61,55 +61,41 @@
   background: var(--color-primary-dark, #4f46e5);
 }
 
-/* ── 마스터-디테일 레이아웃 ── */
+/* ── 마스터-디테일 ── */
 .masterDetail {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-md);
-  min-height: 300px;
+  align-items: start;
 }
 
-/* 왼쪽: 이름 2열 목록 */
+/* 왼쪽: 평가자 목록 2열 */
 .masterList {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4px;
-  align-content: start;
-  max-height: 480px;
-  overflow-y: auto;
-  padding-right: 4px;
 }
 
-.evalItem {
+/* 각 평가자 행: 번호 | 이름 | 설문뱃지 | 평가뱃지 | 세부내역 버튼 */
+.evalRow {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 8px;
+  padding: 5px 6px;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.12s;
   background: var(--color-bg);
+  transition: border-color 0.12s;
 }
 
-.evalItem:hover {
+.evalRow:hover {
   border-color: var(--color-primary-border, #a5b4fc);
-  background: var(--color-primary-bg);
 }
 
-.evalItemSelected {
+.evalRowSelected {
   border-color: var(--color-primary);
   background: var(--color-primary-bg);
   box-shadow: 0 0 0 1px var(--color-primary);
-}
-
-.evalItemDone {
-  border-left: 3px solid #22c55e;
-}
-
-.evalItemProgress {
-  border-left: 3px solid #f59e0b;
 }
 
 .evalIdx {
@@ -117,74 +103,106 @@
   font-weight: 700;
   color: var(--color-text-muted);
   font-family: var(--font-mono);
-  min-width: 18px;
+  min-width: 16px;
   text-align: right;
   flex-shrink: 0;
 }
 
 .evalName {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--color-text);
   flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.evalDots {
-  display: flex;
-  gap: 3px;
-  align-items: center;
+/* 뱃지 */
+.badgeDone {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-round);
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #15803d;
+  white-space: nowrap;
   flex-shrink: 0;
 }
 
-.dotDone {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #22c55e;
+.badgeProgress {
   display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-round);
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: #dbeafe;
+  color: #1d4ed8;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.dotProgress {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #f59e0b;
+.badgePending {
   display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-round);
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: #fef3c7;
+  color: #b45309;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.dotPending {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #d1d5db;
-  display: inline-block;
+/* 세부내역 버튼 */
+.detailBtn {
+  padding: 2px 7px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.62rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.12s;
 }
 
-/* 오른쪽: 상세 패널 */
+.detailBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.detailBtnActive {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+/* ── 오른쪽 상세 패널 ── */
 .detailPanel {
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
   background: var(--color-bg);
-  overflow-y: auto;
-  max-height: 480px;
+  position: sticky;
+  top: 80px;
 }
 
 .detailPlaceholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
   min-height: 200px;
   color: var(--color-text-muted);
   font-size: 0.88rem;
   text-align: center;
   padding: var(--spacing-lg);
+  line-height: 1.6;
 }
 
-/* ── 상세 내용 ── */
 .evalDetail {
   padding: var(--spacing-md);
 }
@@ -206,16 +224,16 @@
   margin-bottom: 0;
 }
 
-.detailLabel {
-  font-size: 0.78rem;
+.detailSectionTitle {
+  font-size: 0.82rem;
   font-weight: 700;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   margin-bottom: 6px;
   display: flex;
   align-items: center;
 }
 
-.detailStatus {
+.detailStatusRow {
   margin-bottom: 4px;
 }
 
@@ -227,72 +245,49 @@
 }
 
 /* 설문 응답 테이블 */
-.detailAnswers {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+.answerTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
 }
 
-.detailAnswer {
-  display: grid;
-  grid-template-columns: 32px 1fr auto;
-  gap: 6px;
-  align-items: baseline;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  padding: 6px 0;
+.answerTable tr {
   border-bottom: 1px solid var(--color-border-light);
 }
 
-.detailAnswer:last-child {
+.answerTable tr:last-child {
   border-bottom: none;
 }
 
-.detailQ {
+.answerNum {
+  padding: 5px 4px;
   font-weight: 700;
   color: var(--color-primary);
-  flex-shrink: 0;
+  white-space: nowrap;
+  width: 30px;
+  vertical-align: top;
 }
 
-.detailQText {
+.answerQuestion {
+  padding: 5px 6px;
   color: var(--color-text-muted);
   font-size: 0.78rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  vertical-align: top;
 }
 
-.detailA {
+.answerValue {
+  padding: 5px 4px;
   font-weight: 600;
   color: var(--color-text);
   text-align: right;
   word-break: break-word;
-  white-space: normal;
+  vertical-align: top;
+  min-width: 60px;
 }
 
-.detailNoAns {
+.answerNone {
   color: var(--color-text-muted);
   font-weight: 400;
-}
-
-.statusDone {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: var(--radius-round);
-  font-size: 0.72rem;
-  font-weight: 600;
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.statusPending {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: var(--radius-round);
-  font-size: 0.72rem;
-  font-weight: 600;
-  background: #fef3c7;
-  color: #b45309;
 }
 
 /* ── 설문 전체 집계 ── */
@@ -386,17 +381,23 @@
 }
 
 /* ── 반응형 ── */
+@media (max-width: 1100px) {
+  .masterList {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 900px) {
   .masterDetail {
     grid-template-columns: 1fr;
   }
 
   .masterList {
-    max-height: 240px;
+    grid-template-columns: 1fr 1fr;
   }
 
   .detailPanel {
-    max-height: none;
+    position: static;
   }
 }
 
