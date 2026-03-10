@@ -1,11 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { supabase } from '../lib/supabaseClient';
 import { useSurveyQuestions, useSurveyResponses } from '../hooks/useSurvey';
 import { useEvaluators } from '../hooks/useEvaluators';
+import { useCriteria } from '../hooks/useCriteria';
+import { useAlternatives } from '../hooks/useAlternatives';
 import { useProject } from '../hooks/useProjects';
+import { buildPageSequence } from '../lib/pairwiseUtils';
+import { EVAL_METHOD } from '../lib/constants';
 import ProjectLayout from '../components/layout/ProjectLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ProgressBar from '../components/common/ProgressBar';
 import SmsModal from '../components/admin/SmsModal';
 import common from '../styles/common.module.css';
 import styles from './SurveyResultPage.module.css';
@@ -25,20 +31,82 @@ const COLORS = ['#6366f1', '#8b5cf6', '#a78bfa', '#c4b5fd', '#818cf8', '#7c3aed'
 export default function SurveyResultPage() {
   const { id } = useParams();
   const { questions, loading: qLoading } = useSurveyQuestions(id);
-  const { responses, loading: rLoading, getResponsesByQuestion } = useSurveyResponses(id);
+  const { responses, loading: rLoading, getResponsesByQuestion, getResponsesByEvaluator } = useSurveyResponses(id);
   const { evaluators } = useEvaluators(id);
+  const { criteria } = useCriteria(id);
+  const { alternatives } = useAlternatives(id);
   const { currentProject } = useProject(id);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
+  const [expandedEval, setExpandedEval] = useState(null);
+  const [rawCompData, setRawCompData] = useState([]);
+
+  const isDirectInput = currentProject?.eval_method === EVAL_METHOD.DIRECT_INPUT;
+
+  // 평가 데이터 로드
+  const loadCompData = useCallback(async () => {
+    if (isDirectInput) {
+      const { data } = await supabase
+        .from('direct_input_values')
+        .select('evaluator_id, criterion_id, item_id')
+        .eq('project_id', id)
+        .limit(10000);
+      setRawCompData(data || []);
+    } else {
+      const { data } = await supabase
+        .from('pairwise_comparisons')
+        .select('evaluator_id, criterion_id, row_id, col_id')
+        .eq('project_id', id)
+        .limit(10000);
+      setRawCompData(data || []);
+    }
+  }, [id, isDirectInput]);
+
+  useEffect(() => {
+    if (currentProject) loadCompData();
+  }, [currentProject, loadCompData]);
 
   const respondedIds = useMemo(
     () => new Set(responses.map(r => r.evaluator_id)),
     [responses],
   );
 
-  const completedCount = useMemo(
-    () => evaluators.filter(e => e.completed).length,
-    [evaluators],
-  );
+  // 필요한 총 비교 수 & 유효 키
+  const { totalRequired, validKeys } = useMemo(() => {
+    if (criteria.length === 0) return { totalRequired: 0, validKeys: new Set() };
+    const pages = buildPageSequence(criteria, alternatives, id);
+    const keys = new Set();
+    if (isDirectInput) {
+      for (const page of pages) {
+        for (const item of page.items) keys.add(`${page.parentId}:${item.id}`);
+      }
+    } else {
+      for (const page of pages) {
+        for (const pair of page.pairs) keys.add(`${page.parentId}:${pair.left.id}:${pair.right.id}`);
+      }
+    }
+    return { totalRequired: keys.size, validKeys: keys };
+  }, [criteria, alternatives, id, isDirectInput]);
+
+  // 평가자별 진행률
+  const evalProgress = useMemo(() => {
+    const counts = {};
+    for (const row of rawCompData) {
+      const key = isDirectInput
+        ? `${row.criterion_id}:${row.item_id}`
+        : `${row.criterion_id}:${row.row_id}:${row.col_id}`;
+      if (validKeys.has(key)) {
+        counts[row.evaluator_id] = (counts[row.evaluator_id] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [rawCompData, validKeys, isDirectInput]);
+
+  const stats = useMemo(() => {
+    const total = evaluators.length;
+    const surveyed = evaluators.filter(e => respondedIds.has(e.id)).length;
+    const completed = evaluators.filter(e => totalRequired > 0 && (evalProgress[e.id] || 0) >= totalRequired).length;
+    return { total, surveyed, completed };
+  }, [evaluators, respondedIds, evalProgress, totalRequired]);
 
   if (qLoading || rLoading) {
     return <ProjectLayout><LoadingSpinner message="설문 집계 로딩 중..." /></ProjectLayout>;
@@ -51,16 +119,17 @@ export default function SurveyResultPage() {
       <div className={styles.summary}>
         {questions.length > 0 && (
           <div>
-            <div className={styles.summaryNum}>{respondedIds.size} / {evaluators.length}</div>
+            <div className={styles.summaryNum}>{stats.surveyed} / {stats.total}</div>
             <div className={styles.summaryLabel}>설문 응답</div>
           </div>
         )}
         <div>
-          <div className={styles.summaryNum}>{completedCount} / {evaluators.length}</div>
+          <div className={styles.summaryNum}>{stats.completed} / {stats.total}</div>
           <div className={styles.summaryLabel}>평가 완료</div>
         </div>
       </div>
 
+      {/* ── 평가자별 현황 (4열 넘버링 + 클릭 상세) ── */}
       {evaluators.length > 0 && (
         <div className={styles.statusCard}>
           <div className={styles.statusHeader}>
@@ -70,21 +139,46 @@ export default function SurveyResultPage() {
             </button>
           </div>
           <div className={styles.statusGrid}>
-            {evaluators.map(ev => (
-              <div key={ev.id} className={styles.statusItem}>
-                <div className={styles.statusName}>{ev.name || ev.email}</div>
-                <div className={styles.statusBadges}>
-                  {questions.length > 0 && (
-                    <span className={respondedIds.has(ev.id) ? styles.statusDone : styles.statusPending}>
-                      설문 {respondedIds.has(ev.id) ? '완료' : '미응답'}
+            {evaluators.map((ev, idx) => {
+              const hasSurvey = respondedIds.has(ev.id);
+              const count = evalProgress[ev.id] || 0;
+              const isDone = totalRequired > 0 && count >= totalRequired;
+              const isOpen = expandedEval === ev.id;
+              return (
+                <div key={ev.id} className={styles.statusItem}>
+                  <div
+                    className={styles.statusMain}
+                    onClick={() => setExpandedEval(isOpen ? null : ev.id)}
+                  >
+                    <span className={styles.statusIdx}>{idx + 1}</span>
+                    <span className={styles.statusName}>{ev.name || ev.email}</span>
+                    <span className={styles.statusArrow}>{isOpen ? '▾' : '▸'}</span>
+                  </div>
+                  <div className={styles.statusBadges}>
+                    {questions.length > 0 && (
+                      <span className={hasSurvey ? styles.statusDone : styles.statusPending}>
+                        설문 {hasSurvey ? '완료' : '미응답'}
+                      </span>
+                    )}
+                    <span className={isDone ? styles.statusDone : styles.statusPending}>
+                      평가 {isDone ? '완료' : `${count}/${totalRequired}`}
                     </span>
+                  </div>
+
+                  {/* 펼침 상세 */}
+                  {isOpen && (
+                    <EvalDetail
+                      evaluator={ev}
+                      questions={questions}
+                      getResponsesByEvaluator={getResponsesByEvaluator}
+                      evalCount={count}
+                      totalRequired={totalRequired}
+                      isDone={isDone}
+                    />
                   )}
-                  <span className={ev.completed ? styles.statusDone : styles.statusPending}>
-                    평가 {ev.completed ? '완료' : '미완료'}
-                  </span>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -98,6 +192,7 @@ export default function SurveyResultPage() {
         projectName={currentProject?.name}
       />
 
+      {/* ── 설문 결과 (전체 집계) ── */}
       {questions.length === 0 ? (
         <div className={styles.emptyMsg}>설계된 설문 질문이 없습니다.</div>
       ) : (
@@ -114,6 +209,73 @@ export default function SurveyResultPage() {
   );
 }
 
+/* ── 개인 상세 패널 ── */
+function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, totalRequired, isDone }) {
+  const myResponses = useMemo(
+    () => getResponsesByEvaluator(evaluator.id),
+    [getResponsesByEvaluator, evaluator.id],
+  );
+
+  const answerMap = useMemo(() => {
+    const map = {};
+    for (const r of myResponses) {
+      map[r.question_id] = r.answer;
+    }
+    return map;
+  }, [myResponses]);
+
+  return (
+    <div className={styles.evalDetail}>
+      {/* 평가 진행률 */}
+      <div className={styles.detailSection}>
+        <div className={styles.detailLabel}>평가 진행</div>
+        <div className={styles.detailRow}>
+          <span className={isDone ? styles.statusDone : styles.statusPending}>
+            {evalCount} / {totalRequired}{isDone ? ' (완료)' : ''}
+          </span>
+        </div>
+        <ProgressBar value={evalCount} max={totalRequired || 1} color={isDone ? 'var(--color-success)' : 'var(--color-primary)'} />
+      </div>
+
+      {/* 설문 응답 */}
+      {questions.length > 0 && (
+        <div className={styles.detailSection}>
+          <div className={styles.detailLabel}>설문 응답</div>
+          {myResponses.length === 0 ? (
+            <div className={styles.detailEmpty}>미응답</div>
+          ) : (
+            <div className={styles.detailAnswers}>
+              {questions.map((q, qi) => {
+                const ans = answerMap[q.id];
+                return (
+                  <div key={q.id} className={styles.detailAnswer}>
+                    <span className={styles.detailQ}>Q{qi + 1}.</span>
+                    <span className={styles.detailA}>
+                      {ans ? formatAnswer(ans) : <span className={styles.detailNoAns}>-</span>}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function formatAnswer(answer) {
+  if (answer?.value !== undefined) {
+    const v = answer.value;
+    if (Array.isArray(v)) return v.join(', ');
+    return String(v);
+  }
+  if (Array.isArray(answer)) return answer.join(', ');
+  if (typeof answer === 'object') return JSON.stringify(answer);
+  return String(answer);
+}
+
+/* ── 전체 집계 카드 (기존 유지) ── */
 function QuestionResult({ question, index, responses }) {
   const { question_type } = question;
 

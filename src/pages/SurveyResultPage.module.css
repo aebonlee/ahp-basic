@@ -111,7 +111,7 @@
   height: 250px;
 }
 
-/* 평가자 상태 테이블 */
+/* ── 평가자 상태 카드 ── */
 .statusCard {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
@@ -151,42 +151,75 @@
   background: var(--color-primary-dark, #4f46e5);
 }
 
+/* ── 4열 그리드 ── */
 .statusGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-sm);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
 .statusItem {
   background: var(--color-bg);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
-  text-align: center;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* 이름 행: 넘버링 + 이름 + 화살표 */
+.statusMain {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+
+.statusMain:hover {
+  background: var(--color-surface);
+}
+
+.statusIdx {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  min-width: 20px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .statusName {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-text);
-  margin-bottom: 6px;
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.statusArrow {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* 뱃지 행 */
 .statusBadges {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  justify-content: center;
+  padding: 0 10px 8px;
 }
 
 .statusDone {
   display: inline-block;
-  padding: 2px 10px;
+  padding: 2px 8px;
   border-radius: var(--radius-round);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   background: #dcfce7;
   color: #15803d;
@@ -194,12 +227,82 @@
 
 .statusPending {
   display: inline-block;
-  padding: 2px 10px;
+  padding: 2px 8px;
   border-radius: var(--radius-round);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   background: #fef3c7;
   color: #b45309;
+}
+
+/* ── 펼침 상세 패널 ── */
+.evalDetail {
+  border-top: 1px solid var(--color-border-light);
+  padding: 10px;
+  background: var(--color-surface);
+}
+
+.detailSection {
+  margin-bottom: 10px;
+}
+
+.detailSection:last-child {
+  margin-bottom: 0;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.detailRow {
+  margin-bottom: 4px;
+}
+
+.detailEmpty {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* 설문 응답 리스트 */
+.detailAnswers {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.detailAnswer {
+  display: flex;
+  gap: 6px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.detailAnswer:last-child {
+  border-bottom: none;
+}
+
+.detailQ {
+  font-weight: 700;
+  color: var(--color-primary);
+  flex-shrink: 0;
+  min-width: 28px;
+}
+
+.detailA {
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.detailNoAns {
+  color: var(--color-text-muted);
 }
 
 .emptyMsg {
@@ -209,17 +312,30 @@
   font-size: 0.9rem;
 }
 
+/* ── 반응형 ── */
+@media (max-width: 1100px) {
+  .statusGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .statsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 
   .statusGrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .summary {
     flex-direction: column;
     text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .statusGrid {
+    grid-template-columns: 1fr;
   }
 }
