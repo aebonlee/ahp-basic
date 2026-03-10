@@ -1,66 +1,328 @@
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.summary {
-  display: flex;
-  align-items: center;
+/* ── 요약 카드 그리드 ── */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--color-primary-bg);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-primary-border, #c7d2fe);
+}
+
+.summaryCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.summaryIcon {
+  font-size: 1.4rem;
+  line-height: 1;
+  margin-bottom: 2px;
 }
 
 .summaryNum {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: var(--color-primary);
   font-family: var(--font-mono);
+  line-height: 1.2;
+}
+
+.summaryOf {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.summaryNumSmall {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.numProgress {
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+}
+
+.numDivider {
+  color: var(--color-text-muted);
+  margin: 0 6px;
+}
+
+.numNotStarted {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
 }
 
 .summaryLabel {
-  font-size: 0.9rem;
-  color: var(--color-text-light);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
 }
 
-.questionCard {
+/* ── 섹션 공통 ── */
+.section {
   background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-border-light);
   margin-bottom: var(--spacing-md);
 }
 
-.questionTitle {
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sectionTitle {
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
-  margin-bottom: var(--spacing-sm);
+  margin: 0;
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
 }
 
-.questionType {
-  font-size: 0.75rem;
-  font-weight: 500;
+.sectionToggle {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  width: 16px;
+}
+
+.sectionCount {
+  font-size: 0.78rem;
+  font-weight: 600;
   color: var(--color-text-muted);
   background: var(--color-bg);
   padding: 2px 8px;
   border-radius: var(--radius-round);
 }
 
-.responseCount {
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  margin-bottom: var(--spacing-md);
+.smsBtn {
+  padding: 6px 16px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-/* 텍스트 응답 목록 */
+.smsBtn:hover {
+  background: var(--color-primary-dark, #4f46e5);
+}
+
+.expandBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.expandBtn {
+  padding: 4px 12px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.expandBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ── 평가자 테이블 영역 ── */
+.evalTableArea {
+  margin-top: var(--spacing-md);
+  max-height: 480px;
+  overflow-y: auto;
+  border-top: 1px solid var(--color-border-light);
+  padding-top: var(--spacing-md);
+}
+
+.statusTwoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.statusTableWrap {
+  overflow-x: auto;
+}
+
+.statusTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.statusTable th,
+.statusTable td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--color-border-light);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.statusTable thead th {
+  background: var(--color-bg);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.statusTable tbody tr:hover {
+  background: var(--color-primary-bg);
+}
+
+.thNum { width: 36px; text-align: center; }
+.thName { min-width: 64px; }
+.thBadge { width: 64px; text-align: center; }
+.thProgress { min-width: 140px; }
+
+.tdNum {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.tdName {
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.tdBadge { text-align: center; }
+
+.tdProgress { padding-top: 4px; padding-bottom: 4px; }
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.statusDone {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-round);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.statusPending {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-round);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* ── 질문 아코디언 ── */
+.qAccordion {
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  margin-top: var(--spacing-sm);
+  overflow: hidden;
+}
+
+.qHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 10px var(--spacing-md);
+  cursor: pointer;
+  user-select: none;
+  background: var(--color-bg);
+  transition: background 0.15s;
+}
+
+.qHeader:hover {
+  background: var(--color-primary-bg);
+}
+
+.qToggle {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.qLabel {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 0.88rem;
+  flex-shrink: 0;
+}
+
+.qText {
+  font-size: 0.88rem;
+  color: var(--color-text);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.questionType {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  padding: 1px 8px;
+  border-radius: var(--radius-round);
+  border: 1px solid var(--color-border-light);
+}
+
+.qResCount {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+}
+
+.qBody {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border-light);
+}
+
+/* ── 텍스트 응답 ── */
 .textList {
   list-style: none;
   padding: 0;
@@ -68,9 +330,9 @@
 }
 
 .textItem {
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-bottom: 1px solid var(--color-border-light);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: var(--color-text);
 }
 
@@ -78,7 +340,7 @@
   border-bottom: none;
 }
 
-/* 숫자 통계 */
+/* ── 숫자 통계 ── */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -105,143 +367,13 @@
   margin-top: 2px;
 }
 
-/* 차트 컨테이너 */
+/* ── 차트 ── */
 .chartWrap {
   width: 100%;
   height: 250px;
 }
 
-/* 평가자 상태 테이블 */
-.statusCard {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--color-border-light);
-  margin-bottom: var(--spacing-md);
-}
-
-.statusHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-md);
-}
-
-.statusTitle {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0;
-}
-
-.smsBtn {
-  padding: 6px 16px;
-  background: var(--color-primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.smsBtn:hover {
-  background: var(--color-primary-dark, #4f46e5);
-}
-
-/* 2열 레이아웃 */
-.statusTwoCol {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-md);
-}
-
-.statusTableWrap {
-  overflow-x: auto;
-}
-
-.statusTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.88rem;
-}
-
-.statusTable th,
-.statusTable td {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--color-border-light);
-  text-align: left;
-  vertical-align: middle;
-}
-
-.statusTable thead th {
-  background: var(--color-bg);
-  font-weight: 700;
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-}
-
-.statusTable tbody tr:hover {
-  background: var(--color-primary-bg);
-}
-
-.thNum { width: 44px; text-align: center; }
-.thName { min-width: 80px; }
-.thBadge { width: 80px; text-align: center; }
-.thProgress { min-width: 180px; }
-
-.tdNum {
-  text-align: center;
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-}
-
-.tdName {
-  font-weight: 600;
-  color: var(--color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 160px;
-}
-
-.tdBadge { text-align: center; }
-
-.tdProgress { padding-top: 6px; padding-bottom: 6px; }
-
-.progressRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.statusDone {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: var(--radius-round);
-  font-size: 0.78rem;
-  font-weight: 600;
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.statusPending {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: var(--radius-round);
-  font-size: 0.78rem;
-  font-weight: 600;
-  background: #fef3c7;
-  color: #b45309;
-}
-
+/* ── 빈 상태 ── */
 .emptyMsg {
   text-align: center;
   color: var(--color-text-muted);
@@ -249,7 +381,12 @@
   font-size: 0.9rem;
 }
 
+/* ── 반응형 ── */
 @media (max-width: 900px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .statusTwoCol {
     grid-template-columns: 1fr;
   }
@@ -260,21 +397,35 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .summary {
-    flex-direction: column;
-    text-align: center;
-  }
-
   .statusTable {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
   }
 
   .statusTable th,
   .statusTable td {
-    padding: 6px 8px;
+    padding: 5px 6px;
   }
 
   .tdName {
-    max-width: 100px;
+    max-width: 80px;
+  }
+
+  .qHeader {
+    flex-wrap: wrap;
+  }
+
+  .qText {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 480px) {
+  .summaryGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sectionHeader {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
   }
 }

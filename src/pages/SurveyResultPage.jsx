@@ -38,10 +38,11 @@ export default function SurveyResultPage() {
   const { currentProject } = useProject(id);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [rawCompData, setRawCompData] = useState([]);
+  const [showEvalTable, setShowEvalTable] = useState(false);
+  const [openQuestions, setOpenQuestions] = useState(new Set());
 
   const isDirectInput = currentProject?.eval_method === EVAL_METHOD.DIRECT_INPUT;
 
-  // Load pairwise/direct data for real progress
   const loadCompData = useCallback(async () => {
     if (isDirectInput) {
       const { data } = await supabase
@@ -69,28 +70,22 @@ export default function SurveyResultPage() {
     [responses],
   );
 
-  // Build valid keys and total required (same as WorkshopPage)
   const { totalRequired, validKeys } = useMemo(() => {
     if (criteria.length === 0) return { totalRequired: 0, validKeys: new Set() };
     const pages = buildPageSequence(criteria, alternatives, id);
     const keys = new Set();
     if (isDirectInput) {
       for (const page of pages) {
-        for (const item of page.items) {
-          keys.add(`${page.parentId}:${item.id}`);
-        }
+        for (const item of page.items) keys.add(`${page.parentId}:${item.id}`);
       }
     } else {
       for (const page of pages) {
-        for (const pair of page.pairs) {
-          keys.add(`${page.parentId}:${pair.left.id}:${pair.right.id}`);
-        }
+        for (const pair of page.pairs) keys.add(`${page.parentId}:${pair.left.id}:${pair.right.id}`);
       }
     }
     return { totalRequired: keys.size, validKeys: keys };
   }, [criteria, alternatives, id, isDirectInput]);
 
-  // Count valid entries per evaluator
   const evalProgress = useMemo(() => {
     const counts = {};
     for (const row of rawCompData) {
@@ -104,94 +99,147 @@ export default function SurveyResultPage() {
     return counts;
   }, [rawCompData, validKeys, isDirectInput]);
 
-  const actualCompletedCount = useMemo(
-    () => evaluators.filter(e => totalRequired > 0 && (evalProgress[e.id] || 0) >= totalRequired).length,
-    [evaluators, evalProgress, totalRequired],
-  );
+  const stats = useMemo(() => {
+    const total = evaluators.length;
+    const surveyed = evaluators.filter(e => respondedIds.has(e.id)).length;
+    const completed = evaluators.filter(e => totalRequired > 0 && (evalProgress[e.id] || 0) >= totalRequired).length;
+    const inProgress = evaluators.filter(e => {
+      const c = evalProgress[e.id] || 0;
+      return c > 0 && c < totalRequired;
+    }).length;
+    const notStarted = total - completed - inProgress;
+    return { total, surveyed, completed, inProgress, notStarted };
+  }, [evaluators, respondedIds, evalProgress, totalRequired]);
+
+  const toggleQuestion = (qId) => {
+    setOpenQuestions(prev => {
+      const next = new Set(prev);
+      if (next.has(qId)) next.delete(qId); else next.add(qId);
+      return next;
+    });
+  };
+
+  const expandAllQuestions = () => {
+    setOpenQuestions(new Set(questions.map(q => q.id)));
+  };
+
+  const collapseAllQuestions = () => {
+    setOpenQuestions(new Set());
+  };
 
   if (qLoading || rLoading) {
     return <ProjectLayout><LoadingSpinner message="설문 집계 로딩 중..." /></ProjectLayout>;
   }
 
+  const surveyPct = stats.total > 0 ? Math.round((stats.surveyed / stats.total) * 100) : 0;
+  const evalPct = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+
   return (
     <ProjectLayout>
       <h1 className={common.pageTitle}>설문 집계</h1>
 
-      <div className={styles.summary}>
+      {/* ── 요약 카드 4칸 ── */}
+      <div className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <div className={styles.summaryIcon}>👥</div>
+          <div className={styles.summaryNum}>{stats.total}</div>
+          <div className={styles.summaryLabel}>전체 평가자</div>
+        </div>
         {questions.length > 0 && (
-          <div>
-            <div className={styles.summaryNum}>{respondedIds.size} / {evaluators.length}</div>
-            <div className={styles.summaryLabel}>설문 응답</div>
+          <div className={styles.summaryCard}>
+            <div className={styles.summaryIcon}>📋</div>
+            <div className={styles.summaryNum}>{stats.surveyed}<span className={styles.summaryOf}>/{stats.total}</span></div>
+            <div className={styles.summaryLabel}>설문 응답 ({surveyPct}%)</div>
+            <ProgressBar value={stats.surveyed} max={stats.total || 1} color="var(--color-primary)" />
           </div>
         )}
-        <div>
-          <div className={styles.summaryNum}>{actualCompletedCount} / {evaluators.length}</div>
-          <div className={styles.summaryLabel}>평가 완료</div>
+        <div className={styles.summaryCard}>
+          <div className={styles.summaryIcon}>✅</div>
+          <div className={styles.summaryNum}>{stats.completed}<span className={styles.summaryOf}>/{stats.total}</span></div>
+          <div className={styles.summaryLabel}>평가 완료 ({evalPct}%)</div>
+          <ProgressBar value={stats.completed} max={stats.total || 1} color="var(--color-success)" />
+        </div>
+        <div className={styles.summaryCard}>
+          <div className={styles.summaryIcon}>⏳</div>
+          <div className={styles.summaryNumSmall}>
+            <span className={styles.numProgress}>{stats.inProgress}</span> 진행중
+            <span className={styles.numDivider}>/</span>
+            <span className={styles.numNotStarted}>{stats.notStarted}</span> 미시작
+          </div>
+          <div className={styles.summaryLabel}>잔여 현황</div>
         </div>
       </div>
 
+      {/* ── 평가자별 현황 (접기/펼치기) ── */}
       {evaluators.length > 0 && (
-        <div className={styles.statusCard}>
-          <div className={styles.statusHeader}>
-            <h3 className={styles.statusTitle}>평가자별 현황</h3>
-            <button className={styles.smsBtn} onClick={() => setSmsModalOpen(true)}>
+        <div className={styles.section}>
+          <div className={styles.sectionHeader} onClick={() => setShowEvalTable(!showEvalTable)}>
+            <h3 className={styles.sectionTitle}>
+              <span className={styles.sectionToggle}>{showEvalTable ? '▾' : '▸'}</span>
+              평가자별 현황
+              <span className={styles.sectionCount}>{stats.total}명</span>
+            </h3>
+            <button className={styles.smsBtn} onClick={(e) => { e.stopPropagation(); setSmsModalOpen(true); }}>
               SMS 발송
             </button>
           </div>
-          <div className={styles.statusTwoCol}>
-            {[0, 1].map(col => {
-              const half = Math.ceil(evaluators.length / 2);
-              const slice = col === 0
-                ? evaluators.slice(0, half)
-                : evaluators.slice(half);
-              const offset = col === 0 ? 0 : half;
-              return (
-                <div key={col} className={styles.statusTableWrap}>
-                  <table className={styles.statusTable}>
-                    <thead>
-                      <tr>
-                        <th className={styles.thNum}>#</th>
-                        <th className={styles.thName}>이름</th>
-                        {questions.length > 0 && <th className={styles.thBadge}>설문</th>}
-                        <th className={styles.thProgress}>평가 진행</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {slice.map((ev, idx) => {
-                        const count = evalProgress[ev.id] || 0;
-                        const isDone = totalRequired > 0 && count >= totalRequired;
-                        return (
-                          <tr key={ev.id}>
-                            <td className={styles.tdNum}>{offset + idx + 1}</td>
-                            <td className={styles.tdName}>{ev.name || ev.email}</td>
-                            {questions.length > 0 && (
-                              <td className={styles.tdBadge}>
-                                <span className={respondedIds.has(ev.id) ? styles.statusDone : styles.statusPending}>
-                                  {respondedIds.has(ev.id) ? '완료' : '미응답'}
-                                </span>
-                              </td>
-                            )}
-                            <td className={styles.tdProgress}>
-                              <div className={styles.progressRow}>
-                                <span className={isDone ? styles.statusDone : styles.statusPending}>
-                                  {count} / {totalRequired}{isDone ? ' (완료)' : ''}
-                                </span>
-                              </div>
-                              <ProgressBar
-                                value={count}
-                                max={totalRequired || 1}
-                                color={isDone ? 'var(--color-success)' : 'var(--color-primary)'}
-                              />
-                            </td>
+
+          {showEvalTable && (
+            <div className={styles.evalTableArea}>
+              <div className={styles.statusTwoCol}>
+                {[0, 1].map(col => {
+                  const half = Math.ceil(evaluators.length / 2);
+                  const slice = col === 0 ? evaluators.slice(0, half) : evaluators.slice(half);
+                  const offset = col === 0 ? 0 : half;
+                  return (
+                    <div key={col} className={styles.statusTableWrap}>
+                      <table className={styles.statusTable}>
+                        <thead>
+                          <tr>
+                            <th className={styles.thNum}>#</th>
+                            <th className={styles.thName}>이름</th>
+                            {questions.length > 0 && <th className={styles.thBadge}>설문</th>}
+                            <th className={styles.thProgress}>평가 진행</th>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              );
-            })}
-          </div>
+                        </thead>
+                        <tbody>
+                          {slice.map((ev, idx) => {
+                            const count = evalProgress[ev.id] || 0;
+                            const isDone = totalRequired > 0 && count >= totalRequired;
+                            return (
+                              <tr key={ev.id}>
+                                <td className={styles.tdNum}>{offset + idx + 1}</td>
+                                <td className={styles.tdName}>{ev.name || ev.email}</td>
+                                {questions.length > 0 && (
+                                  <td className={styles.tdBadge}>
+                                    <span className={respondedIds.has(ev.id) ? styles.statusDone : styles.statusPending}>
+                                      {respondedIds.has(ev.id) ? '완료' : '미응답'}
+                                    </span>
+                                  </td>
+                                )}
+                                <td className={styles.tdProgress}>
+                                  <div className={styles.progressRow}>
+                                    <span className={isDone ? styles.statusDone : styles.statusPending}>
+                                      {count} / {totalRequired}{isDone ? ' (완료)' : ''}
+                                    </span>
+                                  </div>
+                                  <ProgressBar
+                                    value={count}
+                                    max={totalRequired || 1}
+                                    color={isDone ? 'var(--color-success)' : 'var(--color-primary)'}
+                                  />
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -204,39 +252,57 @@ export default function SurveyResultPage() {
         projectName={currentProject?.name}
       />
 
+      {/* ── 설문 결과 (아코디언) ── */}
       {questions.length === 0 ? (
         <div className={styles.emptyMsg}>설계된 설문 질문이 없습니다.</div>
       ) : (
-        questions.map((q, idx) => (
-          <QuestionResult
-            key={q.id}
-            question={q}
-            index={idx}
-            responses={getResponsesByQuestion(q.id)}
-          />
-        ))
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <h3 className={styles.sectionTitle}>설문 응답 결과</h3>
+            <div className={styles.expandBtns}>
+              <button className={styles.expandBtn} onClick={expandAllQuestions}>전체 펼치기</button>
+              <button className={styles.expandBtn} onClick={collapseAllQuestions}>전체 접기</button>
+            </div>
+          </div>
+          {questions.map((q, idx) => (
+            <QuestionAccordion
+              key={q.id}
+              question={q}
+              index={idx}
+              responses={getResponsesByQuestion(q.id)}
+              isOpen={openQuestions.has(q.id)}
+              onToggle={() => toggleQuestion(q.id)}
+            />
+          ))}
+        </div>
       )}
     </ProjectLayout>
   );
 }
 
-function QuestionResult({ question, index, responses }) {
+function QuestionAccordion({ question, index, responses, isOpen, onToggle }) {
   const { question_type } = question;
-
   return (
-    <div className={styles.questionCard}>
-      <h3 className={styles.questionTitle}>
-        Q{index + 1}. {question.question_text || '(질문 없음)'}
-        <span className={styles.questionType}>{TYPE_LABELS[question_type]}</span>
-      </h3>
-      <p className={styles.responseCount}>{responses.length}명 응답</p>
-
-      {question_type === 'short_text' || question_type === 'long_text' ? (
-        <TextResults responses={responses} />
-      ) : question_type === 'number' ? (
-        <NumberResults responses={responses} />
-      ) : (
-        <ChoiceResults question={question} responses={responses} />
+    <div className={styles.qAccordion}>
+      <div className={styles.qHeader} onClick={onToggle}>
+        <span className={styles.qToggle}>{isOpen ? '▾' : '▸'}</span>
+        <span className={styles.qLabel}>Q{index + 1}.</span>
+        <span className={styles.qText}>{question.question_text || '(질문 없음)'}</span>
+        <span className={styles.qMeta}>
+          <span className={styles.questionType}>{TYPE_LABELS[question_type]}</span>
+          <span className={styles.qResCount}>{responses.length}명</span>
+        </span>
+      </div>
+      {isOpen && (
+        <div className={styles.qBody}>
+          {question_type === 'short_text' || question_type === 'long_text' ? (
+            <TextResults responses={responses} />
+          ) : question_type === 'number' ? (
+            <NumberResults responses={responses} />
+          ) : (
+            <ChoiceResults question={question} responses={responses} />
+          )}
+        </div>
       )}
     </div>
   );
@@ -302,7 +368,6 @@ function ChoiceResults({ question, responses }) {
     for (const opt of options) counts[opt] = 0;
 
     for (const r of responses) {
-      // checkbox 응답이 배열로 직접 저장된 경우(legacy) 또는 { value: [...] }인 경우 모두 처리
       const val = r.answer?.value !== undefined ? r.answer.value : (Array.isArray(r.answer) ? r.answer : undefined);
       if (Array.isArray(val)) {
         for (const v of val) {
