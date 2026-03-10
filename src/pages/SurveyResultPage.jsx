@@ -106,26 +106,6 @@ export default function SurveyResultPage() {
     }
   }, [deleteGroup, toast]);
 
-  // 선택 평가자 결과 내보내기
-  const handleExportChecked = useCallback(async () => {
-    const ids = [...checkedIds];
-    if (ids.length === 0) return;
-    try {
-      const results = computeResultsForEvaluators(
-        ids, compByEvaluator, directByEvaluator,
-        criteria, alternatives, id, currentProject,
-      );
-      if (!results) {
-        toast.warning('선택된 평가자의 평가 데이터가 없습니다');
-        return;
-      }
-      await exportToExcel(criteria, alternatives, results, `${currentProject?.name || 'AHP'}_선택${ids.length}명`);
-      toast.success(`${ids.length}명 결과 Excel 내보내기 완료`);
-    } catch (err) {
-      toast.error('내보내기 실패: ' + err.message);
-    }
-  }, [checkedIds, compByEvaluator, directByEvaluator, criteria, alternatives, id, currentProject, toast]);
-
   // SMS 모달에 전달할 평가자
   const smsEvaluators = useMemo(() => {
     if (smsForChecked) return evaluators.filter(e => checkedIds.has(e.id));
@@ -204,6 +184,26 @@ export default function SurveyResultPage() {
     }
     return byEval;
   }, [rawDirectData]);
+
+  // 선택 평가자 결과 내보내기 (compByEvaluator, directByEvaluator 이후 선언)
+  const handleExportChecked = useCallback(async () => {
+    const ids = [...checkedIds];
+    if (ids.length === 0) return;
+    try {
+      const results = computeResultsForEvaluators(
+        ids, compByEvaluator, directByEvaluator,
+        criteria, alternatives, id, currentProject,
+      );
+      if (!results) {
+        toast.warning('선택된 평가자의 평가 데이터가 없습니다');
+        return;
+      }
+      await exportToExcel(criteria, alternatives, results, `${currentProject?.name || 'AHP'}_선택${ids.length}명`);
+      toast.success(`${ids.length}명 결과 Excel 내보내기 완료`);
+    } catch (err) {
+      toast.error('내보내기 실패: ' + err.message);
+    }
+  }, [checkedIds, compByEvaluator, directByEvaluator, criteria, alternatives, id, currentProject, toast]);
 
   const stats = useMemo(() => {
     const total = evaluators.length;
