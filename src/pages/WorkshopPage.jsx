@@ -39,7 +39,8 @@ export default function WorkshopPage() {
         .from('pairwise_comparisons')
         .select('evaluator_id, criterion_id, row_id, col_id')
         .eq('project_id', id);
-      if (error) { toast.error('비교 데이터 로딩 실패'); }
+      if (error) { console.error('[Workshop] pairwise load error:', error); toast.error('비교 데이터 로딩 실패'); }
+      console.log('[Workshop] pairwise rows loaded:', (data || []).length);
       setRawData(data || []);
     }
   }, [id, isDirectInput, toast]);
@@ -92,14 +93,21 @@ export default function WorkshopPage() {
   // Count only valid entries per evaluator (exclude orphaned DB rows)
   const progress = useMemo(() => {
     const counts = {};
+    let matchCount = 0;
+    let missCount = 0;
     for (const row of rawData) {
       const key = isDirectInput
         ? `${row.criterion_id}:${row.item_id}`
         : `${row.criterion_id}:${row.row_id}:${row.col_id}`;
       if (validKeys.has(key)) {
         counts[row.evaluator_id] = (counts[row.evaluator_id] || 0) + 1;
+        matchCount++;
+      } else {
+        missCount++;
+        if (missCount <= 3) console.warn('[Workshop] key mismatch:', key);
       }
     }
+    console.log(`[Workshop] rawData=${rawData.length}, validKeys=${validKeys.size}, matched=${matchCount}, missed=${missCount}, evalWithData=${Object.keys(counts).length}`);
     return counts;
   }, [rawData, validKeys, isDirectInput]);
 

@@ -41,11 +41,13 @@ export default function AdminResultPage() {
       ]);
 
       if (compRes.error) {
-        // pairwise comparisons 로드 실패 — 데이터 없이 계속 진행
+        console.error('[AdminResult] pairwise_comparisons 로드 실패:', compRes.error);
       }
       if (directRes.error) {
-        // direct_input_values 로드 실패 — 테이블 미존재 가능, 무시
+        console.warn('[AdminResult] direct_input_values 로드 실패:', directRes.error);
       }
+
+      console.log('[AdminResult] pairwise rows:', (compRes.data || []).length, '| direct rows:', (directRes.data || []).length);
 
       // Pairwise comparisons by evaluator
       const byEval = {};
@@ -53,6 +55,7 @@ export default function AdminResultPage() {
         if (!byEval[c.evaluator_id]) byEval[c.evaluator_id] = {};
         byEval[c.evaluator_id][`${c.criterion_id}:${c.row_id}:${c.col_id}`] = c.value;
       }
+      console.log('[AdminResult] evaluators with data:', Object.keys(byEval).length);
       setAllComparisons(byEval);
 
       // Direct input values by evaluator
