@@ -280,7 +280,26 @@ export default function SurveyResultPage() {
         <div className={styles.statusCard}>
           <div className={styles.statusHeader}>
             <h3 className={styles.statusTitle}>평가자별 현황</h3>
-            <button className={styles.smsBtn} onClick={() => { setSmsForChecked(false); setSmsModalOpen(true); }}>SMS 발송</button>
+            <div className={styles.statusActions}>
+              {checkedIds.size > 0 && (
+                <>
+                  <span className={styles.toolbarCount}>{checkedIds.size}명 선택</span>
+                  <button className={styles.toolbarBtn} onClick={() => { setSmsForChecked(true); setSmsModalOpen(true); }}>
+                    선택 SMS
+                  </button>
+                  <button className={styles.toolbarBtn} onClick={handleExportChecked}>
+                    결과 내보내기
+                  </button>
+                  <button className={styles.toolbarBtn} onClick={() => { setGroupModalOpen(true); setGroupName(''); }}>
+                    그룹 저장
+                  </button>
+                  <button className={`${styles.toolbarBtn} ${styles.toolbarBtnDanger}`} onClick={() => setCheckedIds(new Set())}>
+                    선택해제
+                  </button>
+                </>
+              )}
+              <button className={styles.smsBtn} onClick={() => { setSmsForChecked(false); setSmsModalOpen(true); }}>SMS 발송</button>
+            </div>
           </div>
 
           <div className={styles.masterDetail}>

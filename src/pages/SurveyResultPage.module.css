@@ -23,13 +23,13 @@
 }
 
 .dashSub {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-text-muted);
 }
 
 .dashLabel {
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
   font-weight: 600;
   margin-top: 2px;
@@ -59,7 +59,7 @@
 }
 
 .dashSmLabel {
-  font-size: 0.7rem;
+  font-size: 0.92rem;
   color: var(--color-text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -89,6 +89,15 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--spacing-md);
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.statusActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .statusTitle {
@@ -104,7 +113,7 @@
   color: #fff;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -138,7 +147,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-muted);
   cursor: pointer;
@@ -151,7 +160,7 @@
   padding: 3px 6px;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-sm);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   color: var(--color-text);
   background: var(--color-surface);
   cursor: pointer;
@@ -163,7 +172,7 @@
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-danger, #ef4444);
-  font-size: 0.62rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -188,7 +197,7 @@
 }
 
 .toolbarCount {
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-primary);
   margin-right: 4px;
@@ -201,7 +210,7 @@
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-primary);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -241,7 +250,7 @@
   padding: 5px 8px;
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   color: var(--color-text);
   outline: none;
 }
@@ -295,7 +304,7 @@
 }
 
 .evalIdx {
-  font-size: 0.7rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--color-text-muted);
   font-family: var(--font-mono);
@@ -305,7 +314,7 @@
 }
 
 .evalName {
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text);
   flex: 1;
@@ -320,7 +329,7 @@
   display: inline-block;
   padding: 1px 6px;
   border-radius: var(--radius-round);
-  font-size: 0.65rem;
+  font-size: 0.875rem;
   font-weight: 600;
   background: #dcfce7;
   color: #15803d;
@@ -332,7 +341,7 @@
   display: inline-block;
   padding: 1px 6px;
   border-radius: var(--radius-round);
-  font-size: 0.65rem;
+  font-size: 0.875rem;
   font-weight: 600;
   background: #dbeafe;
   color: #1d4ed8;
@@ -344,7 +353,7 @@
   display: inline-block;
   padding: 1px 6px;
   border-radius: var(--radius-round);
-  font-size: 0.65rem;
+  font-size: 0.875rem;
   font-weight: 600;
   background: #fef3c7;
   color: #b45309;
@@ -359,7 +368,7 @@
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-text-muted);
-  font-size: 0.62rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -393,7 +402,7 @@
   justify-content: center;
   min-height: 200px;
   color: var(--color-text-muted);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   text-align: center;
   padding: var(--spacing-lg);
   line-height: 1.6;
@@ -421,7 +430,7 @@
 }
 
 .detailSectionTitle {
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: 6px;
@@ -434,7 +443,7 @@
 }
 
 .detailEmpty {
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   color: var(--color-text-muted);
   font-style: italic;
   padding: 8px 0;
@@ -456,7 +465,7 @@
 }
 
 .answerLabel {
-  font-size: 0.68rem;
+  font-size: 0.95rem;
   color: var(--color-text-muted);
   margin-bottom: 2px;
   white-space: nowrap;
@@ -465,7 +474,7 @@
 }
 
 .answerVal {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--color-text);
   word-break: break-word;
@@ -502,13 +511,13 @@
 }
 
 .crName {
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--color-text);
 }
 
 .crPass {
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
   font-family: var(--font-mono);
   color: var(--color-success);
@@ -516,7 +525,7 @@
 }
 
 .crFail {
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
   font-family: var(--font-mono);
   color: var(--color-danger);
@@ -539,7 +548,7 @@
 }
 
 .priName {
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   color: var(--color-text);
   font-weight: 600;
   width: 50%;
@@ -563,7 +572,7 @@
 }
 
 .priVal {
-  font-size: 0.7rem;
+  font-size: 0.92rem;
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--color-text);
@@ -593,7 +602,7 @@
 }
 
 .questionType {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-muted);
   background: var(--color-bg);
@@ -602,7 +611,7 @@
 }
 
 .responseCount {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   color: var(--color-text-muted);
   margin-bottom: var(--spacing-md);
 }
@@ -616,7 +625,7 @@
 .textItem {
   padding: 8px 12px;
   border-bottom: 1px solid var(--color-border-light);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   color: var(--color-text);
 }
 
@@ -645,7 +654,7 @@
 }
 
 .statLabel {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
   margin-top: 2px;
 }
@@ -659,7 +668,7 @@
   text-align: center;
   color: var(--color-text-muted);
   padding: var(--spacing-xl);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 /* ── 반응형 ── */
