@@ -26,8 +26,8 @@ export function useAhpContext(projectId) {
     if (!evaluators.length) return;
     try {
       const [compRes, directRes] = await Promise.all([
-        supabase.from('pairwise_comparisons').select('*').eq('project_id', projectId),
-        supabase.from('direct_input_values').select('*').eq('project_id', projectId),
+        supabase.from('pairwise_comparisons').select('*').eq('project_id', projectId).limit(10000),
+        supabase.from('direct_input_values').select('*').eq('project_id', projectId).limit(10000),
       ]);
 
       const byEval = {};

@@ -36,18 +36,9 @@ export default function AdminResultPage() {
 
     try {
       const [compRes, directRes] = await Promise.all([
-        supabase.from('pairwise_comparisons').select('*').eq('project_id', id),
-        supabase.from('direct_input_values').select('*').eq('project_id', id),
+        supabase.from('pairwise_comparisons').select('*').eq('project_id', id).limit(10000),
+        supabase.from('direct_input_values').select('*').eq('project_id', id).limit(10000),
       ]);
-
-      if (compRes.error) {
-        console.error('[AdminResult] pairwise_comparisons 로드 실패:', compRes.error);
-      }
-      if (directRes.error) {
-        console.warn('[AdminResult] direct_input_values 로드 실패:', directRes.error);
-      }
-
-      console.log('[AdminResult] pairwise rows:', (compRes.data || []).length, '| direct rows:', (directRes.data || []).length);
 
       // Pairwise comparisons by evaluator
       const byEval = {};
@@ -55,7 +46,6 @@ export default function AdminResultPage() {
         if (!byEval[c.evaluator_id]) byEval[c.evaluator_id] = {};
         byEval[c.evaluator_id][`${c.criterion_id}:${c.row_id}:${c.col_id}`] = c.value;
       }
-      console.log('[AdminResult] evaluators with data:', Object.keys(byEval).length);
       setAllComparisons(byEval);
 
       // Direct input values by evaluator

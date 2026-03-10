@@ -70,8 +70,8 @@ export function EvaluationProvider({ children }) {
   const loadProjectData = useCallback(async (projectId, evaluatorId) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      let compQuery = supabase.from('pairwise_comparisons').select('*').eq('project_id', projectId);
-      let directQuery = supabase.from('direct_input_values').select('*').eq('project_id', projectId);
+      let compQuery = supabase.from('pairwise_comparisons').select('*').eq('project_id', projectId).limit(10000);
+      let directQuery = supabase.from('direct_input_values').select('*').eq('project_id', projectId).limit(10000);
       if (evaluatorId) {
         compQuery = compQuery.eq('evaluator_id', evaluatorId);
         directQuery = directQuery.eq('evaluator_id', evaluatorId);
