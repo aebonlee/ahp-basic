@@ -1,8 +1,8 @@
-/* ── 요약 카드 그리드 ── */
+/* ── 요약 카드 ── */
 .summaryGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   margin-bottom: var(--spacing-lg);
 }
 
@@ -10,22 +10,16 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-sm);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-}
-
-.summaryIcon {
-  font-size: 1.4rem;
-  line-height: 1;
-  margin-bottom: 2px;
+  gap: 2px;
 }
 
 .summaryNum {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: var(--color-primary);
   font-family: var(--font-mono);
@@ -33,42 +27,28 @@
 }
 
 .summaryOf {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--color-text-muted);
 }
 
 .summaryNumSmall {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--color-text);
-  line-height: 1.6;
+  line-height: 1.8;
 }
 
-.numProgress {
-  color: var(--color-primary);
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-}
-
-.numDivider {
-  color: var(--color-text-muted);
-  margin: 0 6px;
-}
-
-.numNotStarted {
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-}
+.numHighlight { color: var(--color-primary); font-family: var(--font-mono); font-size: 1.05rem; }
+.numDivider { color: var(--color-text-muted); margin: 0 4px; }
+.numMuted { color: var(--color-text-muted); font-family: var(--font-mono); font-size: 1.05rem; }
 
 .summaryLabel {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
-  margin-top: 2px;
 }
 
-/* ── 섹션 공통 ── */
+/* ── 섹션 ── */
 .section {
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
@@ -81,8 +61,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
+  margin-bottom: var(--spacing-md);
 }
 
 .sectionTitle {
@@ -95,14 +74,8 @@
   gap: var(--spacing-sm);
 }
 
-.sectionToggle {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
-  width: 16px;
-}
-
-.sectionCount {
-  font-size: 0.78rem;
+.badge {
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text-muted);
   background: var(--color-bg);
@@ -111,12 +84,12 @@
 }
 
 .smsBtn {
-  padding: 6px 16px;
+  padding: 5px 14px;
   background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -126,112 +99,129 @@
   background: var(--color-primary-dark, #4f46e5);
 }
 
-.expandBtns {
-  display: flex;
+/* ── 평가자 컴팩트 그리드 ── */
+.evalGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
 
-.expandBtn {
-  padding: 4px 12px;
-  background: var(--color-bg);
+.evalChip {
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-sm);
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.expandBtn:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-/* ── 평가자 테이블 영역 ── */
-.evalTableArea {
-  margin-top: var(--spacing-md);
-  max-height: 480px;
-  overflow-y: auto;
-  border-top: 1px solid var(--color-border-light);
-  padding-top: var(--spacing-md);
-}
-
-.statusTwoCol {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-md);
-}
-
-.statusTableWrap {
-  overflow-x: auto;
-}
-
-.statusTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-
-.statusTable th,
-.statusTable td {
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--color-border-light);
-  text-align: left;
-  vertical-align: middle;
-}
-
-.statusTable thead th {
+  border-radius: var(--radius-md);
   background: var(--color-bg);
-  font-weight: 700;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-  z-index: 1;
+  overflow: hidden;
+  transition: border-color 0.15s;
 }
 
-.statusTable tbody tr:hover {
-  background: var(--color-primary-bg);
+.evalChip:hover {
+  border-color: var(--color-primary-border, #a5b4fc);
 }
 
-.thNum { width: 36px; text-align: center; }
-.thName { min-width: 64px; }
-.thBadge { width: 64px; text-align: center; }
-.thProgress { min-width: 140px; }
+.evalChipDone {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
 
-.tdNum {
-  text-align: center;
+.evalChipProgress {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.evalChipMain {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.evalIdx {
+  font-size: 0.7rem;
   color: var(--color-text-muted);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  min-width: 18px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
-.tdName {
+.evalChipName {
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--color-text);
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
 }
 
-.tdBadge { text-align: center; }
-
-.tdProgress { padding-top: 4px; padding-bottom: 4px; }
-
-.progressRow {
+.evalDots {
   display: flex;
+  gap: 3px;
   align-items: center;
+  flex-shrink: 0;
+}
+
+.dotDone {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: inline-block;
+}
+
+.dotProgress {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  display: inline-block;
+}
+
+.dotPending {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d1d5db;
+  display: inline-block;
+}
+
+.evalDetailBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
+/* ── 평가자 상세 (펼침) ── */
+.evalDetail {
+  padding: 6px 8px 8px;
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-surface);
+}
+
+.evalDetailRow {
+  display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 3px;
+}
+
+.evalDetailLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
 }
 
 .statusDone {
   display: inline-block;
   padding: 1px 8px;
   border-radius: var(--radius-round);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   background: #dcfce7;
   color: #15803d;
@@ -241,85 +231,64 @@
   display: inline-block;
   padding: 1px 8px;
   border-radius: var(--radius-round);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   background: #fef3c7;
   color: #b45309;
 }
 
-/* ── 질문 아코디언 ── */
-.qAccordion {
+/* ── 설문 결과 2열 그리드 ── */
+.questionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+}
+
+.questionCard {
+  background: var(--color-bg);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
-  margin-top: var(--spacing-sm);
-  overflow: hidden;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
 }
 
-.qHeader {
+.qCardHeader {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: 10px var(--spacing-md);
-  cursor: pointer;
-  user-select: none;
-  background: var(--color-bg);
-  transition: background 0.15s;
-}
-
-.qHeader:hover {
-  background: var(--color-primary-bg);
-}
-
-.qToggle {
-  font-size: 0.82rem;
-  color: var(--color-text-muted);
-  width: 14px;
-  flex-shrink: 0;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .qLabel {
   font-weight: 700;
   color: var(--color-primary);
-  font-size: 0.88rem;
-  flex-shrink: 0;
-}
-
-.qText {
-  font-size: 0.88rem;
-  color: var(--color-text);
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.qMeta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  font-size: 0.85rem;
 }
 
 .questionType {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: var(--color-text-muted);
   background: var(--color-surface);
-  padding: 1px 8px;
+  padding: 1px 6px;
   border-radius: var(--radius-round);
   border: 1px solid var(--color-border-light);
 }
 
 .qResCount {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-primary);
   font-family: var(--font-mono);
+  margin-left: auto;
 }
 
-.qBody {
-  padding: var(--spacing-md);
-  border-top: 1px solid var(--color-border-light);
+.qCardText {
+  font-size: 0.85rem;
+  color: var(--color-text);
+  margin: 0 0 var(--spacing-sm);
+  line-height: 1.4;
 }
 
 /* ── 텍스트 응답 ── */
@@ -327,105 +296,100 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  max-height: 160px;
+  overflow-y: auto;
 }
 
 .textItem {
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-bottom: 1px solid var(--color-border-light);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--color-text);
 }
 
-.textItem:last-child {
-  border-bottom: none;
-}
+.textItem:last-child { border-bottom: none; }
 
 /* ── 숫자 통계 ── */
-.statsGrid {
+.statsRow {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-sm);
+  gap: 4px;
 }
 
 .statBox {
   text-align: center;
-  padding: var(--spacing-sm);
-  background: var(--color-bg);
-  border-radius: var(--radius-md);
+  padding: 6px 4px;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
 }
 
 .statValue {
-  font-size: 1.2rem;
+  display: block;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-primary);
   font-family: var(--font-mono);
 }
 
 .statLabel {
-  font-size: 0.75rem;
+  display: block;
+  font-size: 0.68rem;
   color: var(--color-text-muted);
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 /* ── 차트 ── */
 .chartWrap {
   width: 100%;
-  height: 250px;
+  height: 200px;
 }
 
 /* ── 빈 상태 ── */
 .emptyMsg {
   text-align: center;
   color: var(--color-text-muted);
-  padding: var(--spacing-xl);
-  font-size: 0.9rem;
+  padding: var(--spacing-lg);
+  font-size: 0.88rem;
 }
 
 /* ── 반응형 ── */
+@media (max-width: 1100px) {
+  .evalGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
   .summaryGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .statusTwoCol {
+  .evalGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .questionGrid {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 768px) {
-  .statsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .statusTable {
-    font-size: 0.8rem;
-  }
-
-  .statusTable th,
-  .statusTable td {
-    padding: 5px 6px;
-  }
-
-  .tdName {
-    max-width: 80px;
-  }
-
-  .qHeader {
-    flex-wrap: wrap;
-  }
-
-  .qText {
-    white-space: normal;
-  }
-}
-
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .summaryGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .evalGrid {
     grid-template-columns: 1fr 1fr;
   }
 
   .sectionHeader {
     flex-wrap: wrap;
     gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 400px) {
+  .evalGrid {
+    grid-template-columns: 1fr;
   }
 }
