@@ -41,13 +41,14 @@ export default function SignaturePanel({ projectId, evaluatorId, allComplete, al
       // 서명 삽입 (DB 트리거가 evaluators.completed = true 자동 설정)
       const { error } = await supabase
         .from('evaluation_signatures')
-        .upsert({
+        .insert({
           project_id: projectId,
           evaluator_id: evaluatorId,
           signed_at: new Date().toISOString(),
-        }, { onConflict: 'project_id,evaluator_id' })
+        })
         .select();
-      if (error) throw error;
+      // 23505 = unique_violation → 이미 서명 존재 → 성공 처리
+      if (error && error.code !== '23505') throw error;
       setSigned(true);
       toast.success('평가가 완료되었습니다.');
     } catch (err) {
