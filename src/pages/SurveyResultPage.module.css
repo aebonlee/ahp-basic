@@ -1,95 +1,147 @@
-/* ── 요약 카드 ── */
-.summaryGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
+.container {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.summaryCard {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-md) var(--spacing-sm);
-  text-align: center;
+.summary {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-primary-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-primary-border, #c7d2fe);
 }
 
 .summaryNum {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 800;
   color: var(--color-primary);
   font-family: var(--font-mono);
-  line-height: 1.2;
 }
-
-.summaryOf {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
-}
-
-.summaryNumSmall {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--color-text);
-  line-height: 1.8;
-}
-
-.numHighlight { color: var(--color-primary); font-family: var(--font-mono); font-size: 1.05rem; }
-.numDivider { color: var(--color-text-muted); margin: 0 4px; }
-.numMuted { color: var(--color-text-muted); font-family: var(--font-mono); font-size: 1.05rem; }
 
 .summaryLabel {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  color: var(--color-text-light);
 }
 
-/* ── 섹션 ── */
-.section {
+.questionCard {
   background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
   margin-bottom: var(--spacing-md);
 }
 
-.sectionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--spacing-md);
-}
-
-.sectionTitle {
+.questionTitle {
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
-  margin: 0;
+  margin-bottom: var(--spacing-sm);
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
 }
 
-.badge {
+.questionType {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-text-muted);
   background: var(--color-bg);
   padding: 2px 8px;
   border-radius: var(--radius-round);
 }
 
+.responseCount {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+/* 텍스트 응답 목록 */
+.textList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.textItem {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 0.88rem;
+  color: var(--color-text);
+}
+
+.textItem:last-child {
+  border-bottom: none;
+}
+
+/* 숫자 통계 */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.statBox {
+  text-align: center;
+  padding: var(--spacing-sm);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.statValue {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+/* 차트 컨테이너 */
+.chartWrap {
+  width: 100%;
+  height: 250px;
+}
+
+/* 평가자 상태 테이블 */
+.statusCard {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-light);
+  margin-bottom: var(--spacing-md);
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.statusTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
 .smsBtn {
-  padding: 5px 14px;
+  padding: 6px 16px;
   background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: var(--radius-sm);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -99,129 +151,42 @@
   background: var(--color-primary-dark, #4f46e5);
 }
 
-/* ── 평가자 컴팩트 그리드 ── */
-.evalGrid {
+.statusGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
 }
 
-.evalChip {
+.statusItem {
+  background: var(--color-bg);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-md);
-  background: var(--color-bg);
-  overflow: hidden;
-  transition: border-color 0.15s;
+  padding: 10px 12px;
+  text-align: center;
 }
 
-.evalChip:hover {
-  border-color: var(--color-primary-border, #a5b4fc);
-}
-
-.evalChipDone {
-  border-color: #86efac;
-  background: #f0fdf4;
-}
-
-.evalChipProgress {
-  border-color: #fde68a;
-  background: #fffbeb;
-}
-
-.evalChipMain {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 8px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.evalIdx {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-  min-width: 18px;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.evalChipName {
-  font-size: 0.82rem;
+.statusName {
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--color-text);
-  flex: 1;
+  margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.evalDots {
+.statusBadges {
   display: flex;
-  gap: 3px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.dotDone {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #22c55e;
-  display: inline-block;
-}
-
-.dotProgress {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #f59e0b;
-  display: inline-block;
-}
-
-.dotPending {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #d1d5db;
-  display: inline-block;
-}
-
-.evalDetailBtn {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  font-size: 0.7rem;
-  cursor: pointer;
-  padding: 0 2px;
-  flex-shrink: 0;
-}
-
-/* ── 평가자 상세 (펼침) ── */
-.evalDetail {
-  padding: 6px 8px 8px;
-  border-top: 1px solid var(--color-border-light);
-  background: var(--color-surface);
-}
-
-.evalDetailRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 3px;
-}
-
-.evalDetailLabel {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  font-weight: 600;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
 }
 
 .statusDone {
   display: inline-block;
-  padding: 1px 8px;
+  padding: 2px 10px;
   border-radius: var(--radius-round);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 600;
   background: #dcfce7;
   color: #15803d;
@@ -229,167 +194,32 @@
 
 .statusPending {
   display: inline-block;
-  padding: 1px 8px;
+  padding: 2px 10px;
   border-radius: var(--radius-round);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 600;
   background: #fef3c7;
   color: #b45309;
 }
 
-/* ── 설문 결과 2열 그리드 ── */
-.questionGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--spacing-md);
-}
-
-.questionCard {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
-}
-
-.qCardHeader {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-}
-
-.qLabel {
-  font-weight: 700;
-  color: var(--color-primary);
-  font-size: 0.85rem;
-}
-
-.questionType {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  background: var(--color-surface);
-  padding: 1px 6px;
-  border-radius: var(--radius-round);
-  border: 1px solid var(--color-border-light);
-}
-
-.qResCount {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-primary);
-  font-family: var(--font-mono);
-  margin-left: auto;
-}
-
-.qCardText {
-  font-size: 0.85rem;
-  color: var(--color-text);
-  margin: 0 0 var(--spacing-sm);
-  line-height: 1.4;
-}
-
-/* ── 텍스트 응답 ── */
-.textList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-height: 160px;
-  overflow-y: auto;
-}
-
-.textItem {
-  padding: 4px 8px;
-  border-bottom: 1px solid var(--color-border-light);
-  font-size: 0.82rem;
-  color: var(--color-text);
-}
-
-.textItem:last-child { border-bottom: none; }
-
-/* ── 숫자 통계 ── */
-.statsRow {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-}
-
-.statBox {
-  text-align: center;
-  padding: 6px 4px;
-  background: var(--color-surface);
-  border-radius: var(--radius-sm);
-}
-
-.statValue {
-  display: block;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  font-family: var(--font-mono);
-}
-
-.statLabel {
-  display: block;
-  font-size: 0.68rem;
-  color: var(--color-text-muted);
-  margin-top: 1px;
-}
-
-/* ── 차트 ── */
-.chartWrap {
-  width: 100%;
-  height: 200px;
-}
-
-/* ── 빈 상태 ── */
 .emptyMsg {
   text-align: center;
   color: var(--color-text-muted);
-  padding: var(--spacing-lg);
-  font-size: 0.88rem;
+  padding: var(--spacing-xl);
+  font-size: 0.9rem;
 }
 
-/* ── 반응형 ── */
-@media (max-width: 1100px) {
-  .evalGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 900px) {
-  .summaryGrid {
+@media (max-width: 768px) {
+  .statsGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .evalGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .questionGrid {
+  .statusGrid {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 600px) {
-  .summaryGrid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .evalGrid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .sectionHeader {
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-  }
-}
-
-@media (max-width: 400px) {
-  .evalGrid {
-    grid-template-columns: 1fr;
+  .summary {
+    flex-direction: column;
+    text-align: center;
   }
 }
