@@ -1,11 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { supabase } from '../lib/supabaseClient';
 import { useSurveyQuestions, useSurveyResponses } from '../hooks/useSurvey';
 import { useEvaluators } from '../hooks/useEvaluators';
+import { useCriteria } from '../hooks/useCriteria';
+import { useAlternatives } from '../hooks/useAlternatives';
 import { useProject } from '../hooks/useProjects';
+import { buildPageSequence } from '../lib/pairwiseUtils';
+import { EVAL_METHOD } from '../lib/constants';
 import ProjectLayout from '../components/layout/ProjectLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ProgressBar from '../components/common/ProgressBar';
 import SmsModal from '../components/admin/SmsModal';
 import common from '../styles/common.module.css';
 import styles from './SurveyResultPage.module.css';
@@ -27,17 +33,80 @@ export default function SurveyResultPage() {
   const { questions, loading: qLoading } = useSurveyQuestions(id);
   const { responses, loading: rLoading, getResponsesByQuestion } = useSurveyResponses(id);
   const { evaluators } = useEvaluators(id);
+  const { criteria } = useCriteria(id);
+  const { alternatives } = useAlternatives(id);
   const { currentProject } = useProject(id);
   const [smsModalOpen, setSmsModalOpen] = useState(false);
+  const [rawCompData, setRawCompData] = useState([]);
+
+  const isDirectInput = currentProject?.eval_method === EVAL_METHOD.DIRECT_INPUT;
+
+  // Load pairwise/direct data for real progress
+  const loadCompData = useCallback(async () => {
+    if (isDirectInput) {
+      const { data } = await supabase
+        .from('direct_input_values')
+        .select('evaluator_id, criterion_id, item_id')
+        .eq('project_id', id)
+        .limit(10000);
+      setRawCompData(data || []);
+    } else {
+      const { data } = await supabase
+        .from('pairwise_comparisons')
+        .select('evaluator_id, criterion_id, row_id, col_id')
+        .eq('project_id', id)
+        .limit(10000);
+      setRawCompData(data || []);
+    }
+  }, [id, isDirectInput]);
+
+  useEffect(() => {
+    if (currentProject) loadCompData();
+  }, [currentProject, loadCompData]);
 
   const respondedIds = useMemo(
     () => new Set(responses.map(r => r.evaluator_id)),
     [responses],
   );
 
-  const completedCount = useMemo(
-    () => evaluators.filter(e => e.completed).length,
-    [evaluators],
+  // Build valid keys and total required (same as WorkshopPage)
+  const { totalRequired, validKeys } = useMemo(() => {
+    if (criteria.length === 0) return { totalRequired: 0, validKeys: new Set() };
+    const pages = buildPageSequence(criteria, alternatives, id);
+    const keys = new Set();
+    if (isDirectInput) {
+      for (const page of pages) {
+        for (const item of page.items) {
+          keys.add(`${page.parentId}:${item.id}`);
+        }
+      }
+    } else {
+      for (const page of pages) {
+        for (const pair of page.pairs) {
+          keys.add(`${page.parentId}:${pair.left.id}:${pair.right.id}`);
+        }
+      }
+    }
+    return { totalRequired: keys.size, validKeys: keys };
+  }, [criteria, alternatives, id, isDirectInput]);
+
+  // Count valid entries per evaluator
+  const evalProgress = useMemo(() => {
+    const counts = {};
+    for (const row of rawCompData) {
+      const key = isDirectInput
+        ? `${row.criterion_id}:${row.item_id}`
+        : `${row.criterion_id}:${row.row_id}:${row.col_id}`;
+      if (validKeys.has(key)) {
+        counts[row.evaluator_id] = (counts[row.evaluator_id] || 0) + 1;
+      }
+    }
+    return counts;
+  }, [rawCompData, validKeys, isDirectInput]);
+
+  const actualCompletedCount = useMemo(
+    () => evaluators.filter(e => totalRequired > 0 && (evalProgress[e.id] || 0) >= totalRequired).length,
+    [evaluators, evalProgress, totalRequired],
   );
 
   if (qLoading || rLoading) {
@@ -56,7 +125,7 @@ export default function SurveyResultPage() {
           </div>
         )}
         <div>
-          <div className={styles.summaryNum}>{completedCount} / {evaluators.length}</div>
+          <div className={styles.summaryNum}>{actualCompletedCount} / {evaluators.length}</div>
           <div className={styles.summaryLabel}>평가 완료</div>
         </div>
       </div>
@@ -69,22 +138,48 @@ export default function SurveyResultPage() {
               SMS 발송
             </button>
           </div>
-          <div className={styles.statusGrid}>
-            {evaluators.map(ev => (
-              <div key={ev.id} className={styles.statusItem}>
-                <div className={styles.statusName}>{ev.name || ev.email}</div>
-                <div className={styles.statusBadges}>
-                  {questions.length > 0 && (
-                    <span className={respondedIds.has(ev.id) ? styles.statusDone : styles.statusPending}>
-                      설문 {respondedIds.has(ev.id) ? '완료' : '미응답'}
-                    </span>
-                  )}
-                  <span className={ev.completed ? styles.statusDone : styles.statusPending}>
-                    평가 {ev.completed ? '완료' : '미완료'}
-                  </span>
-                </div>
-              </div>
-            ))}
+          <div className={styles.statusTableWrap}>
+            <table className={styles.statusTable}>
+              <thead>
+                <tr>
+                  <th className={styles.thNum}>#</th>
+                  <th className={styles.thName}>이름</th>
+                  {questions.length > 0 && <th className={styles.thBadge}>설문</th>}
+                  <th className={styles.thProgress}>평가 진행</th>
+                </tr>
+              </thead>
+              <tbody>
+                {evaluators.map((ev, idx) => {
+                  const count = evalProgress[ev.id] || 0;
+                  const isDone = totalRequired > 0 && count >= totalRequired;
+                  return (
+                    <tr key={ev.id}>
+                      <td className={styles.tdNum}>{idx + 1}</td>
+                      <td className={styles.tdName}>{ev.name || ev.email}</td>
+                      {questions.length > 0 && (
+                        <td className={styles.tdBadge}>
+                          <span className={respondedIds.has(ev.id) ? styles.statusDone : styles.statusPending}>
+                            {respondedIds.has(ev.id) ? '완료' : '미응답'}
+                          </span>
+                        </td>
+                      )}
+                      <td className={styles.tdProgress}>
+                        <div className={styles.progressRow}>
+                          <span className={isDone ? styles.statusDone : styles.statusPending}>
+                            {count} / {totalRequired}{isDone ? ' (완료)' : ''}
+                          </span>
+                        </div>
+                        <ProgressBar
+                          value={count}
+                          max={totalRequired || 1}
+                          color={isDone ? 'var(--color-success)' : 'var(--color-primary)'}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

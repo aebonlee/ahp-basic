@@ -151,35 +151,69 @@
   background: var(--color-primary-dark, #4f46e5);
 }
 
-.statusGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: var(--spacing-sm);
+/* 평가자 상태 테이블 */
+.statusTableWrap {
+  overflow-x: auto;
 }
 
-.statusItem {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  text-align: center;
-}
-
-.statusName {
+.statusTable {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.88rem;
+}
+
+.statusTable th,
+.statusTable td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border-light);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.statusTable thead th {
+  background: var(--color-bg);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+.statusTable tbody tr:hover {
+  background: var(--color-primary-bg);
+}
+
+.thNum { width: 44px; text-align: center; }
+.thName { min-width: 80px; }
+.thBadge { width: 80px; text-align: center; }
+.thProgress { min-width: 180px; }
+
+.tdNum {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.tdName {
   font-weight: 600;
   color: var(--color-text);
-  margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 160px;
 }
 
-.statusBadges {
+.tdBadge { text-align: center; }
+
+.tdProgress { padding-top: 6px; padding-bottom: 6px; }
+
+.progressRow {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
 }
 
 .statusDone {
@@ -209,29 +243,26 @@
   font-size: 0.9rem;
 }
 
-@media (max-width: 1024px) {
-  .statusGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
 @media (max-width: 768px) {
   .statsGrid {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .statusGrid {
-    grid-template-columns: repeat(3, 1fr);
   }
 
   .summary {
     flex-direction: column;
     text-align: center;
   }
-}
 
-@media (max-width: 480px) {
-  .statusGrid {
-    grid-template-columns: repeat(2, 1fr);
+  .statusTable {
+    font-size: 0.82rem;
+  }
+
+  .statusTable th,
+  .statusTable td {
+    padding: 6px 8px;
+  }
+
+  .tdName {
+    max-width: 100px;
   }
 }
