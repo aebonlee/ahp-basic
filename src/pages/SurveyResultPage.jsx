@@ -294,7 +294,39 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
     <div className={styles.evalDetail}>
       <div className={styles.detailName}>{evaluator.name || evaluator.email}</div>
 
-      {/* 평가 진행 */}
+      {/* ① 설문 응답 (인구통계학적 + 연구자 질문) */}
+      {questions.length > 0 && (
+        <div className={styles.detailSection}>
+          <div className={styles.detailSectionTitle}>
+            설문 응답
+            <span className={hasSurvey ? styles.badgeDone : styles.badgePending} style={{ marginLeft: 8 }}>
+              {hasSurvey ? '완료' : '미응답'}
+            </span>
+          </div>
+          {myResponses.length === 0 ? (
+            <div className={styles.detailEmpty}>설문에 응답하지 않았습니다.</div>
+          ) : (
+            <table className={styles.answerTable}>
+              <tbody>
+                {questions.map((q, qi) => {
+                  const ans = answerMap[q.id];
+                  return (
+                    <tr key={q.id}>
+                      <td className={styles.answerNum}>Q{qi + 1}</td>
+                      <td className={styles.answerQuestion}>{q.question_text}</td>
+                      <td className={styles.answerValue}>
+                        {ans ? formatAnswer(ans) : <span className={styles.answerNone}>-</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {/* ② 평가 진행 */}
       <div className={styles.detailSection}>
         <div className={styles.detailSectionTitle}>평가 진행</div>
         <div className={styles.detailStatusRow}>
@@ -305,7 +337,7 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
         <ProgressBar value={evalCount} max={totalRequired || 1} color={isDone ? 'var(--color-success)' : 'var(--color-primary)'} />
       </div>
 
-      {/* 평가 결과 (차트 + CR) */}
+      {/* ③ 최종 대안 점수 */}
       {individualResults && individualResults.altScores.length > 0 && (
         <div className={styles.detailSection}>
           <div className={styles.detailSectionTitle}>최종 대안 점수</div>
@@ -327,6 +359,7 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
         </div>
       )}
 
+      {/* ④ 비교별 우선순위 & CR — 2열 컴팩트 */}
       {individualResults && individualResults.pageResults.length > 0 && (
         <div className={styles.detailSection}>
           <div className={styles.detailSectionTitle}>비교별 우선순위 &amp; CR</div>
@@ -361,38 +394,6 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
               </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* 설문 응답 */}
-      {questions.length > 0 && (
-        <div className={styles.detailSection}>
-          <div className={styles.detailSectionTitle}>
-            설문 응답
-            <span className={hasSurvey ? styles.badgeDone : styles.badgePending} style={{ marginLeft: 8 }}>
-              {hasSurvey ? '완료' : '미응답'}
-            </span>
-          </div>
-          {myResponses.length === 0 ? (
-            <div className={styles.detailEmpty}>설문에 응답하지 않았습니다.</div>
-          ) : (
-            <table className={styles.answerTable}>
-              <tbody>
-                {questions.map((q, qi) => {
-                  const ans = answerMap[q.id];
-                  return (
-                    <tr key={q.id}>
-                      <td className={styles.answerNum}>Q{qi + 1}</td>
-                      <td className={styles.answerQuestion}>{q.question_text}</td>
-                      <td className={styles.answerValue}>
-                        {ans ? formatAnswer(ans) : <span className={styles.answerNone}>-</span>}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
         </div>
       )}
     </div>

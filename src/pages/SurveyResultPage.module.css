@@ -296,64 +296,73 @@
 }
 
 .crList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
 }
 
 .crItem {
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-sm);
-  padding: 8px;
+  padding: 6px 7px;
 }
 
 .crHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .crName {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .crPass {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 600;
   font-family: var(--font-mono);
   color: var(--color-success);
+  flex-shrink: 0;
+  margin-left: 4px;
 }
 
 .crFail {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 600;
   font-family: var(--font-mono);
   color: var(--color-danger);
   background: #fef2f2;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: var(--radius-round);
+  flex-shrink: 0;
+  margin-left: 4px;
 }
 
 .priBars {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .priRow {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .priName {
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   color: var(--color-text-muted);
-  min-width: 50px;
+  min-width: 40px;
+  max-width: 60px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -362,24 +371,24 @@
 
 .priBarWrap {
   flex: 1;
-  height: 10px;
+  height: 8px;
   background: var(--color-border-light);
-  border-radius: 5px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .priBar {
   height: 100%;
-  border-radius: 5px;
+  border-radius: 4px;
   transition: width 0.3s;
 }
 
 .priVal {
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   font-weight: 700;
   font-family: var(--font-mono);
   color: var(--color-text);
-  min-width: 36px;
+  min-width: 32px;
   text-align: right;
   flex-shrink: 0;
 }
@@ -497,6 +506,10 @@
 
 @media (max-width: 600px) {
   .masterList {
+    grid-template-columns: 1fr;
+  }
+
+  .crList {
     grid-template-columns: 1fr;
   }
 
