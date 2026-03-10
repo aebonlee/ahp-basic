@@ -493,7 +493,7 @@ export default function StatisticalAnalysisPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const {
-    loading, variables, respondentCount, responseCounts,
+    loading, variables, respondentCount, responseCounts, variableSummaries,
     getNumericValues, getCategoricalValues,
     getGroupedNumericValues, getItemMatrix, getPairedValues,
   } = useStatisticalAnalysis(id);
@@ -672,6 +672,7 @@ export default function StatisticalAnalysisPage() {
             onRun={handleRun}
             onBack={handleBack}
             responseCounts={responseCounts}
+            variableSummaries={variableSummaries}
           />
         </div>
       )}

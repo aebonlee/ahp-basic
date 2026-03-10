@@ -1,8 +1,9 @@
 /**
  * 통계분석 변수 선택 UI
  * 분석 유형에 따라 적절한 변수 선택 폼 표시
+ * 변수별 데이터 미리보기 + 선택 후 데이터 진단 표시
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import styles from './VariableSelector.module.css';
 
 const ANALYSIS_CONFIG = {
@@ -76,12 +77,137 @@ const ANALYSIS_CONFIG = {
   },
 };
 
+/** 변수 요약 한 줄 표시 */
+function VarSummaryBadge({ summary }) {
+  if (!summary) return null;
+  if (summary.type === 'numeric') {
+    if (summary.count === 0) return <span className={styles.badgeWarn}>응답 없음</span>;
+    const scaleNote = summary.likertLabels
+      ? ` (${summary.likertLabels.length}점 척도)`
+      : '';
+    return (
+      <span className={styles.badgeInfo}>
+        {summary.min}~{summary.max}{scaleNote} | 평균 {summary.mean} | {summary.count}명
+      </span>
+    );
+  }
+  if (summary.type === 'categorical') {
+    if (summary.count === 0) return <span className={styles.badgeWarn}>응답 없음</span>;
+    const cats = summary.categories.slice(0, 4).map(c => `${c.label}(${c.count})`).join(', ');
+    const more = summary.categories.length > 4 ? ` +${summary.categories.length - 4}` : '';
+    return (
+      <span className={styles.badgeInfo}>
+        {summary.categoryCount}개 범주: {cats}{more}
+      </span>
+    );
+  }
+  return null;
+}
+
+/** 선택 후 데이터 진단 패널 */
+function DataDiagnostic({ analysisType, selections, variableSummaries, variables }) {
+  const diagnostics = useMemo(() => {
+    const msgs = [];
+    const warns = [];
+
+    if (analysisType === 'descriptive') {
+      const s = variableSummaries[selections.variable];
+      if (s) {
+        if (s.count === 0) warns.push('선택한 변수에 유효한 수치 응답이 없습니다.');
+        else if (s.count < 3) warns.push(`응답이 ${s.count}개로 매우 적습니다. 신뢰할 수 있는 결과를 위해 최소 5개 이상이 필요합니다.`);
+        else msgs.push(`${s.count}개 유효 응답 (범위: ${s.min} ~ ${s.max})`);
+      }
+    }
+
+    if (analysisType === 'independentT' || analysisType === 'anova') {
+      const gs = variableSummaries[selections.groupVar];
+      const ts = variableSummaries[selections.testVar];
+      if (gs && ts) {
+        if (gs.categoryCount < 2) warns.push(`그룹 변수에 범주가 ${gs.categoryCount}개뿐입니다. 최소 2개 범주가 필요합니다.`);
+        else if (analysisType === 'independentT' && gs.categoryCount > 2) warns.push(`그룹 변수에 범주가 ${gs.categoryCount}개입니다. 처음 2개만 비교됩니다. 3개 이상이면 ANOVA를 사용하세요.`);
+        else msgs.push(`그룹: ${gs.categories.map(c => `${c.label}(${c.count}명)`).join(', ')}`);
+        if (ts.count === 0) warns.push('검정 변수에 유효한 수치 응답이 없습니다.');
+        else msgs.push(`검정 변수: ${ts.count}개 유효 응답`);
+      }
+    }
+
+    if (analysisType === 'pairedT') {
+      const s1 = variableSummaries[selections.var1];
+      const s2 = variableSummaries[selections.var2];
+      if (s1 && s2) {
+        if (s1.count === 0) warns.push('변수 1에 유효한 수치 응답이 없습니다.');
+        if (s2.count === 0) warns.push('변수 2에 유효한 수치 응답이 없습니다.');
+        if (s1.count > 0 && s2.count > 0) msgs.push(`변수 1: ${s1.count}명, 변수 2: ${s2.count}명 (대응쌍은 공통 응답자 기준)`);
+      }
+    }
+
+    if (analysisType === 'chiSquare' || analysisType === 'crossTab') {
+      const s1 = variableSummaries[selections.var1];
+      const s2 = variableSummaries[selections.var2];
+      if (s1 && s2) {
+        if (s1.count === 0) warns.push('변수 1에 응답이 없습니다.');
+        if (s2.count === 0) warns.push('변수 2에 응답이 없습니다.');
+        if (s1.count > 0) msgs.push(`변수 1: ${s1.categoryCount}개 범주`);
+        if (s2.count > 0) msgs.push(`변수 2: ${s2.categoryCount}개 범주`);
+      }
+    }
+
+    if (analysisType === 'correlation' || analysisType === 'spearman') {
+      const selVars = selections.variables || [];
+      if (selVars.length >= 2) {
+        const counts = selVars.map(id => variableSummaries[id]?.count || 0);
+        const minCount = Math.min(...counts);
+        if (minCount === 0) warns.push('선택한 변수 중 응답이 없는 변수가 있습니다.');
+        else if (minCount < 3) warns.push(`응답이 ${minCount}개로 너무 적습니다. 최소 3개 이상이 필요합니다.`);
+        else msgs.push(`${selVars.length}개 변수 선택, 공통 응답 기준 분석`);
+      }
+    }
+
+    if (analysisType === 'regression') {
+      const sx = variableSummaries[selections.xVar];
+      const sy = variableSummaries[selections.yVar];
+      if (sx && sy) {
+        if (sx.count === 0) warns.push('독립변수(X)에 유효한 수치 응답이 없습니다.');
+        if (sy.count === 0) warns.push('종속변수(Y)에 유효한 수치 응답이 없습니다.');
+        if (sx.count > 0 && sy.count > 0) msgs.push(`X: ${sx.count}명, Y: ${sy.count}명 (공통 응답자 기준)`);
+      }
+    }
+
+    if (analysisType === 'cronbach') {
+      const selItems = selections.items || [];
+      if (selItems.length >= 2) {
+        const counts = selItems.map(id => variableSummaries[id]?.count || 0);
+        const minCount = Math.min(...counts);
+        if (minCount === 0) warns.push('선택한 문항 중 응답이 없는 문항이 있습니다.');
+        else msgs.push(`${selItems.length}개 문항, 공통 응답자 기준 분석`);
+      }
+    }
+
+    return { msgs, warns };
+  }, [analysisType, selections, variableSummaries]);
+
+  if (diagnostics.msgs.length === 0 && diagnostics.warns.length === 0) return null;
+
+  return (
+    <div className={styles.diagnostic}>
+      <div className={styles.diagTitle}>데이터 진단</div>
+      {diagnostics.warns.map((w, i) => (
+        <div key={`w${i}`} className={styles.diagWarn}>{w}</div>
+      ))}
+      {diagnostics.msgs.map((m, i) => (
+        <div key={`m${i}`} className={styles.diagOk}>{m}</div>
+      ))}
+    </div>
+  );
+}
+
 export default function VariableSelector({
   analysisType,
   variables,
   onRun,
   onBack,
   responseCounts,
+  variableSummaries = {},
 }) {
   const config = ANALYSIS_CONFIG[analysisType];
   const [selections, setSelections] = useState({});
@@ -115,11 +241,32 @@ export default function VariableSelector({
     return true;
   };
 
+  // 선택된 변수에 데이터가 있는지 확인
+  const hasDataIssue = () => {
+    for (const field of config.fields) {
+      const val = selections[field.key];
+      if (field.multi) {
+        if (!val) continue;
+        for (const id of val) {
+          const s = variableSummaries[id];
+          if (s && s.count === 0) return true;
+        }
+      } else {
+        if (!val) continue;
+        const s = variableSummaries[val];
+        if (s && s.count === 0) return true;
+      }
+    }
+    return false;
+  };
+
   const getOptions = (type) => {
     if (type === 'numeric') return variables.numeric;
     if (type === 'categorical') return variables.categorical;
     return variables.all;
   };
+
+  const canRun = isValid() && !hasDataIssue();
 
   return (
     <div className={styles.container}>
@@ -143,52 +290,142 @@ export default function VariableSelector({
                       {field.type === 'numeric' ? '수치/리커트형' : '범주형'} 변수가 없습니다
                     </p>
                   )}
-                  {options.map(opt => (
-                    <label key={opt.id} className={styles.checkItem}>
-                      <input
-                        type="checkbox"
-                        checked={(selections[field.key] || []).includes(opt.id)}
-                        onChange={() => handleChange(field.key, opt.id, true)}
-                      />
-                      <span>{opt.label}</span>
-                      {responseCounts?.[opt.id] !== undefined && (
-                        <span className={styles.respCount}>({responseCounts[opt.id]}명)</span>
-                      )}
-                    </label>
-                  ))}
+                  {options.map(opt => {
+                    const summary = variableSummaries[opt.id];
+                    const noData = summary && summary.count === 0;
+                    return (
+                      <label key={opt.id} className={`${styles.checkItem} ${noData ? styles.checkItemDisabled : ''}`}>
+                        <input
+                          type="checkbox"
+                          checked={(selections[field.key] || []).includes(opt.id)}
+                          onChange={() => handleChange(field.key, opt.id, true)}
+                        />
+                        <span className={styles.checkLabel}>
+                          <span>{opt.label}</span>
+                          {responseCounts?.[opt.id] !== undefined && (
+                            <span className={styles.respCount}>({responseCounts[opt.id]}명)</span>
+                          )}
+                        </span>
+                        <VarSummaryBadge summary={summary} />
+                      </label>
+                    );
+                  })}
                 </div>
               ) : (
-                <select
-                  className={styles.select}
-                  value={selections[field.key] || ''}
-                  onChange={e => handleChange(field.key, e.target.value, false)}
-                >
-                  <option value="">-- 선택 --</option>
-                  {options.map(opt => (
-                    <option key={opt.id} value={opt.id}>
-                      {opt.label}{responseCounts?.[opt.id] !== undefined ? ` (${responseCounts[opt.id]}명)` : ''}
-                    </option>
-                  ))}
-                </select>
+                <>
+                  <select
+                    className={styles.select}
+                    value={selections[field.key] || ''}
+                    onChange={e => handleChange(field.key, e.target.value, false)}
+                  >
+                    <option value="">-- 선택 --</option>
+                    {options.map(opt => {
+                      const summary = variableSummaries[opt.id];
+                      const noData = summary && summary.count === 0;
+                      let label = opt.label;
+                      if (responseCounts?.[opt.id] !== undefined) label += ` (${responseCounts[opt.id]}명)`;
+                      if (noData) label += ' [응답없음]';
+                      return (
+                        <option key={opt.id} value={opt.id}>{label}</option>
+                      );
+                    })}
+                  </select>
+                  {/* 선택된 변수의 상세 미리보기 */}
+                  {selections[field.key] && (
+                    <SelectedVarPreview
+                      varId={selections[field.key]}
+                      summary={variableSummaries[selections[field.key]]}
+                      variables={variables}
+                    />
+                  )}
+                </>
               )}
             </div>
           );
         })}
       </div>
 
+      {/* 데이터 진단 패널 */}
+      <DataDiagnostic
+        analysisType={analysisType}
+        selections={selections}
+        variableSummaries={variableSummaries}
+        variables={variables}
+      />
+
       <div className={styles.actions}>
         <button
           className={styles.runBtn}
           onClick={() => onRun(selections)}
-          disabled={!isValid()}
-          title={!isValid() ? '모든 변수를 선택해주세요 (다중 선택은 2개 이상)' : ''}
+          disabled={!canRun}
+          title={!canRun ? (hasDataIssue() ? '선택한 변수에 유효한 데이터가 없습니다' : '모든 변수를 선택해주세요') : ''}
         >
           분석 실행
         </button>
         {!isValid() && (
-          <p className={styles.hint}>모든 변수를 선택해주세요</p>
+          <p className={styles.hint}>모든 변수를 선택해주세요{config.fields.some(f => f.multi) ? ' (다중 선택은 2개 이상)' : ''}</p>
+        )}
+        {isValid() && hasDataIssue() && (
+          <p className={styles.hintWarn}>선택한 변수에 유효한 데이터가 없습니다. 다른 변수를 선택하세요.</p>
         )}
       </div>
     </div>
   );
+}
+
+/** 선택된 변수의 상세 미리보기 */
+function SelectedVarPreview({ varId, summary }) {
+  if (!summary || !varId) return null;
+
+  if (summary.type === 'categorical') {
+    if (summary.count === 0) {
+      return <div className={styles.previewWarn}>이 변수에 응답 데이터가 없습니다.</div>;
+    }
+    return (
+      <div className={styles.preview}>
+        <div className={styles.previewTitle}>범주별 응답 분포</div>
+        <div className={styles.previewCats}>
+          {summary.categories.map((cat, i) => (
+            <span key={i} className={styles.catTag}>
+              {cat.label} <strong>{cat.count}</strong>
+            </span>
+          ))}
+        </div>
+        <div className={styles.previewMeta}>
+          총 {summary.count}명 | {summary.categoryCount}개 범주
+        </div>
+      </div>
+    );
+  }
+
+  if (summary.type === 'numeric') {
+    if (summary.count === 0) {
+      return <div className={styles.previewWarn}>이 변수에 유효한 수치 응답이 없습니다.</div>;
+    }
+    return (
+      <div className={styles.preview}>
+        <div className={styles.previewTitle}>데이터 요약</div>
+        <div className={styles.previewStats}>
+          <span>최솟값: <strong>{summary.min}</strong></span>
+          <span>최댓값: <strong>{summary.max}</strong></span>
+          <span>평균: <strong>{summary.mean}</strong></span>
+          <span>유효 응답: <strong>{summary.count}명</strong></span>
+        </div>
+        {summary.likertLabels && (
+          <div className={styles.previewLikert}>
+            <div className={styles.previewTitle}>리커트 척도 매핑</div>
+            <div className={styles.likertMap}>
+              {summary.likertLabels.map((label, i) => (
+                <span key={i} className={styles.likertMapItem}>
+                  <strong>{i + 1}</strong> = {label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return null;
 }
