@@ -1,13 +1,14 @@
-/* ── 대시보드형 집계 ── */
-.dashboard {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  margin-bottom: var(--spacing-lg);
+/* ── 대시보드: 메인 5카드 행 ── */
+.dashRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .dashCard {
-  padding: 16px 14px 14px;
+  flex: 1;
+  min-width: 0;
+  padding: 16px 12px 14px;
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-light);
@@ -15,8 +16,6 @@
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: box-shadow 0.15s, transform 0.15s;
-  position: relative;
-  overflow: hidden;
 }
 
 .dashCard:hover {
@@ -24,12 +23,21 @@
   transform: translateY(-2px);
 }
 
-/* 개별 카드 색상 */
-.dashCard:nth-child(1) { border-top-color: #6366f1; }
-.dashCard:nth-child(2) { border-top-color: #2563eb; }
-.dashCard:nth-child(3) { border-top-color: #059669; }
-.dashCard:nth-child(4) { border-top-color: #f59e0b; }
-.dashCard:nth-child(5) { border-top-color: #ef4444; }
+/* data-variant 색상 */
+.dashCard[data-variant="indigo"] { border-top-color: #6366f1; }
+.dashCard[data-variant="blue"]   { border-top-color: #2563eb; }
+.dashCard[data-variant="green"]  { border-top-color: #059669; }
+.dashCard[data-variant="amber"]  { border-top-color: #f59e0b; }
+.dashCard[data-variant="red"]    { border-top-color: #ef4444; }
+
+.dashCard[data-variant="indigo"] .dashNum { color: #6366f1; }
+.dashCard[data-variant="blue"]   .dashNum { color: #2563eb; }
+.dashCard[data-variant="green"]  .dashNum { color: #059669; }
+.dashCard[data-variant="amber"]  .dashNum { color: #f59e0b; }
+.dashCard[data-variant="red"]    .dashNum { color: #ef4444; }
+
+.dashCard[data-variant="blue"]  .dashBarFill { background: #2563eb; }
+.dashCard[data-variant="green"] .dashBarFill { background: #059669; }
 
 .dashIcon {
   font-size: 1.4rem;
@@ -43,12 +51,6 @@
   font-family: var(--font-mono);
   line-height: 1.2;
 }
-
-.dashCard:nth-child(1) .dashNum { color: #6366f1; }
-.dashCard:nth-child(2) .dashNum { color: #2563eb; }
-.dashCard:nth-child(3) .dashNum { color: #059669; }
-.dashCard:nth-child(4) .dashNum { color: #f59e0b; }
-.dashCard:nth-child(5) .dashNum { color: #ef4444; }
 
 .dashSub {
   font-size: 0.9rem;
@@ -78,10 +80,14 @@
   transition: width 0.4s ease;
 }
 
-.dashCard:nth-child(2) .dashBarFill { background: #2563eb; }
-.dashCard:nth-child(3) .dashBarFill { background: #059669; }
+/* ── 대시보드: 질문별 응답률 그리드 ── */
+.dashQGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: var(--spacing-lg);
+}
 
-/* 질문별 응답률 카드 (작은 카드) */
 .dashCardSm {
   padding: 10px 12px;
   background: var(--color-surface);
@@ -721,10 +727,6 @@
 
 /* ── 반응형 ── */
 @media (max-width: 1100px) {
-  .dashboard {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .masterList {
     grid-template-columns: 1fr;
   }
@@ -735,6 +737,15 @@
 }
 
 @media (max-width: 900px) {
+  .dashRow {
+    flex-wrap: wrap;
+  }
+
+  .dashCard {
+    flex: 1 1 calc(33.3% - 12px);
+    min-width: 120px;
+  }
+
   .masterDetail {
     grid-template-columns: 1fr;
   }
@@ -749,8 +760,8 @@
 }
 
 @media (max-width: 600px) {
-  .dashboard {
-    grid-template-columns: repeat(2, 1fr);
+  .dashCard {
+    flex: 1 1 calc(50% - 12px);
   }
 
   .masterList {

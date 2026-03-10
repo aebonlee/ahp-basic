@@ -240,52 +240,56 @@ export default function SurveyResultPage() {
       <h1 className={common.pageTitle}>설문 집계</h1>
 
       {/* ── 대시보드형 집계 ── */}
-      <div className={styles.dashboard}>
-        <div className={styles.dashCard}>
+      <div className={styles.dashRow}>
+        <div className={styles.dashCard} data-variant="indigo">
           <div className={styles.dashIcon}>👥</div>
           <div className={styles.dashNum}>{stats.total}</div>
           <div className={styles.dashLabel}>총 평가자</div>
         </div>
         {questions.length > 0 && (
-          <div className={styles.dashCard}>
+          <div className={styles.dashCard} data-variant="blue">
             <div className={styles.dashIcon}>📋</div>
             <div className={styles.dashNum}>{stats.surveyed}<span className={styles.dashSub}> / {stats.total}</span></div>
             <div className={styles.dashLabel}>설문 응답</div>
             <div className={styles.dashBar}><div className={styles.dashBarFill} style={{ width: `${stats.total > 0 ? (stats.surveyed / stats.total) * 100 : 0}%` }} /></div>
           </div>
         )}
-        <div className={styles.dashCard}>
+        <div className={styles.dashCard} data-variant="green">
           <div className={styles.dashIcon}>✅</div>
           <div className={styles.dashNum}>{stats.completed}<span className={styles.dashSub}> / {stats.total}</span></div>
           <div className={styles.dashLabel}>평가 완료</div>
           <div className={styles.dashBar}><div className={styles.dashBarFill} style={{ width: `${stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}%` }} /></div>
         </div>
-        <div className={styles.dashCard}>
+        <div className={styles.dashCard} data-variant="amber">
           <div className={styles.dashIcon}>⏳</div>
           <div className={styles.dashNum}>{stats.inProgress}</div>
           <div className={styles.dashLabel}>평가 진행중</div>
         </div>
-        <div className={styles.dashCard}>
+        <div className={styles.dashCard} data-variant="red">
           <div className={styles.dashIcon}>⏸️</div>
           <div className={styles.dashNum}>{stats.notStarted}</div>
           <div className={styles.dashLabel}>미시작</div>
         </div>
-
-        {/* 질문별 응답률 카드 */}
-        {questionStats.map(qs => {
-          const pct = qs.total > 0 ? ((qs.count / qs.total) * 100).toFixed(0) : '0';
-          return (
-            <div key={qs.id} className={styles.dashCardSm}>
-              <div className={styles.dashSmLabel}>{qs.text}</div>
-              <div className={styles.dashSmVal}>
-                {qs.count}<span className={styles.dashSub}> / {qs.total}</span>
-                <span className={styles.dashSmPct}>{pct}%</span>
-              </div>
-              <div className={styles.dashBar}><div className={styles.dashBarFill} style={{ width: `${pct}%`, background: '#8b5cf6' }} /></div>
-            </div>
-          );
-        })}
       </div>
+
+      {/* 질문별 응답률 */}
+      {questionStats.length > 0 && (
+        <div className={styles.dashQGrid}>
+          {questionStats.map(qs => {
+            const pct = qs.total > 0 ? ((qs.count / qs.total) * 100).toFixed(0) : '0';
+            return (
+              <div key={qs.id} className={styles.dashCardSm}>
+                <div className={styles.dashSmLabel}>{qs.text}</div>
+                <div className={styles.dashSmVal}>
+                  {qs.count}<span className={styles.dashSub}> / {qs.total}</span>
+                  <span className={styles.dashSmPct}>{pct}%</span>
+                </div>
+                <div className={styles.dashBar}><div className={styles.dashBarFill} style={{ width: `${pct}%`, background: '#8b5cf6' }} /></div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {evaluators.length > 0 && (
         <div className={styles.statusCard}>
