@@ -456,9 +456,11 @@ export default function SurveyResultPage() {
       {questions.length === 0 ? (
         <div className={styles.emptyMsg}>설계된 설문 질문이 없습니다.</div>
       ) : (
-        questions.map((q, idx) => (
-          <QuestionResult key={q.id} question={q} index={idx} responses={getResponsesByQuestion(q.id)} />
-        ))
+        <div className={styles.questionGrid}>
+          {questions.map((q, idx) => (
+            <QuestionResult key={q.id} question={q} index={idx} responses={getResponsesByQuestion(q.id)} />
+          ))}
+        </div>
       )}
     </ProjectLayout>
   );
@@ -693,31 +695,38 @@ function formatAnswer(answer) {
 function QuestionResult({ question, index, responses }) {
   const { question_type } = question;
   return (
-    <div className={styles.questionCard}>
-      <h3 className={styles.questionTitle}>
-        Q{index + 1}. {question.question_text || '(질문 없음)'}
-        <span className={styles.questionType}>{TYPE_LABELS[question_type]}</span>
-      </h3>
-      <p className={styles.responseCount}>{responses.length}명 응답</p>
-      {question_type === 'short_text' || question_type === 'long_text' ? (
-        <TextResults responses={responses} />
-      ) : question_type === 'number' ? (
-        <NumberResults responses={responses} />
-      ) : (
-        <ChoiceResults question={question} responses={responses} />
-      )}
+    <div className={styles.qCard} data-type={question_type}>
+      <div className={styles.qCardHeader}>
+        <span className={styles.qBadge} data-type={question_type}>
+          {TYPE_LABELS[question_type]}
+        </span>
+        <span className={styles.qCount}>{responses.length}명 응답</span>
+      </div>
+      <div className={styles.qCardTitle}>Q{index + 1}. {question.question_text || '(질문 없음)'}</div>
+      <div className={styles.qCardBody}>
+        {question_type === 'short_text' || question_type === 'long_text' ? (
+          <TextResults responses={responses} />
+        ) : question_type === 'number' ? (
+          <NumberResults responses={responses} />
+        ) : (
+          <ChoiceResults question={question} responses={responses} />
+        )}
+      </div>
     </div>
   );
 }
 
 function TextResults({ responses }) {
   if (responses.length === 0) return <p className={styles.emptyMsg}>응답 없음</p>;
+  const preview = responses.slice(0, 3);
+  const remaining = responses.length - 3;
   return (
-    <ul className={styles.textList}>
-      {responses.map(r => (
-        <li key={r.id} className={styles.textItem}>{r.answer?.value ?? JSON.stringify(r.answer)}</li>
+    <div className={styles.qTextPreview}>
+      {preview.map(r => (
+        <div key={r.id} className={styles.qTextItem}>{r.answer?.value ?? JSON.stringify(r.answer)}</div>
       ))}
-    </ul>
+      {remaining > 0 && <div className={styles.qTextMore}>외 {remaining}건</div>}
+    </div>
   );
 }
 
@@ -737,11 +746,11 @@ function NumberResults({ responses }) {
   }, [responses]);
   if (!stats) return <p className={styles.emptyMsg}>응답 없음</p>;
   return (
-    <div className={styles.statsGrid}>
-      <div className={styles.statBox}><div className={styles.statValue}>{stats.min}</div><div className={styles.statLabel}>최솟값</div></div>
-      <div className={styles.statBox}><div className={styles.statValue}>{stats.max}</div><div className={styles.statLabel}>최댓값</div></div>
-      <div className={styles.statBox}><div className={styles.statValue}>{stats.avg}</div><div className={styles.statLabel}>평균</div></div>
-      <div className={styles.statBox}><div className={styles.statValue}>{stats.median}</div><div className={styles.statLabel}>중앙값</div></div>
+    <div className={styles.qStatGrid}>
+      <div className={styles.qStatBox}><div className={styles.qStatNum}>{stats.min}</div><div className={styles.qStatLabel}>최솟값</div></div>
+      <div className={styles.qStatBox}><div className={styles.qStatNum}>{stats.max}</div><div className={styles.qStatLabel}>최댓값</div></div>
+      <div className={styles.qStatBox}><div className={styles.qStatNum}>{stats.avg}</div><div className={styles.qStatLabel}>평균</div></div>
+      <div className={styles.qStatBox}><div className={styles.qStatNum}>{stats.median}</div><div className={styles.qStatLabel}>중앙값</div></div>
     </div>
   );
 }
@@ -756,22 +765,27 @@ function ChoiceResults({ question, responses }) {
       if (Array.isArray(val)) { for (const v of val) counts[v] = (counts[v] || 0) + 1; }
       else if (val !== undefined) { counts[val] = (counts[val] || 0) + 1; }
     }
-    return options.map(opt => ({ name: opt, count: counts[opt] || 0, pct: responses.length > 0 ? ((counts[opt] || 0) / responses.length * 100).toFixed(1) : '0' }));
+    const items = options.map(opt => ({ name: opt, count: counts[opt] || 0, pct: responses.length > 0 ? ((counts[opt] || 0) / responses.length * 100).toFixed(1) : '0' }));
+    const maxCount = Math.max(...items.map(d => d.count), 1);
+    return items.map(d => ({ ...d, isTop: d.count === maxCount && d.count > 0 }));
   }, [question, responses]);
   if (data.length === 0) return <p className={styles.emptyMsg}>선택지 없음</p>;
+  const maxCount = Math.max(...data.map(d => d.count), 1);
   return (
-    <div className={styles.chartWrap}>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} layout="vertical" margin={{ left: 100, right: 30, top: 5, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-          <XAxis type="number" allowDecimals={false} />
-          <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
-          <Tooltip formatter={(value, name, props) => [`${value}명 (${props.payload.pct}%)`, '응답 수']} />
-          <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-            {data.map((_, i) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+    <div className={styles.qBarList}>
+      {data.map((d, i) => (
+        <div key={i} className={styles.qBarRow}>
+          <span className={styles.qBarLabel} title={d.name}>{d.name}</span>
+          <div className={styles.qBarTrack}>
+            <div
+              className={styles.qBarFill}
+              data-top={d.isTop ? 'true' : undefined}
+              style={{ width: `${maxCount > 0 ? (d.count / maxCount) * 100 : 0}%` }}
+            />
+          </div>
+          <span className={styles.qBarPct}>{d.pct}% ({d.count}명)</span>
+        </div>
+      ))}
     </div>
   );
 }
