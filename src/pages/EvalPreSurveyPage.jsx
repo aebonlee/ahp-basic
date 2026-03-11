@@ -82,11 +82,19 @@ export default function EvalPreSurveyPage() {
   }, [navigate, id, evalMethod]);
 
   const handleConsent = async () => {
-    if (!evaluatorId) return;
+    if (!evaluatorId) {
+      toast.error('평가자 정보를 찾을 수 없습니다. 초대 링크에서 다시 시작해주세요.');
+      return;
+    }
     setSubmitting(true);
     try {
       await submitConsent(evaluatorId);
-      setStep(2);
+      // 설문 문항이 없으면 바로 평가로 이동
+      if (questions.length === 0) {
+        navigateToEval();
+      } else {
+        setStep(2);
+      }
     } catch (e) {
       toast.error('동의 저장 실패: ' + e.message);
     }
@@ -114,7 +122,11 @@ export default function EvalPreSurveyPage() {
   };
 
   const handleSubmitSurvey = async () => {
-    if (!validate() || !evaluatorId) return;
+    if (!validate()) return;
+    if (!evaluatorId) {
+      toast.error('평가자 정보를 찾을 수 없습니다. 초대 링크에서 다시 시작해주세요.');
+      return;
+    }
     setSubmitting(true);
     try {
       await submitResponses(evaluatorId, answers);
@@ -149,11 +161,15 @@ export default function EvalPreSurveyPage() {
   if (hasConsent) effectiveSteps.push(1);
   if (questions.length > 0) effectiveSteps.push(2);
 
-  // 현재 단계가 없는 단계면 다음으로
+  // 현재 단계가 없는 단계면 다음으로, 모든 단계를 지났으면 평가로 이동
   if (!effectiveSteps.includes(step)) {
-    const next = effectiveSteps.find(s => s > step) ?? effectiveSteps[0];
-    if (next !== undefined && next !== step) {
+    const next = effectiveSteps.find(s => s > step);
+    if (next !== undefined) {
       setTimeout(() => setStep(next), 0);
+    } else if (step > Math.max(...effectiveSteps, -1)) {
+      // 모든 유효 단계를 지남 → 평가로 이동
+      navigateToEval();
+      return <PageLayout><LoadingSpinner message="평가 페이지로 이동 중..." /></PageLayout>;
     }
   }
 
@@ -183,7 +199,11 @@ export default function EvalPreSurveyPage() {
             <div className={styles.actions}>
               <Button onClick={() => {
                 const next = effectiveSteps.find(s => s > 0);
-                setStep(next !== undefined ? next : 0);
+                if (next !== undefined) {
+                  setStep(next);
+                } else {
+                  navigateToEval();
+                }
               }}>
                 다음
               </Button>
