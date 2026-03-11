@@ -31,11 +31,12 @@ export default function EvalResultPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { currentProject } = useProject(id);
-  const { evaluators } = useEvaluators(id);
+  const { evaluators, fetchEvaluators } = useEvaluators(id);
   const { criteria, alternatives, comparisons, loading, loadProjectData } = useEvaluation();
   const { questions: surveyQuestions } = useSurveyQuestions(id);
   const { responses: surveyResponses } = useSurveyResponses(id);
   const [activeTab, setActiveTab] = useState('summary');
+  const [unlocked, setUnlocked] = useState(false);
   const toast = useToast();
   const { confirm, confirmDialogProps } = useConfirm();
 
@@ -89,11 +90,13 @@ export default function EvalResultPage() {
       await supabase.from('evaluation_signatures').delete().eq('project_id', id).eq('evaluator_id', evaluatorId);
       await supabase.from('evaluators').update({ completed: false }).eq('id', evaluatorId);
       setHasSigned(false);
-      toast.success('잠금이 해제되었습니다. 평가를 수정할 수 있습니다.');
+      setUnlocked(true);
+      await fetchEvaluators();
+      toast.success('잠금이 해제되었습니다.');
     } catch (err) {
       toast.error('잠금 해제 실패: ' + (err.message || ''));
     }
-  }, [evaluatorId, id, confirm, toast]);
+  }, [evaluatorId, id, confirm, toast, fetchEvaluators]);
 
   // Calculate all results
   const results = useMemo(() => {
@@ -200,6 +203,30 @@ export default function EvalResultPage() {
           </Button>
         </div>
       </div>
+
+      {/* 잠금 해제 후 안내 패널 */}
+      {unlocked && !isCompleted && (
+        <div className={styles.unlockGuide}>
+          <div className={styles.unlockGuideHeader}>
+            <span className={styles.unlockIcon}>&#128275;</span>
+            <h3 className={styles.unlockTitle}>평가 잠금이 해제되었습니다</h3>
+          </div>
+          <p className={styles.unlockDesc}>
+            수정할 항목을 선택하세요. <strong>&lsquo;비일관성비율&rsquo;</strong> 탭에서 재점검이 필요한 항목을 확인할 수 있습니다.
+            <br />수정 완료 후 이 페이지 하단의 <strong>&ldquo;평가 완료&rdquo;</strong> 버튼을 다시 눌러주세요.
+          </p>
+          <div className={styles.unlockActions}>
+            <Button onClick={() => navigate(`/eval/project/${id}`)}>
+              쌍대비교 평가 수정
+            </Button>
+            {surveyQuestions.length > 0 && (
+              <Button variant="secondary" onClick={() => navigate(`/eval/project/${id}/pre-survey?edit=1`)}>
+                설문 응답 수정
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className={styles.header}>
         <h1 className={styles.title}>평가 결과</h1>
@@ -313,6 +340,7 @@ export default function EvalResultPage() {
       )}
 
       <SignaturePanel
+        key={hasSigned ? 'signed' : 'unsigned'}
         projectId={id}
         evaluatorId={evaluatorId}
         allComplete={results.allComplete}
