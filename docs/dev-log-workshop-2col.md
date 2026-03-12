@@ -1,4 +1,4 @@
-# 개발일지: 워크숍 페이지 2열 레이아웃 변경
+# 개발일지: 워크숍 페이지 3열 레이아웃 변경
 
 **작성일**: 2026-03-12
 **작업 유형**: UI 개선
@@ -16,21 +16,31 @@
 
 | 항목 | 변경 전 | 변경 후 |
 |------|---------|---------|
-| 레이아웃 | `flex-direction: column` (1열) | `grid-template-columns: 1fr 1fr` (2열) |
+| 레이아웃 | `flex-direction: column` (1열) | `grid-template-columns: 1fr 1fr 1fr` (3열) |
 | gap | `12px` | `16px 24px` (행 16px, 열 24px) |
-| 반응형 | 없음 | 768px 이하 1열 폴백 |
+| 반응형 | 없음 | 1024px 이하 2열, 768px 이하 1열 |
 
-## 3. 반응형 처리
+## 3. 반응형 처리 (3단계)
 
-```css
-@media (max-width: 768px) {
-  .evalList {
-    grid-template-columns: 1fr;
-  }
-}
+```
+데스크탑 (1025px+)  → 3열
+태블릿  (769~1024px) → 2열
+모바일  (~768px)     → 1열
 ```
 
-데스크탑에서는 2열로 평가자를 나란히 표시하고, 모바일에서는 기존처럼 1열로 표시된다.
+```css
+.evalList {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+@media (max-width: 1024px) {
+  .evalList { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .evalList { grid-template-columns: 1fr; }
+}
+```
 
 ## 4. 영향 범위
 
