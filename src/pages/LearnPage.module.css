@@ -127,6 +127,9 @@
   border-right: 1px solid #e2e8f0;
   background: #fafbfd;
   padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .sidebarTitle {
