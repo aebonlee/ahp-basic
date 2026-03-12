@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProjectProvider } from './contexts/ProjectContext';
 import { EvaluationProvider } from './contexts/EvaluationContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { CartProvider } from './contexts/CartContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import AdminGuard from './components/common/AdminGuard';
@@ -47,6 +48,10 @@ const StatisticalAnalysisPage = lazy(() => import('./pages/StatisticalAnalysisPa
 const AiAnalysisPage = lazy(() => import('./pages/AiAnalysisPage'));
 const SurveyStatsPage = lazy(() => import('./pages/SurveyStatsPage'));
 const ManagementPage = lazy(() => import('./pages/ManagementPage'));
+const CartPage = lazy(() => import('./pages/CartPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const OrderConfirmationPage = lazy(() => import('./pages/OrderConfirmationPage'));
+const OrderHistoryPage = lazy(() => import('./pages/OrderHistoryPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 export default function App() {
@@ -57,6 +62,7 @@ export default function App() {
         <ProjectProvider>
           <EvaluationProvider>
             <ToastProvider>
+            <CartProvider>
             <ToastContainer />
             <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
             <Routes>
@@ -74,6 +80,10 @@ export default function App() {
               <Route path="/survey-stats" element={<SurveyStatsPage />} />
               <Route path="/management" element={<ManagementPage />} />
               <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+              <Route path="/order-history" element={<ProtectedRoute><OrderHistoryPage /></ProtectedRoute>} />
 
               {/* Super Admin */}
               <Route path="/superadmin" element={<SuperAdminGuard><SuperAdminPage /></SuperAdminGuard>} />
@@ -105,6 +115,7 @@ export default function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
             </Suspense>
+            </CartProvider>
             </ToastProvider>
           </EvaluationProvider>
         </ProjectProvider>

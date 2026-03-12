@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useCart } from '../../contexts/CartContext';
 import styles from './PublicNav.module.css';
+import '../../styles/shop.css';
 
 const NAV_LINKS = [
   { to: '/about', label: 'AHP 소개' },
@@ -18,6 +20,7 @@ export default function PublicNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoggedIn } = useAuth();
+  const { cartCount } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (path) => location.pathname === path;

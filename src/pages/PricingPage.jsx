@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../contexts/ToastContext';
-import { requestPayment, generateOrderNumber } from '../utils/portone';
+import { useCart } from '../contexts/CartContext';
 import PublicLayout from '../components/layout/PublicLayout';
 import styles from './PricingPage.module.css';
 
@@ -42,7 +42,7 @@ const PLANS = [
       { text: '민감도 분석', ok: true },
       { text: 'AI 분석', ok: false },
     ],
-    btnLabel: '구독하기',
+    btnLabel: '장바구니 담기',
     btnStyle: 'outline',
     popular: false,
   },
@@ -61,7 +61,7 @@ const PLANS = [
       { text: '민감도 분석', ok: true },
       { text: 'AI 분석', ok: true },
     ],
-    btnLabel: '구독하기',
+    btnLabel: '장바구니 담기',
     btnStyle: 'primary',
     popular: true,
   },
@@ -128,16 +128,15 @@ const ChevronDown = () => (
 
 export default function PricingPage() {
   const navigate = useNavigate();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const toast = useToast();
+  const { addItem, cartItems } = useCart();
 
   const [openFaq, setOpenFaq] = useState(null);
-  const [modal, setModal] = useState(null);   // { plan } or null
-  const [paying, setPaying] = useState(false);
 
   const toggleFaq = (idx) => setOpenFaq((prev) => (prev === idx ? null : idx));
 
-  /* ─── CTA 클릭 핸들러 ─── */
+  /* ─── CTA 클릭 핸들러: 장바구니에 담기 ─── */
   const handlePlanClick = (plan) => {
     if (plan.key === 'free') {
       navigate('/register');
@@ -149,39 +148,20 @@ export default function PricingPage() {
       navigate('/login');
       return;
     }
-    setModal({ plan });
-  };
-
-  /* ─── 결제 처리 ─── */
-  const handlePayment = async () => {
-    if (!modal) return;
-    const { plan } = modal;
-    setPaying(true);
-
-    try {
-      const orderId = generateOrderNumber();
-      const result = await requestPayment({
-        orderId,
-        orderName: `AHP Basic ${plan.name} 월간 구독`,
-        totalAmount: plan.price,
-        payMethod: 'CARD',
-        customer: {
-          fullName: user?.user_metadata?.full_name || '',
-          email: user?.email || '',
-        },
-      });
-
-      if (result.status === 'PAID') {
-        const demoMsg = result.demo ? ' (데모 모드)' : '';
-        toast.success(`${plan.name} 요금제 결제가 완료되었습니다!${demoMsg}`);
-        setModal(null);
-        navigate('/admin');
-      }
-    } catch (err) {
-      toast.error(err.message || '결제 처리 중 오류가 발생했습니다.');
-    } finally {
-      setPaying(false);
+    // 이미 장바구니에 있는지 확인
+    const alreadyInCart = cartItems.some(item => item.id === plan.key);
+    if (alreadyInCart) {
+      toast.info(`${plan.name} 요금제가 이미 장바구니에 있습니다.`);
+      navigate('/cart');
+      return;
     }
+    addItem({
+      id: plan.key,
+      title: `AHP Basic ${plan.name} 월간 구독`,
+      price: plan.price,
+    });
+    toast.success(`${plan.name} 요금제를 장바구니에 담았습니다.`);
+    navigate('/cart');
   };
 
   return (
@@ -305,46 +285,6 @@ export default function PricingPage() {
         </button>
       </section>
 
-      {/* Payment Modal */}
-      {modal && (
-        <div className={styles.paymentOverlay} onClick={() => !paying && setModal(null)}>
-          <div className={styles.paymentModal} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.modalTitle}>결제 확인</h3>
-            <div className={styles.modalRow}>
-              <span className={styles.modalLabel}>요금제</span>
-              <span className={styles.modalValue}>{modal.plan.name}</span>
-            </div>
-            <div className={styles.modalRow}>
-              <span className={styles.modalLabel}>결제 주기</span>
-              <span className={styles.modalValue}>월간 구독</span>
-            </div>
-            <div className={styles.modalRow}>
-              <span className={styles.modalLabel}>결제 수단</span>
-              <span className={styles.modalValue}>카드 결제</span>
-            </div>
-            <div className={styles.modalTotal}>
-              <span className={styles.modalLabel}>결제 금액</span>
-              <span className={styles.modalValue}>{modal.plan.priceLabel}/월</span>
-            </div>
-            <div className={styles.modalActions}>
-              <button
-                className={styles.modalCancelBtn}
-                onClick={() => setModal(null)}
-                disabled={paying}
-              >
-                취소
-              </button>
-              <button
-                className={styles.modalPayBtn}
-                onClick={handlePayment}
-                disabled={paying}
-              >
-                {paying ? '결제 처리 중...' : '결제하기'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </PublicLayout>
   );
 }
