@@ -29,7 +29,7 @@ const PLANS = [
   },
   {
     key: 'plan_30',
-    name: '30명',
+    name: '연구프로젝트 1개 & 평가자 30명',
     planType: 'plan_30',
     price: 30000,
     priceLabel: '₩30,000',
@@ -48,7 +48,7 @@ const PLANS = [
   },
   {
     key: 'plan_50',
-    name: '50명',
+    name: '연구프로젝트 1개 & 평가자 50명',
     planType: 'plan_50',
     price: 40000,
     priceLabel: '₩40,000',
@@ -67,11 +67,11 @@ const PLANS = [
   },
   {
     key: 'plan_100',
-    name: '100명',
+    name: '연구프로젝트 1개 & 평가자 100명',
     planType: 'plan_100',
     price: 50000,
     priceLabel: '₩50,000',
-    desc: '대규모 의사결정 및 연구 프로젝트를 위한 이용권입니다.',
+    desc: '대규모 연구 프로젝트를 위한 이용권입니다.',
     features: [
       { text: '평가자 100명' },
       { text: 'SMS 200건' },
@@ -84,17 +84,55 @@ const PLANS = [
     btnStyle: 'outline',
     popular: false,
   },
+  {
+    key: 'plan_multi_100',
+    name: '연구프로젝트 다수 & 평가자 100명',
+    planType: 'plan_multi_100',
+    price: 70000,
+    priceLabel: '₩70,000',
+    desc: '다수 프로젝트를 동시에 운영하는 연구자를 위한 이용권입니다.',
+    features: [
+      { text: '평가자 100명' },
+      { text: 'SMS 200건' },
+      { text: '결제 후 30일' },
+      { text: '전체 기능 사용 가능' },
+      { text: '민감도/AI/통계 분석' },
+      { text: 'Excel + PDF 내보내기' },
+    ],
+    btnLabel: '이용권 구매',
+    btnStyle: 'outline',
+    popular: false,
+  },
+  {
+    key: 'plan_multi_200',
+    name: '연구프로젝트 다수 & 평가자 200명',
+    planType: 'plan_multi_200',
+    price: 100000,
+    priceLabel: '₩100,000',
+    desc: '대규모 다수 프로젝트와 200명 이상의 평가자를 관리하는 조직을 위한 이용권입니다.',
+    features: [
+      { text: '평가자 200명' },
+      { text: 'SMS 400건' },
+      { text: '결제 후 30일' },
+      { text: '전체 기능 사용 가능' },
+      { text: '민감도/AI/통계 분석' },
+      { text: 'Excel + PDF 내보내기' },
+    ],
+    btnLabel: '이용권 구매',
+    btnStyle: 'outline',
+    popular: false,
+  },
 ];
 
 const COMPARE_ROWS = [
-  { label: '가격', free: '무료', plan_30: '₩30,000', plan_50: '₩40,000', plan_100: '₩50,000' },
-  { label: '평가자 수', free: '1명', plan_30: '30명', plan_50: '50명', plan_100: '100명' },
-  { label: 'SMS 건수', free: '1건', plan_30: '60건', plan_50: '100건', plan_100: '200건' },
-  { label: '사용 기간', free: '무제한', plan_30: '30일', plan_50: '30일', plan_100: '30일' },
-  { label: '통계 분석', vals: ['전체', '전체', '전체', '전체'] },
-  { label: 'AI 분석', vals: ['✓', '✓', '✓', '✓'], allCheck: true },
-  { label: '민감도 분석', vals: ['✓', '✓', '✓', '✓'], allCheck: true },
-  { label: 'Excel + PDF', vals: ['✓', '✓', '✓', '✓'], allCheck: true },
+  { label: '가격', vals: ['무료', '₩30,000', '₩40,000', '₩50,000', '₩70,000', '₩100,000'] },
+  { label: '프로젝트', vals: ['1개', '1개', '1개', '1개', '다수', '다수'] },
+  { label: '평가자 수', vals: ['1명', '30명', '50명', '100명', '100명', '200명'] },
+  { label: 'SMS 건수', vals: ['1건', '60건', '100건', '200건', '200건', '400건'] },
+  { label: '사용 기간', vals: ['무제한', '30일', '30일', '30일', '30일', '30일'] },
+  { label: '통계 분석', vals: ['전체', '전체', '전체', '전체', '전체', '전체'] },
+  { label: 'AI 분석', vals: ['✓', '✓', '✓', '✓', '✓', '✓'], allCheck: true },
+  { label: 'Excel + PDF', vals: ['✓', '✓', '✓', '✓', '✓', '✓'], allCheck: true },
 ];
 
 const FAQ_ITEMS = [
@@ -241,29 +279,22 @@ export default function PricingPage() {
               <tr>
                 <th>항목</th>
                 <th>Free</th>
-                <th>30명</th>
-                <th className={styles.popularCol}>50명</th>
-                <th>100명</th>
+                <th>1개&30명</th>
+                <th className={styles.popularCol}>1개&50명</th>
+                <th>1개&100명</th>
+                <th>다수&100명</th>
+                <th>다수&200명</th>
               </tr>
             </thead>
             <tbody>
               {COMPARE_ROWS.map((row, i) => (
                 <tr key={i}>
                   <td>{row.label}</td>
-                  {row.vals ? (
-                    row.vals.map((v, j) => (
-                      <td key={j} className={j === 2 ? styles.popularCol : undefined}>
-                        {row.allCheck ? <span className={styles.tableCheck}>{v}</span> : v}
-                      </td>
-                    ))
-                  ) : (
-                    <>
-                      <td>{row.free}</td>
-                      <td>{row.plan_30}</td>
-                      <td className={styles.popularCol}>{row.plan_50}</td>
-                      <td>{row.plan_100}</td>
-                    </>
-                  )}
+                  {row.vals.map((v, j) => (
+                    <td key={j} className={j === 2 ? styles.popularCol : undefined}>
+                      {row.allCheck ? <span className={styles.tableCheck}>{v}</span> : v}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>

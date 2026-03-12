@@ -72,8 +72,11 @@
 .planGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  gap: 24px;
   margin-top: 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .planCard {
@@ -117,10 +120,12 @@
 }
 
 .planName {
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #0f172a;
   margin-bottom: 8px;
+  line-height: 1.4;
+  word-break: keep-all;
 }
 
 .planPrice {

@@ -3,7 +3,7 @@
 **날짜**: 2026-03-13
 **작업 유형**: 대규모 리팩토링 / 비즈니스 모델 전환
 **주제**: 월 구독 모델 → 프로젝트 단위 이용권 모델 전환
-**상태**: 완료
+**상태**: 완료 (2차 업데이트: 다수 프로젝트 이용권 추가)
 
 ---
 
@@ -13,12 +13,14 @@
 
 ### 새 요금제
 
-| 플랜 | 가격 | 평가자 | SMS | 기간 | 기능 |
-|------|------|--------|-----|------|------|
-| Free (학습용) | 무료 | 1명 | 1건 | 무제한 | 전체 |
-| 30명 | ₩30,000 | 30명 | 60건 | 결제 후 30일 | 전체 |
-| 50명 | ₩40,000 | 50명 | 100건 | 결제 후 30일 | 전체 |
-| 100명 | ₩50,000 | 100명 | 200건 | 결제 후 30일 | 전체 |
+| 플랜 | 가격 | 프로젝트 | 평가자 | SMS | 기간 | 기능 |
+|------|------|----------|--------|-----|------|------|
+| Free (학습용) | 무료 | 1개 | 1명 | 1건 | 무제한 | 전체 |
+| 연구프로젝트 1개 & 평가자 30명 | ₩30,000 | 1개 | 30명 | 60건 | 결제 후 30일 | 전체 |
+| 연구프로젝트 1개 & 평가자 50명 | ₩40,000 | 1개 | 50명 | 100건 | 결제 후 30일 | 전체 |
+| 연구프로젝트 1개 & 평가자 100명 | ₩50,000 | 1개 | 100명 | 200건 | 결제 후 30일 | 전체 |
+| 연구프로젝트 다수 & 평가자 100명 | ₩70,000 | 다수 | 100명 | 200건 | 결제 후 30일 | 전체 |
+| 연구프로젝트 다수 & 평가자 200명 | ₩100,000 | 다수 | 200명 | 400건 | 결제 후 30일 | 전체 |
 
 ### 핵심 변경사항
 - **모든 기능 잠금 해제** (sensitivity, AI, Excel/PDF, SMS, 통계 전부 사용 가능)
@@ -34,7 +36,7 @@
 | # | 파일 | 변경 유형 | 설명 |
 |---|------|----------|------|
 | 1 | `supabase/migrations/024_per_project_pricing.sql` | **신규** | project_plans 테이블 + 6개 RPC + 기존 3개 RPC 삭제 |
-| 2 | `src/lib/subscriptionPlans.js` | 전면 재작성 | PLAN_TYPES 4개, PLAN_LIMITS 프로젝트 단위, FEATURES 등 삭제 |
+| 2 | `src/lib/subscriptionPlans.js` | 전면 재작성 | PLAN_TYPES 6개(+multi_100, multi_200), PLAN_LIMITS 프로젝트 단위, FEATURES 등 삭제 |
 | 3 | `src/contexts/SubscriptionContext.jsx` | 전면 재작성 | userPlans[], fetchProjectPlan, assignPlan 등 |
 | 4 | `src/hooks/useProjectPlan.js` | **신규** | projectId 기반 플랜 자동 조회 hook |
 | 5 | `src/components/admin/PlanAssignmentModal.jsx` | **신규** | 미할당 이용권 → 프로젝트 할당 모달 |
@@ -42,7 +44,7 @@
 | 7 | `src/components/admin/ProjectPlanBadge.jsx` | **신규** | 프로젝트 플랜 배지 컴포넌트 |
 | 8 | `src/components/admin/ProjectPlanBadge.module.css` | **신규** | 배지 스타일 |
 | 9 | `src/components/common/PlanRequiredModal.jsx` | **신규** | "이용권 필요" 모달 (UpgradeModal 대체) |
-| 10 | `src/pages/PricingPage.jsx` | 전면 재작성 | 4개 플랜 카드, "/프로젝트" 가격, 비교 테이블 |
+| 10 | `src/pages/PricingPage.jsx` | 전면 재작성 | 6개 플랜 카드(+다수 프로젝트 2종), "/프로젝트" 가격, 비교 테이블 |
 | 11 | `src/pages/CheckoutPage.jsx` | 수정 | activate_project_plan RPC, 수량별 이용권 생성 |
 | 12 | `src/pages/CartPage.jsx` | 소폭 수정 | "/월" → "/프로젝트" |
 | 13 | `src/pages/OrderConfirmationPage.jsx` | 수정 | 대시보드 이동 안내 추가 |
@@ -57,6 +59,7 @@
 | 22 | `src/components/admin/SmsModal.jsx` | 수정 | SMS 할당량 표시/초과 검사 |
 | 23 | `src/components/admin/SmsModal.module.css` | 추가 | 할당량 바 스타일 |
 | 24 | `src/lib/smsService.js` | 소폭 수정 | increment_sms_used RPC 호출 추가 |
+| 25 | `supabase/migrations/025_add_multi_project_plans.sql` | **신규** | plan_multi_100, plan_multi_200 타입 추가, activate_project_plan 함수 업데이트 |
 
 ---
 
@@ -77,7 +80,7 @@
 
 ### Phase 2: Core Infrastructure
 
-- `subscriptionPlans.js`: PLAN_TYPES 4종(free/plan_30/plan_50/plan_100), PLAN_LIMITS에 maxEvaluators/smsQuota/period 포함. FEATURES, FEATURE_MIN_PLAN, SIDEBAR_FEATURE_MAP, BASIC_STAT_TYPES, FEATURE_LABELS 전부 삭제.
+- `subscriptionPlans.js`: PLAN_TYPES 6종(free/plan_30/plan_50/plan_100/plan_multi_100/plan_multi_200), PLAN_LIMITS에 maxEvaluators/smsQuota/period 포함. FEATURES, FEATURE_MIN_PLAN, SIDEBAR_FEATURE_MAP, BASIC_STAT_TYPES, FEATURE_LABELS 전부 삭제.
 - `SubscriptionContext.jsx`: 사용자 레벨 planType → 프로젝트 레벨 플랜 관리. userPlans 배열, fetchProjectPlan, assignPlan, getUnassignedPlans, grantFreePlan, refreshPlans 메서드 제공.
 - `useProjectPlan.js`: projectId 받아 자동으로 fetchProjectPlan 호출하는 편의 hook.
 
@@ -88,7 +91,7 @@
 
 ### Phase 4: 결제 플로우
 
-- `PricingPage.jsx`: 4개 플랜 카드(Free/30명/50명/100명), 모든 기능 체크마크, "/프로젝트" 가격, FAQ 프로젝트 단위 결제 내용 갱신.
+- `PricingPage.jsx`: 6개 플랜 카드(Free/1개&30명/1개&50명/1개&100명/다수&100명/다수&200명), 모든 기능 체크마크, "/프로젝트" 가격, 6열 비교 테이블, FAQ 프로젝트 단위 결제 내용 갱신.
 - `CartPage.jsx`: "/월" → "/프로젝트"
 - `CheckoutPage.jsx`: 결제 성공 시 각 cart item별 수량만큼 `activate_project_plan` RPC 호출. `refreshSubscription()` → `refreshPlans()`.
 - `OrderConfirmationPage.jsx`: "대시보드에서 이용권을 프로젝트에 할당하세요" 안내 + 대시보드 이동 버튼.
@@ -97,7 +100,7 @@
 ### Phase 5: 프로젝트 관리 UI
 
 - `PlanAssignmentModal.jsx`: 미할당 이용권 목록, "이 프로젝트에 할당" 버튼, "새 이용권 구매" 링크.
-- `ProjectPlanBadge.jsx`: 프로젝트 카드에 배지(Free/30명/50명/100명/만료) + 남은 일수 + SMS 사용량.
+- `ProjectPlanBadge.jsx`: 프로젝트 카드에 배지(Free/30명/50명/100명/다수100명/다수200명/만료) + 남은 일수 + SMS 사용량.
 - `ProjectPanel.jsx`: 미할당 이용권 배너, 프로젝트별 PlanBadge, PlanAssignmentModal 연동.
 - `PlanExpiryBanner.jsx`: 프로젝트 레벨 만료 배너(useProjectPlan 기반).
 - `PlanRequiredModal.jsx`: "이용권이 필요합니다" 모달. UpgradeModal은 하위호환 래퍼로 전환.
@@ -130,17 +133,18 @@
 
 ## 배포 후 필수 작업
 
-1. **Supabase SQL Editor**에서 `024_per_project_pricing.sql` 실행
-2. `order_items` 테이블에 `plan_type TEXT` 컬럼 수동 추가 (없는 경우)
-3. 테스트 결제 → 이용권 생성 → 프로젝트 할당 플로우 검증
-4. 기존 user_profiles의 plan_type, plan_expires_at 등은 deprecated 처리 (즉시 삭제 않음)
+1. ~~**Supabase SQL Editor**에서 `024_per_project_pricing.sql` 실행~~ ✅ 완료
+2. **Supabase SQL Editor**에서 `025_add_multi_project_plans.sql` 실행 (다수 프로젝트 이용권 추가)
+3. `order_items` 테이블에 `plan_type TEXT` 컬럼 수동 추가 (없는 경우)
+4. 테스트 결제 → 이용권 생성 → 프로젝트 할당 플로우 검증
+5. 기존 user_profiles의 plan_type, plan_expires_at 등은 deprecated 처리 (즉시 삭제 않음)
 
 ---
 
 ## 검증 체크리스트
 
 - [ ] DB 마이그레이션: project_plans 테이블 확인
-- [ ] 요금제 페이지: 4개 플랜 카드 정상 표시
+- [ ] 요금제 페이지: 6개 플랜 카드 정상 표시
 - [ ] 결제 플로우: 테스트 결제 → project_plans에 unassigned 행 생성
 - [ ] 이용권 할당: 대시보드에서 할당 → 30일 만료 설정
 - [ ] 기능 잠금 해제: 사이드바 메뉴 전부 잠금 없이 접근 가능

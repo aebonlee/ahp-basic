@@ -4,6 +4,8 @@ export const PLAN_TYPES = {
   PLAN_30: 'plan_30',
   PLAN_50: 'plan_50',
   PLAN_100: 'plan_100',
+  PLAN_MULTI_100: 'plan_multi_100',
+  PLAN_MULTI_200: 'plan_multi_200',
 };
 
 // ─── 플랜별 제한 ───
@@ -16,24 +18,38 @@ export const PLAN_LIMITS = {
     period: null, // 무제한
   },
   [PLAN_TYPES.PLAN_30]: {
-    label: '30명',
+    label: '1개 & 30명',
     price: 30000,
     maxEvaluators: 30,
     smsQuota: 60,
     period: 30,
   },
   [PLAN_TYPES.PLAN_50]: {
-    label: '50명',
+    label: '1개 & 50명',
     price: 40000,
     maxEvaluators: 50,
     smsQuota: 100,
     period: 30,
   },
   [PLAN_TYPES.PLAN_100]: {
-    label: '100명',
+    label: '1개 & 100명',
     price: 50000,
     maxEvaluators: 100,
     smsQuota: 200,
+    period: 30,
+  },
+  [PLAN_TYPES.PLAN_MULTI_100]: {
+    label: '다수 & 100명',
+    price: 70000,
+    maxEvaluators: 100,
+    smsQuota: 200,
+    period: 30,
+  },
+  [PLAN_TYPES.PLAN_MULTI_200]: {
+    label: '다수 & 200명',
+    price: 100000,
+    maxEvaluators: 200,
+    smsQuota: 400,
     period: 30,
   },
 };
