@@ -232,8 +232,38 @@
     padding: var(--spacing-md);
   }
 
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 0;
+  }
+
+  .tab {
+    padding: 8px 14px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
   .stats {
     flex-direction: column;
+  }
+
+  .stat {
+    padding: 10px 14px;
+  }
+
+  .filterBar {
+    flex-wrap: wrap;
+  }
+
+  .filterBtn {
+    padding: 5px 12px;
+    font-size: 0.78rem;
   }
 
   .table {
@@ -243,5 +273,15 @@
   .table th,
   .table td {
     padding: 8px 10px;
+  }
+
+  .roleSelect {
+    padding: 3px 6px;
+    font-size: 0.78rem;
+  }
+
+  .deleteBtn {
+    padding: 3px 8px;
+    font-size: 0.72rem;
   }
 }

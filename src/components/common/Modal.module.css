@@ -56,3 +56,34 @@
   padding: var(--spacing-lg);
   overflow-y: auto;
 }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .modal {
+    max-width: calc(100% - 2 * var(--spacing-sm));
+    max-height: 85vh;
+  }
+
+  .header {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .body {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    max-height: 80vh;
+    border-radius: var(--radius-sm);
+  }
+
+  .body {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}

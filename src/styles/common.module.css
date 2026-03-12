@@ -117,3 +117,46 @@
 .sectionGap {
   margin-top: var(--spacing-lg);
 }
+
+/* Responsive: table scroll wrapper */
+.tableScroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--spacing-md);
+  }
+
+  .cardTitle {
+    font-size: 0.95rem;
+  }
+
+  .dataTable {
+    font-size: 0.82rem;
+  }
+
+  .dataTable th,
+  .dataTable td {
+    padding: 6px 8px;
+  }
+
+  .dataTable thead th {
+    font-size: 0.75rem;
+  }
+
+  .actionRow {
+    gap: var(--spacing-xs);
+  }
+
+  .pageTitle {
+    font-size: 1.15rem;
+  }
+
+  .statusBannerSuccess,
+  .statusBannerWarning {
+    padding: 10px var(--spacing-sm);
+    font-size: 0.82rem;
+  }
+}
