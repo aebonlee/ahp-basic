@@ -5,10 +5,12 @@ import { useToast } from '../../contexts/ToastContext';
 import { useConfirm } from '../../hooks/useConfirm';
 import { useSubscription } from '../../hooks/useSubscription';
 import { supabase } from '../../lib/supabaseClient';
+import { isMultiPlan } from '../../lib/subscriptionPlans';
 import ProjectForm from './ProjectForm';
 import ProjectCard from './ProjectCard';
 import ProjectPlanBadge from './ProjectPlanBadge';
 import PlanAssignmentModal from './PlanAssignmentModal';
+import MultiPlanActivationModal from './MultiPlanActivationModal';
 import Button from '../common/Button';
 import ConfirmDialog from '../common/ConfirmDialog';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -21,15 +23,17 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
   const { deleteProject, cloneProject } = useProjects();
   const toast = useToast();
   const { confirm, confirmDialogProps } = useConfirm();
-  const { getUnassignedPlans, isSuperAdmin, userPlans } = useSubscription();
+  const { getUnassignedPlans, getUnassignedMultiPlans, isSuperAdmin, userPlans, activeMultiPlan, hasActiveMultiPlan } = useSubscription();
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState(null);
   const [filter, setFilter] = useState('all');
   const [planRequiredOpen, setPlanRequiredOpen] = useState(false);
   const [assignModal, setAssignModal] = useState({ open: false, projectId: null, projectName: '' });
+  const [multiPlanModalOpen, setMultiPlanModalOpen] = useState(false);
   const [projectPlans, setProjectPlans] = useState({});
 
   const unassignedPlans = getUnassignedPlans();
+  const unassignedMultiPlans = getUnassignedMultiPlans();
 
   // 프로젝트별 플랜 로드
   const loadProjectPlans = useCallback(async () => {
@@ -85,7 +89,7 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
   const freeProjectCount = userPlans.filter(p => p.plan_type === 'free' && p.project_id).length;
 
   const handleNewProject = () => {
-    if (!isSuperAdmin && freeProjectCount >= 1 && unassignedPlans.length === 0) {
+    if (!isSuperAdmin && !hasActiveMultiPlan && freeProjectCount >= 1 && unassignedPlans.length === 0) {
       setPlanRequiredOpen(true);
       return;
     }
@@ -105,10 +109,37 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
         </span>
       </div>
 
+      {/* 활성 다수 이용권 배너 */}
+      {activeMultiPlan && (() => {
+        const daysLeft = activeMultiPlan.expires_at
+          ? Math.max(0, Math.ceil((new Date(activeMultiPlan.expires_at) - new Date()) / (1000 * 60 * 60 * 24)))
+          : null;
+        return (
+          <div className={styles.multiPlanBanner}>
+            <div className={styles.multiPlanInfo}>
+              <span>★ {activeMultiPlan.plan_type === 'plan_multi_200' ? '다수 & 200명' : '다수 & 100명'} 이용권 활성 중</span>
+            </div>
+            <div className={styles.multiPlanMeta}>
+              프로젝트당 평가자 {activeMultiPlan.max_evaluators}명 | SMS {activeMultiPlan.sms_used}/{activeMultiPlan.sms_quota}건{daysLeft !== null ? ` | ${daysLeft}일 남음` : ''}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* 미활성 다수 이용권 배너 */}
+      {!hasActiveMultiPlan && unassignedMultiPlans.length > 0 && (
+        <div className={styles.unassignedMultiBanner}>
+          미활성 다수 이용권 {unassignedMultiPlans.length}개
+          <button className={styles.activateBtn} onClick={() => setMultiPlanModalOpen(true)}>
+            활성화하기
+          </button>
+        </div>
+      )}
+
       {/* 미할당 이용권 배너 */}
-      {unassignedPlans.length > 0 && (
+      {unassignedPlans.filter(p => !isMultiPlan(p.plan_type)).length > 0 && (
         <div className={styles.unassignedBanner}>
-          미할당 이용권 {unassignedPlans.length}개가 있습니다. 프로젝트에 할당하세요.
+          미할당 이용권 {unassignedPlans.filter(p => !isMultiPlan(p.plan_type)).length}개가 있습니다. 프로젝트에 할당하세요.
         </div>
       )}
 
@@ -156,7 +187,7 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
               />
               <div className={styles.cardBadgeRow}>
                 <ProjectPlanBadge plan={projectPlans[project.id]} />
-                {!projectPlans[project.id] && (
+                {!hasActiveMultiPlan && !projectPlans[project.id] && (
                   <button
                     className={styles.assignBtn}
                     onClick={() => setAssignModal({ open: true, projectId: project.id, projectName: project.name })}
@@ -181,6 +212,10 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
         onClose={() => { setAssignModal({ open: false, projectId: null, projectName: '' }); loadProjectPlans(); }}
         projectId={assignModal.projectId}
         projectName={assignModal.projectName}
+      />
+      <MultiPlanActivationModal
+        isOpen={multiPlanModalOpen}
+        onClose={() => { setMultiPlanModalOpen(false); loadProjectPlans(); }}
       />
     </div>
   );

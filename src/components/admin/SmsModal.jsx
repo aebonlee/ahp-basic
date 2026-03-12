@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useRef } from 'react';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
 import { useAuth } from '../../hooks/useAuth';
+import { isMultiPlan } from '../../lib/subscriptionPlans';
 import { formatPhone } from '../../lib/evaluatorUtils';
 import { getByteInfo } from '../../lib/smsUtils';
 import { sendSmsBulk } from '../../lib/smsService';
@@ -452,7 +453,10 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
           {/* SMS 할당량 */}
           {projectPlan && (
             <div className={styles.quotaBar}>
-              <span>SMS {projectPlan.sms_used}/{projectPlan.sms_quota}건 사용</span>
+              <span>
+                SMS {projectPlan.sms_used}/{projectPlan.sms_quota}건 사용
+                {isMultiPlan(projectPlan.plan_type) && ' (전체 프로젝트 공유)'}
+              </span>
               {projectPlan.sms_used + selectedCount > projectPlan.sms_quota && selectedCount > 0 && (
                 <span className={styles.quotaWarn}>할당량 초과 ({selectedCount}명 발송 불가)</span>
               )}

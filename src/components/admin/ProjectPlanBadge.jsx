@@ -1,4 +1,4 @@
-import { PLAN_LIMITS } from '../../lib/subscriptionPlans';
+import { PLAN_LIMITS, isMultiPlan } from '../../lib/subscriptionPlans';
 import styles from './ProjectPlanBadge.module.css';
 
 export default function ProjectPlanBadge({ plan }) {
@@ -8,6 +8,7 @@ export default function ProjectPlanBadge({ plan }) {
 
   const info = PLAN_LIMITS[plan.plan_type];
   const label = info?.label || plan.plan_type;
+  const isMulti = isMultiPlan(plan.plan_type);
 
   if (plan.status === 'expired') {
     return <span className={`${styles.badge} ${styles.expired}`}>만료됨</span>;
@@ -23,13 +24,20 @@ export default function ProjectPlanBadge({ plan }) {
   const isUrgent = daysLeft !== null && daysLeft <= 3;
   const isFree = plan.plan_type === 'free';
 
+  const badgeClass = isMulti
+    ? styles.multi
+    : isFree ? styles.free : isUrgent ? styles.urgent : styles.active;
+
   return (
-    <span className={`${styles.badge} ${isFree ? styles.free : isUrgent ? styles.urgent : styles.active}`}>
+    <span className={`${styles.badge} ${badgeClass}`}>
+      {isMulti && <span className={styles.multiIcon}>★</span>}
       {label}
       {daysLeft !== null && !isFree && (
         <span className={styles.days}>{daysLeft}일</span>
       )}
-      <span className={styles.sms}>SMS {plan.sms_used}/{plan.sms_quota}</span>
+      <span className={styles.sms}>
+        SMS {plan.sms_used}/{plan.sms_quota}{isMulti ? ' (공유)' : ''}
+      </span>
     </span>
   );
 }

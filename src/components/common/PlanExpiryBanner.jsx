@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSubscription } from '../../hooks/useSubscription';
 import { useProjectPlan } from '../../hooks/useProjectPlan';
+import { isMultiPlan } from '../../lib/subscriptionPlans';
 import styles from './PlanExpiryBanner.module.css';
 
 export default function PlanExpiryBanner() {
@@ -35,11 +36,14 @@ export default function PlanExpiryBanner() {
     );
   }
 
+  const isMulti = isMultiPlan(plan.plan_type);
+  const planLabel = isMulti ? '다수 프로젝트 이용권' : '이용권';
+
   // 만료됨
   if (plan.status === 'expired') {
     return (
       <div className={`${styles.banner} ${styles.expired}`}>
-        <span>이용권이 만료되었습니다.</span>
+        <span>{planLabel}이 만료되었습니다.</span>
         <button className={styles.action} onClick={() => navigate('/pricing')}>
           새 이용권 구매
         </button>
@@ -56,7 +60,7 @@ export default function PlanExpiryBanner() {
   if (daysLeft !== null && daysLeft <= 3) {
     return (
       <div className={`${styles.banner} ${styles.urgent}`}>
-        <span>이용권 만료까지 {daysLeft}일 남았습니다!</span>
+        <span>{planLabel} 만료까지 {daysLeft}일 남았습니다!</span>
         <button className={styles.action} onClick={() => navigate('/pricing')}>
           연장 문의
         </button>
@@ -68,7 +72,7 @@ export default function PlanExpiryBanner() {
   if (daysLeft !== null && daysLeft <= 7) {
     return (
       <div className={`${styles.banner} ${styles.warning}`}>
-        <span>이용권 만료까지 {daysLeft}일 남았습니다.</span>
+        <span>{planLabel} 만료까지 {daysLeft}일 남았습니다.</span>
         <button className={styles.action} onClick={() => navigate('/pricing')}>
           연장 문의
         </button>

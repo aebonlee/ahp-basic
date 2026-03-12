@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabaseClient';
-import { PLAN_TYPES, SUPER_ADMIN_EMAILS } from '../lib/subscriptionPlans';
+import { PLAN_TYPES, SUPER_ADMIN_EMAILS, isMultiPlan } from '../lib/subscriptionPlans';
 
 export const SubscriptionContext = createContext(null);
 
@@ -85,6 +85,33 @@ export function SubscriptionProvider({ children }) {
     await fetchUserPlans();
   }, [user?.id, fetchUserPlans]);
 
+  // ─── 활성 다수 이용권 ───
+  const activeMultiPlan = useMemo(
+    () => userPlans.find(p => isMultiPlan(p.plan_type) && p.status === 'active') || null,
+    [userPlans],
+  );
+
+  const hasActiveMultiPlan = !!activeMultiPlan;
+
+  // ─── 다수 이용권 활성화 ───
+  const activateMultiPlan = useCallback(async (planId) => {
+    if (!user?.id) return;
+    const { error } = await supabase.rpc('activate_multi_plan', {
+      p_plan_id: planId,
+      p_user_id: user.id,
+    }).then(
+      (res) => res,
+      (err) => ({ error: err }),
+    );
+    if (error) throw error;
+    await fetchUserPlans();
+  }, [user?.id, fetchUserPlans]);
+
+  // ─── 미활성 다수 이용권 목록 ───
+  const getUnassignedMultiPlans = useCallback(() => {
+    return userPlans.filter(p => isMultiPlan(p.plan_type) && p.status === 'unassigned');
+  }, [userPlans]);
+
   // ─── 재조회 ───
   const refreshPlans = useCallback(async () => {
     await fetchUserPlans();
@@ -114,15 +141,19 @@ export function SubscriptionProvider({ children }) {
       currentProjectPlan,
       isSuperAdmin,
       loaded,
+      activeMultiPlan,
+      hasActiveMultiPlan,
       fetchUserPlans,
       fetchProjectPlan,
       assignPlan,
       canAddEvaluator,
       getUnassignedPlans,
+      getUnassignedMultiPlans,
+      activateMultiPlan,
       grantFreePlan,
       refreshPlans,
     }),
-    [userPlans, currentProjectPlan, isSuperAdmin, loaded, fetchUserPlans, fetchProjectPlan, assignPlan, canAddEvaluator, getUnassignedPlans, grantFreePlan, refreshPlans],
+    [userPlans, currentProjectPlan, isSuperAdmin, loaded, activeMultiPlan, hasActiveMultiPlan, fetchUserPlans, fetchProjectPlan, assignPlan, canAddEvaluator, getUnassignedPlans, getUnassignedMultiPlans, activateMultiPlan, grantFreePlan, refreshPlans],
   );
 
   return (

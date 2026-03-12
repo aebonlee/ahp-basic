@@ -92,10 +92,10 @@ const PLANS = [
     priceLabel: '₩70,000',
     desc: '다수 프로젝트를 동시에 운영하는 연구자를 위한 이용권입니다.',
     features: [
-      { text: '평가자 100명' },
-      { text: 'SMS 200건' },
-      { text: '결제 후 30일' },
-      { text: '전체 기능 사용 가능' },
+      { text: '프로젝트 무제한 생성' },
+      { text: '프로젝트당 평가자 100명' },
+      { text: 'SMS 200건 (전체 공유)' },
+      { text: '활성화 후 30일' },
       { text: '민감도/AI/통계 분석' },
       { text: 'Excel + PDF 내보내기' },
     ],
@@ -111,10 +111,10 @@ const PLANS = [
     priceLabel: '₩100,000',
     desc: '대규모 다수 프로젝트와 200명 이상의 평가자를 관리하는 조직을 위한 이용권입니다.',
     features: [
-      { text: '평가자 200명' },
-      { text: 'SMS 400건' },
-      { text: '결제 후 30일' },
-      { text: '전체 기능 사용 가능' },
+      { text: '프로젝트 무제한 생성' },
+      { text: '프로젝트당 평가자 200명' },
+      { text: 'SMS 400건 (전체 공유)' },
+      { text: '활성화 후 30일' },
       { text: '민감도/AI/통계 분석' },
       { text: 'Excel + PDF 내보내기' },
     ],
@@ -126,10 +126,10 @@ const PLANS = [
 
 const COMPARE_ROWS = [
   { label: '가격', vals: ['무료', '₩30,000', '₩40,000', '₩50,000', '₩70,000', '₩100,000'] },
-  { label: '프로젝트', vals: ['1개', '1개', '1개', '1개', '다수', '다수'] },
+  { label: '프로젝트', vals: ['1개', '1개', '1개', '1개', '무제한', '무제한'] },
   { label: '평가자 수', vals: ['1명', '30명', '50명', '100명', '100명', '200명'] },
-  { label: 'SMS 건수', vals: ['1건', '60건', '100건', '200건', '200건', '400건'] },
-  { label: '사용 기간', vals: ['무제한', '30일', '30일', '30일', '30일', '30일'] },
+  { label: 'SMS 건수', vals: ['1건', '60건', '100건', '200건', '200건 (공유)', '400건 (공유)'] },
+  { label: '사용 기간', vals: ['무제한', '30일', '30일', '30일', '활성화 후 30일', '활성화 후 30일'] },
   { label: '통계 분석', vals: ['전체', '전체', '전체', '전체', '전체', '전체'] },
   { label: 'AI 분석', vals: ['✓', '✓', '✓', '✓', '✓', '✓'], allCheck: true },
   { label: 'Excel + PDF', vals: ['✓', '✓', '✓', '✓', '✓', '✓'], allCheck: true },
@@ -243,7 +243,7 @@ export default function PricingPage() {
               <h3 className={styles.planName}>{plan.name}</h3>
               <div className={styles.planPrice}>
                 <span className={styles.priceAmount}>{plan.priceLabel}</span>
-                {plan.price > 0 && <span className={styles.pricePeriod}>/프로젝트</span>}
+                {plan.price > 0 && <span className={styles.pricePeriod}>{plan.key.startsWith('plan_multi') ? '/30일' : '/프로젝트'}</span>}
               </div>
               <p className={styles.planDesc}>{plan.desc}</p>
               <ul className={styles.planFeatures}>

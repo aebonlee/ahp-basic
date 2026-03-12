@@ -10,6 +10,7 @@ import { useToast } from '../contexts/ToastContext';
 import { useConfirm } from '../hooks/useConfirm';
 import { useSubscription } from '../hooks/useSubscription';
 import { useProjectPlan } from '../hooks/useProjectPlan';
+import { isMultiPlan } from '../lib/subscriptionPlans';
 import { PROJECT_STATUS, EVAL_METHOD } from '../lib/constants';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import ProjectLayout from '../components/layout/ProjectLayout';
@@ -121,6 +122,11 @@ export default function EvaluatorManagementPage() {
         <div className={styles.listHeader}>
           <h2 className={common.cardTitle}>
             평가자 목록 ({evaluators.length}{maxEvaluators === Infinity ? '' : `/${maxEvaluators}`}명)
+            {projectPlan && isMultiPlan(projectPlan.plan_type) && (
+              <span style={{ fontSize: '0.75rem', color: '#7c3aed', fontWeight: 400, marginLeft: 6 }}>
+                (다수 이용권 적용)
+              </span>
+            )}
           </h2>
           <div className={styles.listHeaderActions}>
             {evaluators.length > 0 && (

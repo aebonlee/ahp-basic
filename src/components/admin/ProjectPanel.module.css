@@ -105,3 +105,54 @@
   border-color: #2563eb;
   color: #2563eb;
 }
+
+.multiPlanBanner {
+  background: #ede9fe;
+  border: 1px solid #c4b5fd;
+  color: #6d28d9;
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 8px);
+  margin-bottom: var(--spacing-sm, 8px);
+}
+
+.multiPlanInfo {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.multiPlanMeta {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.unassignedMultiBanner {
+  background: #faf5ff;
+  border: 1px solid #d8b4fe;
+  color: #7c3aed;
+  padding: 8px 14px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm, 8px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.activateBtn {
+  background: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.activateBtn:hover {
+  background: #6d28d9;
+}

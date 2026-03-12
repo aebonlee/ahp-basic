@@ -54,6 +54,11 @@ export const PLAN_LIMITS = {
   },
 };
 
+// ─── 다수 프로젝트 이용권 판별 ───
+export function isMultiPlan(planType) {
+  return planType === PLAN_TYPES.PLAN_MULTI_100 || planType === PLAN_TYPES.PLAN_MULTI_200;
+}
+
 // ─── 관리자 이메일 목록 ───
 export const SUPER_ADMIN_EMAILS = [
   'aebon@kakao.com',

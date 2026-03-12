@@ -1,43 +1,39 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
 import { useSubscription } from '../../hooks/useSubscription';
-import { PLAN_LIMITS, isMultiPlan } from '../../lib/subscriptionPlans';
+import { PLAN_LIMITS } from '../../lib/subscriptionPlans';
 import styles from './PlanAssignmentModal.module.css';
 
-export default function PlanAssignmentModal({ isOpen, onClose, projectId, projectName }) {
-  const navigate = useNavigate();
-  const { getUnassignedPlans, assignPlan } = useSubscription();
-  const [assigning, setAssigning] = useState(null);
+export default function MultiPlanActivationModal({ isOpen, onClose }) {
+  const { getUnassignedMultiPlans, activateMultiPlan } = useSubscription();
+  const [activating, setActivating] = useState(null);
 
-  const unassigned = getUnassignedPlans().filter(p => !isMultiPlan(p.plan_type));
+  const unassigned = getUnassignedMultiPlans();
 
-  const handleAssign = async (planId) => {
-    setAssigning(planId);
+  const handleActivate = async (planId) => {
+    setActivating(planId);
     try {
-      await assignPlan(planId, projectId);
+      await activateMultiPlan(planId);
       onClose();
     } catch (err) {
-      console.error('이용권 할당 실패:', err);
+      console.error('다수 이용권 활성화 실패:', err);
     } finally {
-      setAssigning(null);
+      setActivating(null);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="이용권 할당" width="480px">
+    <Modal isOpen={isOpen} onClose={onClose} title="다수 프로젝트 이용권 활성화" width="480px">
       <div className={styles.content}>
         <p className={styles.desc}>
-          <strong>{projectName || '프로젝트'}</strong>에 할당할 이용권을 선택하세요.
+          활성화하면 <strong>30일간 모든 프로젝트</strong>에 자동 적용됩니다.
+          프로젝트당 평가자 한도가 적용되며, SMS는 전체 프로젝트에서 공유됩니다.
         </p>
 
         {unassigned.length === 0 ? (
           <div className={styles.empty}>
-            <p>미할당 이용권이 없습니다.</p>
-            <Button variant="primary" onClick={() => { onClose(); navigate('/pricing'); }}>
-              이용권 구매하기
-            </Button>
+            <p>활성화할 다수 이용권이 없습니다.</p>
           </div>
         ) : (
           <div className={styles.planList}>
@@ -48,17 +44,17 @@ export default function PlanAssignmentModal({ isOpen, onClose, projectId, projec
                   <div className={styles.planInfo}>
                     <span className={styles.planLabel}>{info?.label || plan.plan_type}</span>
                     <span className={styles.planMeta}>
-                      평가자 {plan.max_evaluators}명 / SMS {plan.sms_quota}건
+                      프로젝트당 평가자 {plan.max_evaluators}명 / SMS {plan.sms_quota}건 (전체 공유)
                     </span>
                   </div>
                   <Button
                     size="sm"
                     variant="primary"
-                    onClick={() => handleAssign(plan.id)}
-                    loading={assigning === plan.id}
-                    disabled={!!assigning}
+                    onClick={() => handleActivate(plan.id)}
+                    loading={activating === plan.id}
+                    disabled={!!activating}
                   >
-                    할당
+                    활성화
                   </Button>
                 </div>
               );
