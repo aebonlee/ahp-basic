@@ -54,6 +54,7 @@ const CartPage = lazy(() => import('./pages/CartPage'));
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
 const OrderConfirmationPage = lazy(() => import('./pages/OrderConfirmationPage'));
 const OrderHistoryPage = lazy(() => import('./pages/OrderHistoryPage'));
+const SharedResultPage = lazy(() => import('./pages/SharedResultPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 export default function App() {
@@ -80,6 +81,7 @@ export default function App() {
               <Route path="/guide" element={<GuidePage />} />
               <Route path="/manual" element={<ManualPage />} />
               <Route path="/learn" element={<LearnPage />} />
+              <Route path="/shared/result/:token" element={<SharedResultPage />} />
               <Route path="/survey-stats" element={<SurveyStatsPage />} />
               <Route path="/management" element={<ManagementPage />} />
               <Route path="/pricing" element={<PricingPage />} />

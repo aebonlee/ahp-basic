@@ -30,6 +30,8 @@ export default function AdminResultPage() {
   const [allDirectInputs, setAllDirectInputs] = useState({});
   const [weights, setWeights] = useState({});
   const [loading, setLoading] = useState(true);
+  const [shareToken, setShareToken] = useState(null);
+  const [shareCopied, setShareCopied] = useState(false);
 
   const loadAllData = useCallback(async () => {
     if (!evaluators.length) return;
@@ -71,6 +73,47 @@ export default function AdminResultPage() {
   useEffect(() => {
     loadAllData();
   }, [loadAllData]);
+
+  // Load existing share token
+  useEffect(() => {
+    if (currentProject?.result_share_token) {
+      setShareToken(currentProject.result_share_token);
+    }
+  }, [currentProject]);
+
+  const handleShare = async () => {
+    if (shareToken) {
+      // Already has token — copy to clipboard
+      const url = `${window.location.origin}${window.location.pathname}#/shared/result/${shareToken}`;
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+      return;
+    }
+    // Generate new token
+    const newToken = crypto.randomUUID();
+    const { error } = await supabase
+      .from('projects')
+      .update({ result_share_token: newToken })
+      .eq('id', id);
+    if (!error) {
+      setShareToken(newToken);
+      const url = `${window.location.origin}${window.location.pathname}#/shared/result/${newToken}`;
+      await navigator.clipboard.writeText(url);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
+    }
+  };
+
+  const handleUnshare = async () => {
+    const { error } = await supabase
+      .from('projects')
+      .update({ result_share_token: null })
+      .eq('id', id);
+    if (!error) {
+      setShareToken(null);
+    }
+  };
 
   const isDirectInput = currentProject?.eval_method === EVAL_METHOD.DIRECT_INPUT;
 
@@ -179,9 +222,19 @@ export default function AdminResultPage() {
 
   return (
     <ProjectLayout projectName={currentProject?.name}>
-      <h1 className={common.pageTitle}>
-        집계 결과
-      </h1>
+      <div className={styles.titleRow}>
+        <h1 className={common.pageTitle}>집계 결과</h1>
+        <div className={styles.shareActions}>
+          <button className={styles.shareBtn} onClick={handleShare}>
+            {shareCopied ? '링크 복사됨!' : shareToken ? '공유 링크 복사' : '결과 공유 링크 생성'}
+          </button>
+          {shareToken && (
+            <button className={styles.unshareBtn} onClick={handleUnshare}>
+              공유 해제
+            </button>
+          )}
+        </div>
+      </div>
 
       <EvaluatorWeightEditor
         evaluators={evaluators}
