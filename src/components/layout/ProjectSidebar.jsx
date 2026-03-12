@@ -55,13 +55,28 @@ export default function ProjectSidebar({ projectName, collapsed }) {
 
   const [statsOpen, setStatsOpen] = useState(isOnStats);
   const [aiOpen, setAiOpen] = useState(isOnAi);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  // 현재 활성 단계 찾기 (모바일 토글 바 표시용)
+  const currentStep = hasProject
+    ? STEPS.find(s =>
+        s.key === 'statistics' ? isOnStats
+        : s.key === 'ai-analysis' ? isOnAi
+        : currentPath === basePath + s.path
+      )
+    : null;
+
+  const handleMobileNavigate = (path) => {
+    navigate(path);
+    setMobileNavOpen(false);
+  };
 
   return (
     <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
       {/* 프로젝트 목록 */}
       <button
         className={`${styles.dashboardItem} ${currentPath === '/admin' ? styles.active : ''}`}
-        onClick={() => navigate('/admin')}
+        onClick={() => { navigate('/admin'); setMobileNavOpen(false); }}
         title="프로젝트 목록"
       >
         <span className={styles.dashboardIcon}>☰</span>
@@ -75,8 +90,22 @@ export default function ProjectSidebar({ projectName, collapsed }) {
         </div>
       )}
 
+      {/* 모바일: 현재 단계 토글 바 */}
+      {hasProject && (
+        <button
+          className={styles.mobileToggle}
+          onClick={() => setMobileNavOpen(v => !v)}
+          aria-expanded={mobileNavOpen}
+        >
+          <span className={styles.mobileToggleStep}>
+            {currentStep ? `${currentStep.step}. ${currentStep.label}` : '단계 선택'}
+          </span>
+          <span className={`${styles.mobileToggleArrow} ${mobileNavOpen ? styles.mobileToggleArrowOpen : ''}`}>▾</span>
+        </button>
+      )}
+
       {/* 단계별 메뉴 */}
-      <nav className={styles.nav}>
+      <nav className={`${styles.nav} ${mobileNavOpen ? styles.navMobileOpen : ''}`}>
         {STEPS.map((s) => {
           const fullPath = basePath + s.path;
           const isActive = s.key === 'statistics'
@@ -95,7 +124,7 @@ export default function ProjectSidebar({ projectName, collapsed }) {
                     if (isOnStats) {
                       setStatsOpen(v => !v);
                     } else {
-                      navigate(fullPath);
+                      handleMobileNavigate(fullPath);
                       setStatsOpen(true);
                     }
                   }}
@@ -118,7 +147,7 @@ export default function ProjectSidebar({ projectName, collapsed }) {
                         <button
                           key={sub.key}
                           className={`${styles.subItem} ${subActive ? styles.subActive : ''}`}
-                          onClick={() => navigate(`${statsPath}?type=${sub.key}`)}
+                          onClick={() => handleMobileNavigate(`${statsPath}?type=${sub.key}`)}
                         >
                           <span className={styles.subNum}>{idx + 1}</span>
                           <span>{sub.label}</span>
@@ -141,7 +170,7 @@ export default function ProjectSidebar({ projectName, collapsed }) {
                     if (isOnAi) {
                       setAiOpen(v => !v);
                     } else {
-                      navigate(fullPath);
+                      handleMobileNavigate(fullPath);
                       setAiOpen(true);
                     }
                   }}
@@ -164,7 +193,7 @@ export default function ProjectSidebar({ projectName, collapsed }) {
                         <button
                           key={sub.key}
                           className={`${styles.subItem} ${subActive ? styles.subActive : ''}`}
-                          onClick={() => navigate(`${aiPath}?type=${sub.key}`)}
+                          onClick={() => handleMobileNavigate(`${aiPath}?type=${sub.key}`)}
                         >
                           <span className={styles.subNum}>{idx + 1}</span>
                           <span>{sub.label}</span>
@@ -181,7 +210,7 @@ export default function ProjectSidebar({ projectName, collapsed }) {
             <button
               key={s.key}
               className={`${styles.menuItem} ${isActive ? styles.active : ''} ${!hasProject ? styles.disabled : ''}`}
-              onClick={() => hasProject && navigate(fullPath)}
+              onClick={() => hasProject && handleMobileNavigate(fullPath)}
               disabled={!hasProject}
               title={collapsed ? s.label : undefined}
             >
