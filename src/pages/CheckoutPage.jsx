@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../hooks/useAuth';
+import { useSubscription } from '../hooks/useSubscription';
 import { useToast } from '../contexts/ToastContext';
+import { supabase } from '../lib/supabaseClient';
 import { createOrder, verifyPayment, updateOrderStatus } from '../utils/orderService';
 import { requestPayment, generateOrderNumber } from '../utils/portone';
 import PublicLayout from '../components/layout/PublicLayout';
@@ -13,6 +15,7 @@ const formatPrice = (price) => `₩${price.toLocaleString()}`;
 export default function CheckoutPage() {
   const { cartItems, cartTotal, cartCount, clearCart } = useCart();
   const { user, profile } = useAuth();
+  const { refreshSubscription } = useSubscription();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -128,7 +131,17 @@ export default function CheckoutPage() {
         }
       }
 
-      // 4. 결제 성공 → 장바구니 비우고 확인 페이지로 이동
+      // 4. 결제 성공 → 구독 활성화
+      const planItem = cartItems.find(i => i.id === 'basic' || i.id === 'pro');
+      if (planItem && user?.id) {
+        await supabase.rpc('activate_subscription', {
+          p_user_id: user.id,
+          p_plan_type: planItem.id,
+        }).then(null, () => {});
+        await refreshSubscription();
+      }
+
+      // 5. 장바구니 비우고 확인 페이지로 이동
       paymentDone.current = true;
       const confirmState = {
         orderNumber,

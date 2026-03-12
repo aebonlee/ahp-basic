@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import { ProjectProvider } from './contexts/ProjectContext';
 import { EvaluationProvider } from './contexts/EvaluationContext';
 import { ToastProvider } from './contexts/ToastContext';
@@ -59,6 +60,7 @@ export default function App() {
     <HashRouter>
       <ErrorBoundary>
       <AuthProvider>
+        <SubscriptionProvider>
         <ProjectProvider>
           <EvaluationProvider>
             <ToastProvider>
@@ -119,6 +121,7 @@ export default function App() {
             </ToastProvider>
           </EvaluationProvider>
         </ProjectProvider>
+        </SubscriptionProvider>
       </AuthProvider>
       </ErrorBoundary>
     </HashRouter>

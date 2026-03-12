@@ -8,6 +8,7 @@ import { useAlternatives } from '../hooks/useAlternatives';
 import { useProjects } from '../contexts/ProjectContext';
 import { useToast } from '../contexts/ToastContext';
 import { useConfirm } from '../hooks/useConfirm';
+import { useSubscription } from '../hooks/useSubscription';
 import { PROJECT_STATUS, EVAL_METHOD } from '../lib/constants';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import ProjectLayout from '../components/layout/ProjectLayout';
@@ -15,6 +16,7 @@ import ParticipantForm from '../components/admin/ParticipantForm';
 import Button from '../components/common/Button';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import UpgradeModal from '../components/common/UpgradeModal';
 import { formatPhone } from '../lib/evaluatorUtils';
 import SmsModal from '../components/admin/SmsModal';
 import common from '../styles/common.module.css';
@@ -34,6 +36,8 @@ export default function EvaluatorManagementPage() {
   const [starting, setStarting] = useState(false);
   const [comparisonCounts, setComparisonCounts] = useState({});
   const [smsModalOpen, setSmsModalOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const { canAddEvaluator, maxEvaluators } = useSubscription();
 
   const isDirectInput = currentProject?.eval_method === EVAL_METHOD.DIRECT_INPUT;
 
@@ -112,12 +116,20 @@ export default function EvaluatorManagementPage() {
 
       <div className={common.cardSpaced}>
         <div className={styles.listHeader}>
-          <h2 className={common.cardTitle}>평가자 목록 ({evaluators.length}명)</h2>
+          <h2 className={common.cardTitle}>
+            평가자 목록 ({evaluators.length}{maxEvaluators === Infinity ? '' : `/${maxEvaluators}`}명)
+          </h2>
           <div className={styles.listHeaderActions}>
             {evaluators.length > 0 && (
               <Button size="sm" variant="secondary" onClick={() => setSmsModalOpen(true)}>SMS 발송</Button>
             )}
-            <Button size="sm" onClick={() => setShowForm(true)}>+ 평가자 추가</Button>
+            <Button size="sm" onClick={() => {
+              if (!canAddEvaluator(evaluators.length)) {
+                setUpgradeOpen(true);
+                return;
+              }
+              setShowForm(true);
+            }}>+ 평가자 추가</Button>
           </div>
         </div>
 
@@ -199,6 +211,12 @@ export default function EvaluatorManagementPage() {
         evaluators={evaluators}
         projectId={id}
         projectName={currentProject?.name}
+      />
+
+      <UpgradeModal
+        isOpen={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        feature="evaluator_limit"
       />
     </ProjectLayout>
   );

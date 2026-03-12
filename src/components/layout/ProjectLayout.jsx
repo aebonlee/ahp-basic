@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ProjectSidebar from './ProjectSidebar';
+import PlanExpiryBanner from '../common/PlanExpiryBanner';
 import PlatformGuide from '../admin/PlatformGuide';
 import ResearcherGuide from '../admin/ResearcherGuide';
 import EvaluatorGuideSidebar from '../admin/EvaluatorGuideSidebar';
@@ -45,6 +46,7 @@ export default function ProjectLayout({ children, projectName }) {
 
         {/* ─── Main ─── */}
         <main id="main-content" className={styles.content}>
+          <PlanExpiryBanner />
           {children}
         </main>
 

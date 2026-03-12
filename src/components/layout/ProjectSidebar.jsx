@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useSubscription } from '../../hooks/useSubscription';
+import { FEATURES, SIDEBAR_FEATURE_MAP, BASIC_STAT_TYPES } from '../../lib/subscriptionPlans';
+import UpgradeModal from '../common/UpgradeModal';
 import styles from './ProjectSidebar.module.css';
 
 const STEPS = [
@@ -42,6 +45,8 @@ export default function ProjectSidebar({ projectName, collapsed }) {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { canAccess } = useSubscription();
+
   const currentPath = location.pathname;
   const search = location.search;
   const hasProject = !!id;
@@ -53,6 +58,24 @@ export default function ProjectSidebar({ projectName, collapsed }) {
 
   const [statsOpen, setStatsOpen] = useState(isOnStats);
   const [aiOpen, setAiOpen] = useState(isOnAi);
+  const [upgradeModal, setUpgradeModal] = useState({ open: false, feature: null });
+
+  // 메뉴 잠금 여부
+  const isMenuLocked = (stepKey) => {
+    const feature = SIDEBAR_FEATURE_MAP[stepKey];
+    if (!feature) return false;
+    return !canAccess(feature);
+  };
+
+  // 통계 서브메뉴 잠금 여부
+  const isStatLocked = (statKey) => {
+    if (BASIC_STAT_TYPES.includes(statKey)) return false; // Free도 접근 가능
+    return !canAccess(FEATURES.FULL_STATISTICS);
+  };
+
+  const handleLockedClick = (feature) => {
+    setUpgradeModal({ open: true, feature });
+  };
 
   return (
     <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
@@ -77,6 +100,7 @@ export default function ProjectSidebar({ projectName, collapsed }) {
       <nav className={styles.nav}>
         {STEPS.map((s) => {
           const fullPath = basePath + s.path;
+          const locked = isMenuLocked(s.key);
           const isActive = s.key === 'statistics'
             ? isOnStats
             : s.key === 'ai-analysis'
@@ -112,13 +136,24 @@ export default function ProjectSidebar({ projectName, collapsed }) {
                   <div className={styles.subMenu}>
                     {STAT_SUBS.map((sub, idx) => {
                       const subActive = search === `?type=${sub.key}`;
+                      const subLocked = isStatLocked(sub.key);
                       return (
                         <button
                           key={sub.key}
-                          className={`${styles.subItem} ${subActive ? styles.subActive : ''}`}
-                          onClick={() => navigate(`${statsPath}?type=${sub.key}`)}
+                          className={`${styles.subItem} ${subActive ? styles.subActive : ''} ${subLocked ? styles.lockedSub : ''}`}
+                          onClick={() => {
+                            if (subLocked) {
+                              handleLockedClick(FEATURES.FULL_STATISTICS);
+                            } else {
+                              navigate(`${statsPath}?type=${sub.key}`);
+                            }
+                          }}
                         >
-                          <span className={styles.subNum}>{idx + 1}</span>
+                          {subLocked ? (
+                            <span className={styles.lockIcon}>&#x1F512;</span>
+                          ) : (
+                            <span className={styles.subNum}>{idx + 1}</span>
+                          )}
                           <span>{sub.label}</span>
                         </button>
                       );
@@ -133,9 +168,13 @@ export default function ProjectSidebar({ projectName, collapsed }) {
             return (
               <div key={s.key}>
                 <button
-                  className={`${styles.menuItem} ${isActive ? styles.active : ''} ${!hasProject ? styles.disabled : ''}`}
+                  className={`${styles.menuItem} ${isActive ? styles.active : ''} ${!hasProject ? styles.disabled : ''} ${locked ? styles.locked : ''}`}
                   onClick={() => {
                     if (!hasProject) return;
+                    if (locked) {
+                      handleLockedClick(SIDEBAR_FEATURE_MAP[s.key]);
+                      return;
+                    }
                     if (isOnAi) {
                       setAiOpen(v => !v);
                     } else {
@@ -146,15 +185,21 @@ export default function ProjectSidebar({ projectName, collapsed }) {
                   disabled={!hasProject}
                   title={collapsed ? s.label : undefined}
                 >
-                  <span className={styles.stepNum}>{s.step}</span>
+                  {locked ? (
+                    <span className={styles.lockIcon}>&#x1F512;</span>
+                  ) : (
+                    <span className={styles.stepNum}>{s.step}</span>
+                  )}
                   {!collapsed && (
                     <>
                       <span className={styles.menuLabel}>{s.label}</span>
-                      <span className={`${styles.arrow} ${aiOpen && isOnAi ? styles.arrowOpen : ''}`}>&#9656;</span>
+                      {!locked && (
+                        <span className={`${styles.arrow} ${aiOpen && isOnAi ? styles.arrowOpen : ''}`}>&#9656;</span>
+                      )}
                     </>
                   )}
                 </button>
-                {!collapsed && aiOpen && isOnAi && (
+                {!locked && !collapsed && aiOpen && isOnAi && (
                   <div className={styles.subMenu}>
                     {AI_SUBS.map((sub, idx) => {
                       const subActive = search === `?type=${sub.key}`;
@@ -175,6 +220,25 @@ export default function ProjectSidebar({ projectName, collapsed }) {
             );
           }
 
+          // 잠금 가능한 일반 메뉴 (sensitivity 등)
+          if (locked) {
+            return (
+              <button
+                key={s.key}
+                className={`${styles.menuItem} ${!hasProject ? styles.disabled : ''} ${styles.locked}`}
+                onClick={() => {
+                  if (!hasProject) return;
+                  handleLockedClick(SIDEBAR_FEATURE_MAP[s.key]);
+                }}
+                disabled={!hasProject}
+                title={collapsed ? s.label : undefined}
+              >
+                <span className={styles.lockIcon}>&#x1F512;</span>
+                {!collapsed && <span className={styles.menuLabel}>{s.label}</span>}
+              </button>
+            );
+          }
+
           return (
             <button
               key={s.key}
@@ -189,6 +253,12 @@ export default function ProjectSidebar({ projectName, collapsed }) {
           );
         })}
       </nav>
+
+      <UpgradeModal
+        isOpen={upgradeModal.open}
+        onClose={() => setUpgradeModal({ open: false, feature: null })}
+        feature={upgradeModal.feature}
+      />
     </aside>
   );
 }

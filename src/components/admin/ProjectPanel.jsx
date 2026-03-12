@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useProjects } from '../../contexts/ProjectContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useConfirm } from '../../hooks/useConfirm';
+import { useSubscription } from '../../hooks/useSubscription';
 import ProjectForm from './ProjectForm';
 import ProjectCard from './ProjectCard';
 import Button from '../common/Button';
 import ConfirmDialog from '../common/ConfirmDialog';
 import LoadingSpinner from '../common/LoadingSpinner';
 import HelpButton from '../common/HelpButton';
+import UpgradeModal from '../common/UpgradeModal';
 import styles from './ProjectPanel.module.css';
 
 export default function ProjectPanel({ projects, loading, selectedProjectId, onSelect }) {
@@ -16,9 +18,11 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
   const { deleteProject, cloneProject } = useProjects();
   const toast = useToast();
   const { confirm, confirmDialogProps } = useConfirm();
+  const { canCreateProject, maxProjects, isSuperAdmin } = useSubscription();
   const [showForm, setShowForm] = useState(false);
   const [editProject, setEditProject] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const filteredProjects = filter === 'all'
     ? projects
@@ -53,12 +57,23 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
     }
   };
 
+  const handleNewProject = () => {
+    if (!canCreateProject(projects.length)) {
+      setUpgradeOpen(true);
+      return;
+    }
+    setEditProject(null);
+    setShowForm(true);
+  };
+
+  const limitDisplay = maxProjects === Infinity ? '' : ` (${projects.length}/${maxProjects})`;
+
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <h2 className={styles.title}>프로젝트</h2>
+        <h2 className={styles.title}>프로젝트{limitDisplay}</h2>
         <span className={styles.headerActions}>
-          <Button size="sm" onClick={() => { setEditProject(null); setShowForm(true); }}>
+          <Button size="sm" onClick={handleNewProject}>
             + 시작하기
           </Button>
           <HelpButton helpKey="projectStart" />
@@ -112,6 +127,11 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
       </div>
 
       <ConfirmDialog {...confirmDialogProps} />
+      <UpgradeModal
+        isOpen={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        feature="project_limit"
+      />
     </div>
   );
 }

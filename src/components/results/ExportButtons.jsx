@@ -1,12 +1,30 @@
+import { useState } from 'react';
 import Button from '../common/Button';
+import UpgradeModal from '../common/UpgradeModal';
+import { useSubscription } from '../../hooks/useSubscription';
+import { FEATURES } from '../../lib/subscriptionPlans';
 import { exportToExcel } from '../../lib/exportUtils';
 
 export default function ExportButtons({ criteria, alternatives, results, projectName }) {
+  const { canAccess } = useSubscription();
+  const [upgradeModal, setUpgradeModal] = useState({ open: false, feature: null });
+
+  const excelLocked = !canAccess(FEATURES.EXPORT_EXCEL);
+  const pdfLocked = !canAccess(FEATURES.EXPORT_PDF);
+
   const handleExcel = async () => {
+    if (excelLocked) {
+      setUpgradeModal({ open: true, feature: FEATURES.EXPORT_EXCEL });
+      return;
+    }
     await exportToExcel(criteria, alternatives, results, projectName);
   };
 
   const handlePdf = () => {
+    if (pdfLocked) {
+      setUpgradeModal({ open: true, feature: FEATURES.EXPORT_PDF });
+      return;
+    }
     const style = document.createElement('style');
     style.id = 'pdf-print-style';
     style.textContent = `
@@ -50,11 +68,16 @@ export default function ExportButtons({ criteria, alternatives, results, project
   return (
     <div style={{ display: 'flex', gap: 8 }}>
       <Button size="sm" variant="secondary" onClick={handleExcel}>
-        Excel 저장
+        {excelLocked ? '\u{1F512} ' : ''}Excel 저장
       </Button>
       <Button size="sm" variant="secondary" onClick={handlePdf}>
-        PDF 저장
+        {pdfLocked ? '\u{1F512} ' : ''}PDF 저장
       </Button>
+      <UpgradeModal
+        isOpen={upgradeModal.open}
+        onClose={() => setUpgradeModal({ open: false, feature: null })}
+        feature={upgradeModal.feature}
+      />
     </div>
   );
 }

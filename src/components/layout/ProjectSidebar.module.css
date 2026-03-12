@@ -232,6 +232,33 @@
   color: #fff;
 }
 
+/* 잠금 메뉴 */
+.locked {
+  opacity: 0.5;
+}
+
+.locked:hover:not(:disabled) {
+  opacity: 0.65;
+}
+
+.lockIcon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+}
+
+.lockedSub {
+  opacity: 0.5;
+}
+
+.lockedSub:hover {
+  opacity: 0.65;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .sidebar {
