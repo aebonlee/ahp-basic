@@ -18,6 +18,7 @@ const STEPS = [
   { key: 'resource',      path: '/resource',      label: '자원 배분',     step: 10 },
   { key: 'statistics',   path: '/statistics',   label: '통계 분석',     step: 11 },
   { key: 'ai-analysis', path: '/ai-analysis', label: 'AI분석도구활용', step: 12 },
+  { key: 'sms-history', path: '/sms-history', label: '문자 이력', step: 13 },
 ];
 
 const STAT_SUBS = [

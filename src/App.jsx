@@ -47,6 +47,7 @@ const LearnPage = lazy(() => import('./pages/LearnPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const StatisticalAnalysisPage = lazy(() => import('./pages/StatisticalAnalysisPage'));
 const AiAnalysisPage = lazy(() => import('./pages/AiAnalysisPage'));
+const SmsHistoryPage = lazy(() => import('./pages/SmsHistoryPage'));
 const SurveyStatsPage = lazy(() => import('./pages/SurveyStatsPage'));
 const ManagementPage = lazy(() => import('./pages/ManagementPage'));
 const CartPage = lazy(() => import('./pages/CartPage'));
@@ -104,6 +105,7 @@ export default function App() {
               <Route path="/admin/project/:id/workshop" element={<AdminGuard><WorkshopPage /></AdminGuard>} />
               <Route path="/admin/project/:id/statistics" element={<AdminGuard><StatisticalAnalysisPage /></AdminGuard>} />
               <Route path="/admin/project/:id/ai-analysis" element={<AdminGuard><AiAnalysisPage /></AdminGuard>} />
+              <Route path="/admin/project/:id/sms-history" element={<AdminGuard><SmsHistoryPage /></AdminGuard>} />
 
               {/* Evaluator */}
               <Route path="/eval" element={<ProtectedRoute><EvaluatorMainPage /></ProtectedRoute>} />

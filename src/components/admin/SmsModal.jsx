@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useRef } from 'react';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
+import { useAuth } from '../../hooks/useAuth';
 import { formatPhone } from '../../lib/evaluatorUtils';
 import { getByteInfo } from '../../lib/smsUtils';
 import { sendSmsBulk } from '../../lib/smsService';
@@ -56,6 +57,7 @@ const FILTERS = [
 ];
 
 export default function SmsModal({ isOpen, onClose, evaluators, projectId, respondedIds, projectName }) {
+  const { user } = useAuth();
   const [message, setMessage] = useState('');
   const [selected, setSelected] = useState(new Set());
   const [sending, setSending] = useState(false);
@@ -194,7 +196,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
     try {
       const res = await sendSmsBulk(recipients, message, (current, total) => {
         setProgress({ current, total });
-      });
+      }, { projectId, userId: user?.id });
       setResults(res);
     } catch (err) {
       setResults(recipients.map((r) => ({ ...r, success: false, error: err.message })));
