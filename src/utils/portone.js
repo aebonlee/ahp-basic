@@ -1,81 +1,80 @@
-const STORE_ID = import.meta.env.VITE_PORTONE_STORE_ID || '';
-const CHANNEL_KEY = import.meta.env.VITE_PORTONE_CHANNEL_KEY || '';
+/**
+ * PortOne V1 (iamport) Payment Utility
+ * KG이니시스 경유 카드결제/계좌이체
+ */
 
-// PortOne V2 SDK 동적 로드
-let PortOne = null;
+const IMP_CODE = import.meta.env.VITE_IMP_CODE;
+const PG_PROVIDER = import.meta.env.VITE_PG_PROVIDER;
 
-async function loadPortOne() {
-  if (PortOne) return PortOne;
-  try {
-    const module = await import('@portone/browser-sdk/v2');
-    PortOne = module.default || module;
-    return PortOne;
-  } catch {
+let initialized = false;
+
+function getIMP() {
+  if (!window.IMP) {
+    console.error('iamport SDK not loaded');
     return null;
   }
+  if (!initialized && IMP_CODE) {
+    window.IMP.init(IMP_CODE);
+    initialized = true;
+  }
+  return window.IMP;
 }
 
 /**
- * 결제 요청
+ * Request payment via PortOne V1 SDK
  * @param {Object} params
- * @param {string} params.orderId - 주문 ID
- * @param {string} params.orderName - 주문명
- * @param {number} params.totalAmount - 총 금액
- * @param {string} params.payMethod - 'CARD' | 'TRANSFER'
+ * @param {string} params.orderId - Merchant UID (order number)
+ * @param {string} params.orderName - Display name for the order
+ * @param {number} params.totalAmount - Total amount in KRW
+ * @param {string} params.payMethod - 'CARD' or 'TRANSFER'
  * @param {Object} params.customer - { fullName, email, phoneNumber }
- * @returns {Object} 결제 결과
+ * @returns {Promise<Object>} Payment result
  */
-export async function requestPayment({
-  orderId,
-  orderName,
-  totalAmount,
-  payMethod = 'CARD',
-  customer = {},
-}) {
-  // 데모 모드: 키가 없으면 가짜 성공 반환
-  if (!STORE_ID || !CHANNEL_KEY) {
-    console.warn('[PortOne] 데모 모드: STORE_ID/CHANNEL_KEY 미설정');
-    return {
-      paymentId: `demo-${orderId}-${Date.now()}`,
-      status: 'PAID',
-      demo: true,
-    };
-  }
+export const requestPayment = ({ orderId, orderName, totalAmount, payMethod, customer }) => {
+  return new Promise((resolve) => {
+    const IMP = getIMP();
 
-  const sdk = await loadPortOne();
-  if (!sdk) {
-    throw new Error('PortOne SDK 로드에 실패했습니다.');
-  }
+    if (!IMP || !IMP_CODE) {
+      console.warn('PortOne credentials not configured. Running in demo mode.');
+      resolve({
+        paymentId: `demo-pay-${Date.now()}`,
+        txId: `demo-tx-${Date.now()}`,
+      });
+      return;
+    }
 
-  const paymentId = `payment-${orderId}-${Date.now()}`;
+    const payMethodMap = { CARD: 'card', TRANSFER: 'trans' };
 
-  const response = await sdk.requestPayment({
-    storeId: STORE_ID,
-    channelKey: CHANNEL_KEY,
-    paymentId,
-    orderName,
-    totalAmount,
-    currency: 'CURRENCY_KRW',
-    payMethod,
-    customer: {
-      fullName: customer.fullName || '',
-      email: customer.email || '',
-      phoneNumber: customer.phoneNumber || '',
-    },
+    IMP.request_pay(
+      {
+        pg: PG_PROVIDER,
+        pay_method: payMethodMap[payMethod] || 'card',
+        merchant_uid: `order_${orderId}_${Date.now()}`,
+        name: orderName,
+        amount: totalAmount,
+        buyer_email: customer.email,
+        buyer_name: customer.fullName,
+        buyer_tel: customer.phoneNumber,
+      },
+      (response) => {
+        if (response.success) {
+          resolve({
+            paymentId: response.imp_uid,
+            txId: response.merchant_uid,
+          });
+        } else {
+          resolve({
+            code: response.error_code || 'PAYMENT_FAILED',
+            message: response.error_msg || '결제가 취소되었습니다.',
+          });
+        }
+      }
+    );
   });
-
-  if (response.code) {
-    throw new Error(response.message || '결제에 실패했습니다.');
-  }
-
-  return {
-    paymentId: response.paymentId,
-    status: 'PAID',
-  };
-}
+};
 
 /**
- * 주문번호 생성 (DIT-YYMMDD-RANDOM6)
+ * 주문번호 생성 (AHP-YYMMDD-RANDOM6)
  */
 export function generateOrderNumber() {
   const now = new Date();

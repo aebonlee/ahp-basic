@@ -1,23 +1,9 @@
 import { supabase } from '../lib/supabaseClient';
 
-/** In-memory fallback store (Supabase 미설정 시 dev/demo용) */
-let _memoryOrders = [];
-
 /**
  * 주문 생성 (order + order_items)
  */
 export async function createOrder(orderData) {
-  if (!supabase) {
-    const order = {
-      id: crypto.randomUUID(),
-      ...orderData,
-      payment_status: 'pending',
-      created_at: new Date().toISOString(),
-    };
-    _memoryOrders.push(order);
-    return order;
-  }
-
   const orderPayload = {
     order_number: orderData.order_number,
     user_email: orderData.user_email,
@@ -58,10 +44,6 @@ export async function createOrder(orderData) {
  * 주문번호로 주문 조회
  */
 export async function getOrderByNumber(orderNumber) {
-  if (!supabase) {
-    return _memoryOrders.find(o => o.order_number === orderNumber) || null;
-  }
-
   const { data: orders, error } = await supabase
     .from('orders')
     .select('*')
@@ -84,20 +66,6 @@ export async function getOrderByNumber(orderNumber) {
  * 주문 상태 업데이트
  */
 export async function updateOrderStatus(orderId, status, paymentId, cancelReason) {
-  if (!supabase) {
-    const idx = _memoryOrders.findIndex(o => o.id === orderId || o.order_number === orderId);
-    if (idx >= 0) {
-      _memoryOrders[idx].payment_status = status;
-      if (paymentId) _memoryOrders[idx].portone_payment_id = paymentId;
-      if (status === 'paid') _memoryOrders[idx].paid_at = new Date().toISOString();
-      if (status === 'cancelled') {
-        _memoryOrders[idx].cancelled_at = new Date().toISOString();
-        if (cancelReason) _memoryOrders[idx].cancel_reason = cancelReason;
-      }
-    }
-    return _memoryOrders[idx];
-  }
-
   const updatePayload = { payment_status: status };
   if (status === 'paid') updatePayload.paid_at = new Date().toISOString();
   if (status === 'cancelled') {
@@ -127,18 +95,17 @@ export async function updateOrderStatus(orderId, status, paymentId, cancelReason
     result = data;
   }
 
-  return result?.[0] || null;
+  if (!result || result.length === 0) {
+    throw new Error(`UPDATE_NO_ROWS: 주문 ID ${orderId}에 해당하는 주문을 찾을 수 없습니다.`);
+  }
+
+  return result[0];
 }
 
 /**
  * 결제 검증 (Edge Function)
  */
 export async function verifyPayment(paymentId, orderId) {
-  if (!supabase) {
-    await updateOrderStatus(orderId, 'paid', paymentId);
-    return { verified: true };
-  }
-
   const { data, error } = await supabase.functions.invoke('verify-payment', {
     body: { paymentId, orderId },
   });
@@ -151,8 +118,6 @@ export async function verifyPayment(paymentId, orderId) {
  * 사용자별 주문 이력 조회
  */
 export async function getOrdersByUser(userId) {
-  if (!supabase) return [];
-
   const { data, error } = await supabase
     .from('orders')
     .select('*, order_items(*)')

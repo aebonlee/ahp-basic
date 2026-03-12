@@ -30,6 +30,7 @@ export default function CheckoutPage() {
     if (profile || user) {
       const email = user?.email
         || user?.user_metadata?.email
+        || user?.identities?.[0]?.identity_data?.email
         || profile?.email
         || '';
       setForm(prev => ({

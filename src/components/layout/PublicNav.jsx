@@ -48,6 +48,14 @@ export default function PublicNav() {
           </nav>
 
           <div className={styles.navActions}>
+            <Link to="/cart" className={styles.cartIconLink} aria-label="장바구니">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+              {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
+            </Link>
             {isLoggedIn ? (
               <button className={styles.navBtn} onClick={() => navigate('/admin')}>대시보드</button>
             ) : (
@@ -85,6 +93,19 @@ export default function PublicNav() {
             {label}
           </Link>
         ))}
+        <Link
+          to="/cart"
+          className={styles.mobileCartLink}
+          onClick={() => setMobileOpen(false)}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+          </svg>
+          <span>장바구니</span>
+          {cartCount > 0 && <span className={styles.mobileCartBadge}>{cartCount}</span>}
+        </Link>
         <div className={styles.mobileDivider} />
         {isLoggedIn ? (
           <button className={styles.mobileBtnPrimary} onClick={() => { navigate('/admin'); setMobileOpen(false); }}>대시보드</button>

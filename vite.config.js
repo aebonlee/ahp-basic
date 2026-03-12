@@ -6,7 +6,6 @@ export default defineConfig({
   base: '/',
   build: {
     rollupOptions: {
-      external: ['@portone/browser-sdk/v2'],
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
