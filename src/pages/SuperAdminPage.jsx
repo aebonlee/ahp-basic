@@ -4,7 +4,7 @@ import Footer from '../components/layout/Footer';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 import { useToast } from '../contexts/ToastContext';
-import { useSuperAdminUsers, useSuperAdminProjects } from '../hooks/useSuperAdmin';
+import { useSuperAdminUsers, useSuperAdminProjects, useSuperAdminSmsStats } from '../hooks/useSuperAdmin';
 import { PROJECT_STATUS_LABELS, PROJECT_STATUS_COLORS } from '../lib/constants';
 import styles from './SuperAdminPage.module.css';
 
@@ -177,6 +177,59 @@ function ProjectsTab({ toast, confirm }) {
   );
 }
 
+function SmsTab() {
+  const { stats, loading } = useSuperAdminSmsStats();
+
+  if (loading) return <div className={styles.loading}>SMS 통계 로딩 중...</div>;
+  if (!stats.length) return <div className={styles.empty}>SMS 발송 이력이 없습니다.</div>;
+
+  const totalCount = stats.reduce((s, r) => s + r.total_count, 0);
+  const totalSuccess = stats.reduce((s, r) => s + r.success_count, 0);
+  const totalFail = stats.reduce((s, r) => s + r.fail_count, 0);
+
+  return (
+    <>
+      <div className={styles.stats}>
+        <div className={styles.stat}>
+          <strong>{totalCount}</strong>총 발송
+        </div>
+        <div className={styles.stat}>
+          <strong className={styles.successText}>{totalSuccess}</strong>성공
+        </div>
+        <div className={styles.stat}>
+          <strong className={styles.failText}>{totalFail}</strong>실패
+        </div>
+      </div>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>이메일</th>
+              <th>이름</th>
+              <th>발송 건수</th>
+              <th>성공</th>
+              <th>실패</th>
+              <th>마지막 발송일</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.map(r => (
+              <tr key={r.sender_id}>
+                <td>{r.sender_email}</td>
+                <td>{r.sender_name || '-'}</td>
+                <td>{r.total_count}</td>
+                <td><span className={styles.successText}>{r.success_count}</span></td>
+                <td><span className={styles.failText}>{r.fail_count}</span></td>
+                <td>{formatDate(r.last_sent_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
 export default function SuperAdminPage() {
   const [activeTab, setActiveTab] = useState('users');
   const toast = useToast();
@@ -201,10 +254,17 @@ export default function SuperAdminPage() {
           >
             프로젝트 관리
           </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'sms' ? styles.tabActive : ''}`}
+            onClick={() => setActiveTab('sms')}
+          >
+            SMS 관리
+          </button>
         </div>
 
         {activeTab === 'users' && <UsersTab toast={toast} />}
         {activeTab === 'projects' && <ProjectsTab toast={toast} confirm={confirm} />}
+        {activeTab === 'sms' && <SmsTab />}
       </div>
       <Footer />
       <ConfirmDialog {...confirmDialogProps} />

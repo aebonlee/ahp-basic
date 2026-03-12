@@ -61,3 +61,25 @@ export function useSuperAdminProjects() {
 
   return { projects, loading, deleteProject, refresh: fetchProjects };
 }
+
+export function useSuperAdminSmsStats() {
+  const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase.rpc('sa_sms_stats');
+    if (error) {
+      setStats([]);
+    } else {
+      setStats(data || []);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  return { stats, loading, refresh: fetchStats };
+}

@@ -218,6 +218,15 @@
   margin-right: 4px;
 }
 
+/* ─── SMS success / fail colors ─── */
+.successText {
+  color: var(--color-success, #16a34a);
+}
+
+.failText {
+  color: var(--color-danger, #dc2626);
+}
+
 @media (max-width: 768px) {
   .page {
     padding: var(--spacing-md);
