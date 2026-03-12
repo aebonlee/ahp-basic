@@ -1,7 +1,13 @@
 .evalList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+}
+
+@media (max-width: 768px) {
+  .evalList {
+    grid-template-columns: 1fr;
+  }
 }
 
 .evalRow {
