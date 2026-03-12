@@ -1,7 +1,7 @@
 .container {
-  max-width: 960px;
+  max-width: 1024px;
   margin: 0 auto;
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: 32px 40px;
 }
 
 .banner {
@@ -55,4 +55,31 @@
 
 .homeLink:hover {
   text-decoration: underline;
+}
+
+/* Tablet (768px ~ 1024px) */
+@media (max-width: 1024px) {
+  .container {
+    padding: 24px 24px;
+  }
+}
+
+/* Mobile (~ 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px 14px;
+  }
+
+  .projectName {
+    font-size: 1.15rem;
+  }
+
+  .banner {
+    font-size: 0.82rem;
+    padding: 10px 12px;
+  }
+
+  .errorTitle {
+    font-size: 1.05rem;
+  }
 }
