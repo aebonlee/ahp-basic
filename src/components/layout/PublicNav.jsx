@@ -27,6 +27,7 @@ export default function PublicNav() {
 
   return (
     <>
+      <a href="#main-content" className={styles.skipLink}>본문으로 건너뛰기</a>
       <header className={styles.nav}>
         <div className={styles.navInner}>
           <Link to="/" className={styles.logo}>

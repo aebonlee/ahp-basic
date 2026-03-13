@@ -7,6 +7,7 @@ export default function AlternativeForm({ mode, alternative, parentName, onSubmi
   const [name, setName] = useState(alternative?.name || '');
   const [description, setDescription] = useState(alternative?.description || '');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const titles = {
     add: '대안 추가',
@@ -17,9 +18,12 @@ export default function AlternativeForm({ mode, alternative, parentName, onSubmi
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
+    setError('');
     setLoading(true);
     try {
       await onSubmit({ name, description });
+    } catch (err) {
+      setError(err.message || '대안 저장에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -28,9 +32,18 @@ export default function AlternativeForm({ mode, alternative, parentName, onSubmi
   return (
     <Modal isOpen onClose={onClose} title={titles[mode]}>
       <form onSubmit={handleSubmit} className={styles.form}>
+        {error && <div className={styles.error} role="alert" id="alternative-error">{error}</div>}
         <label className={styles.field}>
           <span>대안명</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 현대 소나타, 기아 K5" autoFocus />
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="예: 현대 소나타, 기아 K5"
+            autoFocus
+            aria-required="true"
+            aria-invalid={!!error}
+            aria-describedby={error ? 'alternative-error' : undefined}
+          />
         </label>
         <label className={styles.field}>
           <span>설명</span>

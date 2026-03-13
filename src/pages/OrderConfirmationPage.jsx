@@ -47,7 +47,7 @@ export default function OrderConfirmationPage() {
           return;
         }
       } catch (err) {
-        console.warn('주문 조회 실패:', err);
+        if (import.meta.env.DEV) console.warn('주문 조회 실패:', err);
       }
 
       // Fallback: Checkout에서 넘어온 state 사용

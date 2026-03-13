@@ -129,7 +129,7 @@ export default function CheckoutPage() {
         try {
           await updateOrderStatus(orderId, 'paid', paymentResult.paymentId);
         } catch (updateErr) {
-          console.warn('주문 상태 업데이트 실패 (결제는 성공):', updateErr);
+          if (import.meta.env.DEV) console.warn('주문 상태 업데이트 실패 (결제는 성공):', updateErr);
         }
       }
 
@@ -169,7 +169,7 @@ export default function CheckoutPage() {
       clearCart();
       navigate(`/order-confirmation?orderNumber=${orderNumber}`, { state: confirmState });
     } catch (err) {
-      console.error('Checkout error:', err);
+      if (import.meta.env.DEV) console.error('Checkout error:', err);
       setError('오류가 발생했습니다. 다시 시도해주세요.');
       setProcessing(false);
     }

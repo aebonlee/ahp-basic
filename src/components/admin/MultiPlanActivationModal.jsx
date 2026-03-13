@@ -17,7 +17,7 @@ export default function MultiPlanActivationModal({ isOpen, onClose }) {
       await activateMultiPlan(planId);
       onClose();
     } catch (err) {
-      console.error('다수 이용권 활성화 실패:', err);
+      if (import.meta.env.DEV) console.error('다수 이용권 활성화 실패:', err);
     } finally {
       setActivating(null);
     }

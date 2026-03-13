@@ -11,6 +11,7 @@ export function SubscriptionProvider({ children }) {
   const [userPlans, setUserPlans] = useState([]);
   const [currentProjectPlan, setCurrentProjectPlan] = useState(null);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(null);
 
   const isSuperAdmin = useMemo(
     () => ['admin', 'superadmin'].includes(profile?.role),
@@ -20,12 +21,13 @@ export function SubscriptionProvider({ children }) {
   // ─── 사용자의 전체 플랜 목록 조회 ───
   const fetchUserPlans = useCallback(async () => {
     if (!user?.id) return;
-    const { data } = await supabase.rpc('get_user_plans', {
+    const { data, error: rpcError } = await supabase.rpc('get_user_plans', {
       p_user_id: user.id,
     }).then(
       (res) => res,
-      () => ({ data: null }),
+      (err) => ({ data: null, error: err }),
     );
+    if (rpcError) setError(rpcError.message || '플랜 조회 실패');
     setUserPlans(data || []);
     setLoaded(true);
   }, [user?.id]);
@@ -36,12 +38,13 @@ export function SubscriptionProvider({ children }) {
       setCurrentProjectPlan(null);
       return null;
     }
-    const { data } = await supabase.rpc('get_project_plan', {
+    const { data, error: rpcError } = await supabase.rpc('get_project_plan', {
       p_project_id: projectId,
     }).then(
       (res) => res,
-      () => ({ data: null }),
+      (err) => ({ data: null, error: err }),
     );
+    if (rpcError) setError(rpcError.message || '프로젝트 플랜 조회 실패');
     setCurrentProjectPlan(data || null);
     return data || null;
   }, []);
@@ -141,6 +144,7 @@ export function SubscriptionProvider({ children }) {
       currentProjectPlan,
       isSuperAdmin,
       loaded,
+      error,
       activeMultiPlan,
       hasActiveMultiPlan,
       fetchUserPlans,
@@ -153,7 +157,7 @@ export function SubscriptionProvider({ children }) {
       grantFreePlan,
       refreshPlans,
     }),
-    [userPlans, currentProjectPlan, isSuperAdmin, loaded, activeMultiPlan, hasActiveMultiPlan, fetchUserPlans, fetchProjectPlan, assignPlan, canAddEvaluator, getUnassignedPlans, getUnassignedMultiPlans, activateMultiPlan, grantFreePlan, refreshPlans],
+    [userPlans, currentProjectPlan, isSuperAdmin, loaded, error, activeMultiPlan, hasActiveMultiPlan, fetchUserPlans, fetchProjectPlan, assignPlan, canAddEvaluator, getUnassignedPlans, getUnassignedMultiPlans, activateMultiPlan, grantFreePlan, refreshPlans],
   );
 
   return (

@@ -10,7 +10,7 @@ let initialized = false;
 
 function getIMP() {
   if (!window.IMP) {
-    console.error('iamport SDK not loaded');
+    if (import.meta.env.DEV) console.error('iamport SDK not loaded');
     return null;
   }
   if (!initialized && IMP_CODE) {
@@ -35,7 +35,7 @@ export const requestPayment = ({ orderId, orderName, totalAmount, payMethod, cus
     const IMP = getIMP();
 
     if (!IMP || !IMP_CODE) {
-      console.warn('PortOne credentials not configured. Running in demo mode.');
+      if (import.meta.env.DEV) console.warn('PortOne credentials not configured. Running in demo mode.');
       resolve({
         paymentId: `demo-pay-${Date.now()}`,
         txId: `demo-tx-${Date.now()}`,

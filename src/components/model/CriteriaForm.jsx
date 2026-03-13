@@ -7,6 +7,7 @@ export default function CriteriaForm({ mode, criterion, parentName, onSubmit, on
   const [name, setName] = useState(criterion?.name || '');
   const [description, setDescription] = useState(criterion?.description || '');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const titles = {
     add: '기준 추가',
@@ -17,9 +18,12 @@ export default function CriteriaForm({ mode, criterion, parentName, onSubmit, on
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
+    setError('');
     setLoading(true);
     try {
       await onSubmit({ name, description });
+    } catch (err) {
+      setError(err.message || '기준 저장에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -28,9 +32,18 @@ export default function CriteriaForm({ mode, criterion, parentName, onSubmit, on
   return (
     <Modal isOpen onClose={onClose} title={titles[mode]}>
       <form onSubmit={handleSubmit} className={styles.form}>
+        {error && <div className={styles.error} role="alert" id="criteria-error">{error}</div>}
         <label className={styles.field}>
           <span>기준명</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 가격, 성능, 디자인" autoFocus />
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="예: 가격, 성능, 디자인"
+            autoFocus
+            aria-required="true"
+            aria-invalid={!!error}
+            aria-describedby={error ? 'criteria-error' : undefined}
+          />
         </label>
         <label className={styles.field}>
           <span>설명</span>

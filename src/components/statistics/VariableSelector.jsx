@@ -4,7 +4,7 @@
  * 변수별 데이터 미리보기 + 선택 후 데이터 진단 표시
  * 변수 부족 시 안내 + 중복 선택 방지
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import styles from './VariableSelector.module.css';
 
 const ANALYSIS_CONFIG = {
@@ -360,14 +360,14 @@ export default function VariableSelector({
   };
 
   // 중복 선택 체크
-  const hasDuplicate = () => {
+  const hasDuplicate = useMemo(() => {
     if (!config.noDuplicate) return false;
     const keys = config.noDuplicate;
     const vals = keys.map(k => selections[k]).filter(Boolean);
     return new Set(vals).size < vals.length;
-  };
+  }, [config.noDuplicate, selections]);
 
-  const isValid = () => {
+  const isValid = useMemo(() => {
     for (const field of config.fields) {
       const val = selections[field.key];
       if (field.multi) {
@@ -376,12 +376,12 @@ export default function VariableSelector({
         if (!val) return false;
       }
     }
-    if (hasDuplicate()) return false;
+    if (hasDuplicate) return false;
     return true;
-  };
+  }, [config.fields, selections, hasDuplicate]);
 
   // 선택된 변수에 데이터가 있는지 확인
-  const hasDataIssue = () => {
+  const hasDataIssue = useMemo(() => {
     for (const field of config.fields) {
       const val = selections[field.key];
       if (field.multi) {
@@ -397,7 +397,7 @@ export default function VariableSelector({
       }
     }
     return false;
-  };
+  }, [config.fields, selections, variableSummaries]);
 
   const getOptions = (type) => {
     if (type === 'numeric') return variables.numeric;
@@ -406,7 +406,7 @@ export default function VariableSelector({
   };
 
   // 같은 타입의 다른 필드에서 이미 선택된 변수를 제외 (중복 방지 드롭다운 필터)
-  const getFilteredOptions = (field) => {
+  const getFilteredOptions = useCallback((field) => {
     const baseOptions = getOptions(field.type);
     if (!config.noDuplicate || !config.noDuplicate.includes(field.key)) return baseOptions;
 
@@ -414,10 +414,10 @@ export default function VariableSelector({
     const otherKeys = config.noDuplicate.filter(k => k !== field.key);
     const usedIds = otherKeys.map(k => selections[k]).filter(Boolean);
     return baseOptions.filter(opt => !usedIds.includes(opt.id));
-  };
+  }, [config.noDuplicate, selections, variables]);
 
-  const canRun = isValid() && !hasDataIssue();
-  const duplicateError = hasDuplicate();
+  const canRun = isValid && !hasDataIssue;
+  const duplicateError = hasDuplicate;
 
   return (
     <div className={styles.container}>
@@ -512,17 +512,17 @@ export default function VariableSelector({
           className={styles.runBtn}
           onClick={() => onRun(selections)}
           disabled={!canRun}
-          title={!canRun ? (duplicateError ? '같은 변수가 중복 선택되었습니다' : hasDataIssue() ? '선택한 변수에 유효한 데이터가 없습니다' : '모든 변수를 선택해주세요') : ''}
+          title={!canRun ? (duplicateError ? '같은 변수가 중복 선택되었습니다' : hasDataIssue ? '선택한 변수에 유효한 데이터가 없습니다' : '모든 변수를 선택해주세요') : ''}
         >
           분석 실행
         </button>
         {duplicateError && (
           <p className={styles.hintWarn}>같은 변수를 중복 선택할 수 없습니다. 서로 다른 변수를 선택하세요.</p>
         )}
-        {!duplicateError && !isValid() && (
+        {!duplicateError && !isValid && (
           <p className={styles.hint}>모든 변수를 선택해주세요{config.fields.some(f => f.multi) ? ' (다중 선택은 2개 이상)' : ''}</p>
         )}
-        {!duplicateError && isValid() && hasDataIssue() && (
+        {!duplicateError && isValid && hasDataIssue && (
           <p className={styles.hintWarn}>선택한 변수에 유효한 데이터가 없습니다. 다른 변수를 선택하세요.</p>
         )}
       </div>

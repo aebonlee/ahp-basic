@@ -19,7 +19,7 @@ export default function PlanAssignmentModal({ isOpen, onClose, projectId, projec
       await assignPlan(planId, projectId);
       onClose();
     } catch (err) {
-      console.error('이용권 할당 실패:', err);
+      if (import.meta.env.DEV) console.error('이용권 할당 실패:', err);
     } finally {
       setAssigning(null);
     }

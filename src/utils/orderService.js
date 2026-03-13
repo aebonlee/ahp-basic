@@ -129,7 +129,7 @@ export async function getOrdersByUser(userId) {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('getOrdersByUser error:', error);
+    if (import.meta.env.DEV) console.error('getOrdersByUser error:', error);
     return [];
   }
   return data || [];

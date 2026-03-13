@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useEvaluation } from '../contexts/EvaluationContext';
 import { useAhpCalculation } from './useAhpCalculation';
 
@@ -7,20 +7,24 @@ export function usePairwiseComparison(pageData) {
 
   const items = pageData?.items || [];
   const parentId = pageData?.parentId;
+  const pairs = pageData?.pairs;
 
   // Get comparisons scoped to this parent's items
-  const scopedComparisons = {};
-  if (items.length >= 2 && parentId) {
-    for (let i = 0; i < items.length; i++) {
-      for (let j = i + 1; j < items.length; j++) {
-        const dbKey = `${parentId}:${items[i].id}:${items[j].id}`;
-        const calcKey = `${items[i].id}:${items[j].id}`;
-        if (comparisons[dbKey] !== undefined) {
-          scopedComparisons[calcKey] = comparisons[dbKey];
+  const scopedComparisons = useMemo(() => {
+    const scoped = {};
+    if (items.length >= 2 && parentId) {
+      for (let i = 0; i < items.length; i++) {
+        for (let j = i + 1; j < items.length; j++) {
+          const dbKey = `${parentId}:${items[i].id}:${items[j].id}`;
+          const calcKey = `${items[i].id}:${items[j].id}`;
+          if (comparisons[dbKey] !== undefined) {
+            scoped[calcKey] = comparisons[dbKey];
+          }
         }
       }
     }
-  }
+    return scoped;
+  }, [items, parentId, comparisons]);
 
   const ahpResult = useAhpCalculation(items, scopedComparisons);
 
@@ -34,11 +38,14 @@ export function usePairwiseComparison(pageData) {
   }, [parentId, comparisons]);
 
   // Count completed comparisons
-  const totalPairs = pageData?.pairs?.length || 0;
-  const completedPairs = pageData?.pairs?.filter(p => {
-    const key = `${parentId}:${p.left.id}:${p.right.id}`;
-    return comparisons[key] !== undefined && comparisons[key] !== 0;
-  }).length || 0;
+  const totalPairs = pairs?.length || 0;
+  const completedPairs = useMemo(() => {
+    if (!pairs) return 0;
+    return pairs.filter(p => {
+      const key = `${parentId}:${p.left.id}:${p.right.id}`;
+      return comparisons[key] !== undefined && comparisons[key] !== 0;
+    }).length;
+  }, [pairs, parentId, comparisons]);
 
   return {
     ...ahpResult,

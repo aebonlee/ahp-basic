@@ -40,7 +40,7 @@ export default function OrderHistoryPage() {
       const data = await getOrdersByUser(user.id);
       setOrders(data);
     } catch (err) {
-      console.error('주문 이력 로드 오류:', err);
+      if (import.meta.env.DEV) console.error('주문 이력 로드 오류:', err);
       setError(true);
       toast.error('주문 이력을 불러오는 데 실패했습니다.');
     } finally {

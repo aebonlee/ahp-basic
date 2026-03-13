@@ -59,7 +59,7 @@ export default function LoginPage() {
         <h1 className={styles.title}><Link to="/" className={styles.titleLink}>AHP Basic</Link></h1>
         <p className={styles.subtitle}>로그인</p>
 
-        {error && <div className={styles.error} role="alert">{error}</div>}
+        {error && <div className={styles.error} role="alert" id="login-error">{error}</div>}
 
         {step === 'method' ? (
           <>
@@ -106,6 +106,7 @@ export default function LoginPage() {
                   required
                   aria-required="true"
                   aria-invalid={!!error}
+                  aria-describedby={error ? 'login-error' : undefined}
                   autoFocus
                 />
               </label>
@@ -121,6 +122,7 @@ export default function LoginPage() {
                   required
                   aria-required="true"
                   aria-invalid={!!error}
+                  aria-describedby={error ? 'login-error' : undefined}
                 />
               </label>
 
