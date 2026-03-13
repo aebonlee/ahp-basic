@@ -1,21 +1,27 @@
+import { useMemo } from 'react';
 import styles from './EvaluationProgress.module.css';
 
 export default function EvaluationProgress({ current, total, pageSequence, comparisons }) {
-  // Count total completed comparisons across all pages
-  let totalPairs = 0;
-  let completedPairs = 0;
+  const { totalPairs, completedPairs, pairPercent } = useMemo(() => {
+    let tp = 0;
+    let cp = 0;
 
-  for (const page of pageSequence) {
-    for (const pair of page.pairs) {
-      totalPairs++;
-      const key = `${page.parentId}:${pair.left.id}:${pair.right.id}`;
-      if (comparisons[key] !== undefined) {
-        completedPairs++;
+    for (const page of pageSequence) {
+      for (const pair of page.pairs) {
+        tp++;
+        const key = `${page.parentId}:${pair.left.id}:${pair.right.id}`;
+        if (comparisons[key] !== undefined) {
+          cp++;
+        }
       }
     }
-  }
 
-  const pairPercent = totalPairs > 0 ? (completedPairs / totalPairs) * 100 : 0;
+    return {
+      totalPairs: tp,
+      completedPairs: cp,
+      pairPercent: tp > 0 ? (cp / tp) * 100 : 0,
+    };
+  }, [pageSequence, comparisons]);
 
   return (
     <div className={styles.container}>

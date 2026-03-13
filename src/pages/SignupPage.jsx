@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { isValidEmail, getPasswordErrors } from '../utils/validators';
 import Button from '../components/common/Button';
 import styles from './AuthPage.module.css';
 
@@ -15,9 +16,23 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Field-level validation state
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmTouched, setConfirmTouched] = useState(false);
+
   if (isLoggedIn) {
     return <Navigate to="/" replace />;
   }
+
+  const emailError = emailTouched && email && !isValidEmail(email)
+    ? '올바른 이메일 형식이 아닙니다.'
+    : '';
+  const passwordErrors = passwordTouched ? getPasswordErrors(password) : [];
+  const confirmError = confirmTouched && confirmPassword && password !== confirmPassword
+    ? '비밀번호가 일치하지 않습니다.'
+    : '';
+  const confirmOk = confirmTouched && confirmPassword && password === confirmPassword;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,8 +42,9 @@ export default function SignupPage() {
       setError('비밀번호가 일치하지 않습니다.');
       return;
     }
-    if (password.length < 6) {
-      setError('비밀번호는 6자 이상이어야 합니다.');
+    const pwErrors = getPasswordErrors(password);
+    if (pwErrors.length > 0) {
+      setError(pwErrors.join(' '));
       return;
     }
 
@@ -90,11 +106,13 @@ export default function SignupPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => setEmailTouched(true)}
               placeholder="email@example.com"
               required
               aria-required="true"
-              aria-invalid={!!error}
+              aria-invalid={!!emailError}
             />
+            {emailError && <span className={styles.fieldError}>{emailError}</span>}
           </label>
 
           <label className={styles.field} htmlFor="signupPassword">
@@ -103,11 +121,16 @@ export default function SignupPage() {
               id="signupPassword"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="6자 이상"
+              onChange={(e) => { setPassword(e.target.value); setPasswordTouched(true); }}
+              placeholder="8자 이상, 영문+숫자 포함"
               required
               aria-required="true"
             />
+            {passwordTouched && password && (
+              passwordErrors.length > 0
+                ? passwordErrors.map((msg, i) => <span key={i} className={styles.fieldError}>{msg}</span>)
+                : <span className={styles.fieldHint}>안전한 비밀번호입니다.</span>
+            )}
           </label>
 
           <label className={styles.field} htmlFor="signupConfirmPassword">
@@ -116,11 +139,13 @@ export default function SignupPage() {
               id="signupConfirmPassword"
               type="password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => { setConfirmPassword(e.target.value); setConfirmTouched(true); }}
               placeholder="비밀번호 재입력"
               required
               aria-required="true"
             />
+            {confirmError && <span className={styles.fieldError}>{confirmError}</span>}
+            {confirmOk && <span className={styles.fieldHint}>비밀번호가 일치합니다.</span>}
           </label>
 
           <Button type="submit" loading={loading} className={styles.submitBtn}>

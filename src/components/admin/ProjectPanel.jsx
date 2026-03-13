@@ -14,6 +14,7 @@ import MultiPlanActivationModal from './MultiPlanActivationModal';
 import Button from '../common/Button';
 import ConfirmDialog from '../common/ConfirmDialog';
 import LoadingSpinner from '../common/LoadingSpinner';
+import EmptyState from '../common/EmptyState';
 import HelpButton from '../common/HelpButton';
 import PlanRequiredModal from '../common/PlanRequiredModal';
 import styles from './ProjectPanel.module.css';
@@ -172,7 +173,11 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
         {loading ? (
           <LoadingSpinner size={24} />
         ) : filteredProjects.length === 0 ? (
-          <p className={styles.empty}>프로젝트가 없습니다.</p>
+          <EmptyState
+            title="프로젝트가 없습니다"
+            description="새 프로젝트를 만들어 AHP 분석을 시작하세요."
+            action={{ label: '+ 시작하기', onClick: handleNewProject }}
+          />
         ) : (
           filteredProjects.map(project => (
             <div key={project.id} className={styles.cardWrap}>

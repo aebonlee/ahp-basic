@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { useEvaluation } from '../../contexts/EvaluationContext';
 import PairwiseCell from './PairwiseCell';
 import styles from '../../styles/pairwise.module.css';
@@ -19,7 +19,7 @@ function getCellValue(cellIndex) {
   return cellIndex - 7;                           // 2, 3, 4, 5, 6, 7, 8, 9
 }
 
-export default function PairwiseRow({ pair, parentId, projectId, evaluatorId }) {
+export default memo(function PairwiseRow({ pair, parentId, projectId, evaluatorId }) {
   const { comparisons, saveComparison } = useEvaluation();
 
   const compKey = `${parentId}:${pair.left.id}:${pair.right.id}`;
@@ -73,4 +73,4 @@ export default function PairwiseRow({ pair, parentId, projectId, evaluatorId }) 
       <span className={styles.labelRight}>{pair.right.name}</span>
     </div>
   );
-}
+});

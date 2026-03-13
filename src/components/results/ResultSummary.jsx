@@ -1,31 +1,37 @@
+import { useMemo } from 'react';
 import { LEVEL_COLORS } from '../../lib/constants';
 import styles from '../../styles/results.module.css';
 
 export default function ResultSummary({ criteria, alternatives, results }) {
-  // Build global priorities for criteria
-  const getGlobalPriority = (criterionId) => {
-    let global = 1;
-    let current = criteria.find(c => c.id === criterionId);
-    const chain = [];
+  const globalPriorityMap = useMemo(() => {
+    const map = {};
+    for (const c of criteria) {
+      let global = 1;
+      let current = criteria.find(cr => cr.id === c.id);
+      const chain = [];
 
-    while (current) {
-      chain.unshift(current);
-      current = criteria.find(c => c.id === current.parent_id);
-    }
-
-    for (const node of chain) {
-      const parentId = node.parent_id || results.goalId;
-      const pageResult = results.pageResults[parentId];
-      if (pageResult) {
-        const idx = pageResult.items.findIndex(i => i.id === node.id);
-        if (idx >= 0) global *= pageResult.priorities[idx] || 0;
+      while (current) {
+        chain.unshift(current);
+        current = criteria.find(cr => cr.id === current.parent_id);
       }
-    }
-    return global;
-  };
 
-  // Get leaf criteria
-  const leafCriteria = criteria.filter(c => !criteria.some(other => other.parent_id === c.id));
+      for (const node of chain) {
+        const parentId = node.parent_id || results.goalId;
+        const pageResult = results.pageResults[parentId];
+        if (pageResult) {
+          const idx = pageResult.items.findIndex(i => i.id === node.id);
+          if (idx >= 0) global *= pageResult.priorities[idx] || 0;
+        }
+      }
+      map[c.id] = global;
+    }
+    return map;
+  }, [criteria, results]);
+
+  const leafCriteria = useMemo(
+    () => criteria.filter(c => !criteria.some(other => other.parent_id === c.id)),
+    [criteria],
+  );
 
   return (
     <div className={styles.card}>
@@ -44,7 +50,7 @@ export default function ResultSummary({ criteria, alternatives, results }) {
         {criteria.map((c, idx) => {
           const level = getLevel(criteria, c.id);
           const isTop = level === 0;
-          const global = getGlobalPriority(c.id);
+          const global = globalPriorityMap[c.id];
           const pct = (global * 100).toFixed(3);
           const showDivider = isTop && idx > 0;
 

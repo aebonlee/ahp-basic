@@ -18,6 +18,7 @@ import ParticipantForm from '../components/admin/ParticipantForm';
 import Button from '../components/common/Button';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
 import PlanRequiredModal from '../components/common/PlanRequiredModal';
 import { formatPhone } from '../lib/evaluatorUtils';
 import SmsModal from '../components/admin/SmsModal';
@@ -153,7 +154,20 @@ export default function EvaluatorManagementPage() {
         )}
 
         {evaluators.length === 0 ? (
-          <p className={common.emptyText}>평가자를 추가해주세요.</p>
+          <EmptyState
+            title="평가자가 없습니다"
+            description="평가자를 추가하여 평가를 시작하세요."
+            action={{
+              label: '+ 평가자 추가',
+              onClick: () => {
+                if (!canAddEvaluator(0, projectPlan)) {
+                  setPlanRequiredOpen(true);
+                  return;
+                }
+                setShowForm(true);
+              },
+            }}
+          />
         ) : (
           <table className={common.dataTable}>
             <thead>

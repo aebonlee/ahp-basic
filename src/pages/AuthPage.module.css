@@ -70,6 +70,16 @@
   box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
 }
 
+.fieldError {
+  font-size: 0.8rem;
+  color: var(--color-danger);
+}
+
+.fieldHint {
+  font-size: 0.8rem;
+  color: #16a34a;
+}
+
 .submitBtn {
   width: 100%;
   margin-top: var(--spacing-sm);

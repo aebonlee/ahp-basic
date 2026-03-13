@@ -72,49 +72,49 @@ export default function App() {
             <Routes>
               {/* Public */}
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/register" element={<SignupPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/eval/invite/:token" element={<InviteLandingPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/features" element={<FeaturesPage />} />
-              <Route path="/guide" element={<GuidePage />} />
-              <Route path="/manual" element={<ManualPage />} />
-              <Route path="/learn" element={<LearnPage />} />
-              <Route path="/shared/result/:token" element={<SharedResultPage />} />
-              <Route path="/survey-stats" element={<SurveyStatsPage />} />
-              <Route path="/management" element={<ManagementPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
-              <Route path="/order-history" element={<ProtectedRoute><OrderHistoryPage /></ProtectedRoute>} />
+              <Route path="/signup" element={<ErrorBoundary><SignupPage /></ErrorBoundary>} />
+              <Route path="/register" element={<ErrorBoundary><SignupPage /></ErrorBoundary>} />
+              <Route path="/forgot-password" element={<ErrorBoundary><ForgotPasswordPage /></ErrorBoundary>} />
+              <Route path="/eval/invite/:token" element={<ErrorBoundary><InviteLandingPage /></ErrorBoundary>} />
+              <Route path="/about" element={<ErrorBoundary><AboutPage /></ErrorBoundary>} />
+              <Route path="/features" element={<ErrorBoundary><FeaturesPage /></ErrorBoundary>} />
+              <Route path="/guide" element={<ErrorBoundary><GuidePage /></ErrorBoundary>} />
+              <Route path="/manual" element={<ErrorBoundary><ManualPage /></ErrorBoundary>} />
+              <Route path="/learn" element={<ErrorBoundary><LearnPage /></ErrorBoundary>} />
+              <Route path="/shared/result/:token" element={<ErrorBoundary><SharedResultPage /></ErrorBoundary>} />
+              <Route path="/survey-stats" element={<ErrorBoundary><SurveyStatsPage /></ErrorBoundary>} />
+              <Route path="/management" element={<ErrorBoundary><ManagementPage /></ErrorBoundary>} />
+              <Route path="/pricing" element={<ErrorBoundary><PricingPage /></ErrorBoundary>} />
+              <Route path="/cart" element={<ErrorBoundary><CartPage /></ErrorBoundary>} />
+              <Route path="/checkout" element={<ErrorBoundary><CheckoutPage /></ErrorBoundary>} />
+              <Route path="/order-confirmation" element={<ErrorBoundary><OrderConfirmationPage /></ErrorBoundary>} />
+              <Route path="/order-history" element={<ProtectedRoute><ErrorBoundary><OrderHistoryPage /></ErrorBoundary></ProtectedRoute>} />
 
               {/* Super Admin */}
-              <Route path="/superadmin" element={<SuperAdminGuard><SuperAdminPage /></SuperAdminGuard>} />
+              <Route path="/superadmin" element={<SuperAdminGuard><ErrorBoundary><SuperAdminPage /></ErrorBoundary></SuperAdminGuard>} />
 
               {/* Admin */}
-              <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
-              <Route path="/admin/project/:id" element={<AdminGuard><ModelBuilderPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/brain" element={<AdminGuard><BrainstormingPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/confirm" element={<AdminGuard><ModelConfirmPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/survey" element={<AdminGuard><SurveyBuilderPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/eval" element={<AdminGuard><EvaluatorManagementPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/result" element={<AdminGuard><AdminResultPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/survey-result" element={<AdminGuard><SurveyResultPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/sensitivity" element={<AdminGuard><SensitivityPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/resource" element={<AdminGuard><ResourceAllocationPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/workshop" element={<AdminGuard><WorkshopPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/statistics" element={<AdminGuard><StatisticalAnalysisPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/ai-analysis" element={<AdminGuard><AiAnalysisPage /></AdminGuard>} />
-              <Route path="/admin/project/:id/sms-history" element={<AdminGuard><SmsHistoryPage /></AdminGuard>} />
+              <Route path="/admin" element={<AdminGuard><ErrorBoundary><AdminDashboard /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id" element={<AdminGuard><ErrorBoundary><ModelBuilderPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/brain" element={<AdminGuard><ErrorBoundary><BrainstormingPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/confirm" element={<AdminGuard><ErrorBoundary><ModelConfirmPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/survey" element={<AdminGuard><ErrorBoundary><SurveyBuilderPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/eval" element={<AdminGuard><ErrorBoundary><EvaluatorManagementPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/result" element={<AdminGuard><ErrorBoundary><AdminResultPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/survey-result" element={<AdminGuard><ErrorBoundary><SurveyResultPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/sensitivity" element={<AdminGuard><ErrorBoundary><SensitivityPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/resource" element={<AdminGuard><ErrorBoundary><ResourceAllocationPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/workshop" element={<AdminGuard><ErrorBoundary><WorkshopPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/statistics" element={<AdminGuard><ErrorBoundary><StatisticalAnalysisPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/ai-analysis" element={<AdminGuard><ErrorBoundary><AiAnalysisPage /></ErrorBoundary></AdminGuard>} />
+              <Route path="/admin/project/:id/sms-history" element={<AdminGuard><ErrorBoundary><SmsHistoryPage /></ErrorBoundary></AdminGuard>} />
 
               {/* Evaluator */}
-              <Route path="/eval" element={<ProtectedRoute><EvaluatorMainPage /></ProtectedRoute>} />
-              <Route path="/eval/project/:id" element={<EvaluatorGuard><PairwiseRatingPage /></EvaluatorGuard>} />
-              <Route path="/eval/project/:id/direct" element={<EvaluatorGuard><DirectInputPage /></EvaluatorGuard>} />
-              <Route path="/eval/project/:id/pre-survey" element={<EvaluatorGuard><EvalPreSurveyPage /></EvaluatorGuard>} />
-              <Route path="/eval/project/:id/result" element={<EvaluatorGuard><EvalResultPage /></EvaluatorGuard>} />
+              <Route path="/eval" element={<ProtectedRoute><ErrorBoundary><EvaluatorMainPage /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/eval/project/:id" element={<EvaluatorGuard><ErrorBoundary><PairwiseRatingPage /></ErrorBoundary></EvaluatorGuard>} />
+              <Route path="/eval/project/:id/direct" element={<EvaluatorGuard><ErrorBoundary><DirectInputPage /></ErrorBoundary></EvaluatorGuard>} />
+              <Route path="/eval/project/:id/pre-survey" element={<EvaluatorGuard><ErrorBoundary><EvalPreSurveyPage /></ErrorBoundary></EvaluatorGuard>} />
+              <Route path="/eval/project/:id/result" element={<EvaluatorGuard><ErrorBoundary><EvalResultPage /></ErrorBoundary></EvaluatorGuard>} />
 
               {/* Default */}
               <Route path="/" element={<HomePage />} />

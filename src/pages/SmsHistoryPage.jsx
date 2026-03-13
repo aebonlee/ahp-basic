@@ -5,6 +5,7 @@ import { useProject } from '../hooks/useProjects';
 import { formatPhone } from '../lib/evaluatorUtils';
 import ProjectLayout from '../components/layout/ProjectLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import EmptyState from '../components/common/EmptyState';
 import common from '../styles/common.module.css';
 import styles from './SmsHistoryPage.module.css';
 
@@ -51,7 +52,10 @@ export default function SmsHistoryPage() {
 
       {logs.length === 0 ? (
         <div className={common.card}>
-          <p className={styles.empty}>발송 이력이 없습니다.</p>
+          <EmptyState
+            title="발송 이력이 없습니다"
+            description="SMS를 발송하면 이력이 여기에 표시됩니다."
+          />
         </div>
       ) : (
         <>
