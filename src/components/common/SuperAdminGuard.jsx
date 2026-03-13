@@ -2,10 +2,8 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 
-const SUPERADMIN_EMAIL = 'aebon@kakao.com';
-
 export default function SuperAdminGuard({ children }) {
-  const { user, isLoggedIn, loading, profileLoading } = useAuth();
+  const { profile, isLoggedIn, loading, profileLoading } = useAuth();
   const location = useLocation();
 
   if (loading || profileLoading) {
@@ -16,7 +14,7 @@ export default function SuperAdminGuard({ children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (user?.email !== SUPERADMIN_EMAIL) {
+  if (profile?.role !== 'superadmin') {
     return <Navigate to="/" replace />;
   }
 

@@ -15,9 +15,6 @@ import { clearAllApiKeys } from '../lib/aiService';
 
 export const AuthContext = createContext(null);
 
-// DB role 미설정 시 폴백용 부트스트랩 이메일 (마이그레이션 후 제거 가능)
-const BOOTSTRAP_ADMIN_EMAILS = ['aebon@kakao.com', 'aebon@kyonggi.ac.kr', 'ryuwebpd@gmail.com'];
-
 const initialState = {
   user: null,
   session: null,
@@ -175,9 +172,7 @@ export function AuthProvider({ children }) {
   }, [state.user]);
 
   const isLoggedIn = !!state.user;
-  const isAdmin = isLoggedIn && (
-    state.profile?.role === 'admin' || BOOTSTRAP_ADMIN_EMAILS.includes(state.user?.email)
-  );
+  const isAdmin = isLoggedIn && ['admin', 'superadmin'].includes(state.profile?.role);
 
   const value = {
     ...state,

@@ -59,9 +59,3 @@ export function isMultiPlan(planType) {
   return planType === PLAN_TYPES.PLAN_MULTI_100 || planType === PLAN_TYPES.PLAN_MULTI_200;
 }
 
-// ─── 관리자 이메일 목록 ───
-export const SUPER_ADMIN_EMAILS = [
-  'aebon@kakao.com',
-  'aebon@kyonggi.ac.kr',
-  'ryuwebpd@gmail.com',
-];

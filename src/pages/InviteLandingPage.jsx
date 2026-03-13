@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -8,11 +8,23 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import Button from '../components/common/Button';
 import styles from './InviteLandingPage.module.css';
 
+// 세션별 고유 식별자 (속도 제한용)
+function getSessionFingerprint() {
+  const key = '__vfp';
+  let fp = sessionStorage.getItem(key);
+  if (!fp) {
+    fp = crypto.randomUUID?.() || Math.random().toString(36).slice(2);
+    sessionStorage.setItem(key, fp);
+  }
+  return fp;
+}
+
 export default function InviteLandingPage() {
   const { token } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
+  const ipHash = useMemo(() => getSessionFingerprint(), []);
   const [status, setStatus] = useState('loading');
   const [project, setProject] = useState(null);
   const [evaluator, setEvaluator] = useState(null);
@@ -112,10 +124,10 @@ export default function InviteLandingPage() {
     setVerifyError('');
 
     const { data: matches, error } = await supabase
-      .rpc('verify_evaluator_phone', { p_project_id: token, p_phone_last4: phoneLast4 });
+      .rpc('verify_evaluator_phone', { p_project_id: token, p_phone_last4: phoneLast4, p_ip_hash: ipHash });
 
     if (error) {
-      setVerifyError('확인 중 오류가 발생했습니다.');
+      setVerifyError(error.message?.includes('Too many') ? '시도 횟수 초과. 잠시 후 다시 시도해주세요.' : '확인 중 오류가 발생했습니다.');
       setVerifying(false);
       return;
     }
@@ -144,9 +156,14 @@ export default function InviteLandingPage() {
     setAccessError('');
 
     const { data, error } = await supabase
-      .rpc('public_verify_access', { p_project_id: token, p_access_code: accessCode });
+      .rpc('public_verify_access', { p_project_id: token, p_access_code: accessCode, p_ip_hash: ipHash });
 
-    if (error || !data || data.length === 0) {
+    if (error) {
+      setAccessError(error.message?.includes('Too many') ? '시도 횟수 초과. 잠시 후 다시 시도해주세요.' : '확인 중 오류가 발생했습니다.');
+      setVerifying(false);
+      return;
+    }
+    if (!data || data.length === 0) {
       setAccessError('비밀번호가 일치하지 않습니다.');
       setVerifying(false);
       return;

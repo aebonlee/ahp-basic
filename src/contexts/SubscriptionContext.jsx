@@ -1,20 +1,20 @@
 import { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabaseClient';
-import { PLAN_TYPES, SUPER_ADMIN_EMAILS, isMultiPlan } from '../lib/subscriptionPlans';
+import { PLAN_TYPES, isMultiPlan } from '../lib/subscriptionPlans';
 
 export const SubscriptionContext = createContext(null);
 
 export function SubscriptionProvider({ children }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const [userPlans, setUserPlans] = useState([]);
   const [currentProjectPlan, setCurrentProjectPlan] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
   const isSuperAdmin = useMemo(
-    () => !!user?.email && SUPER_ADMIN_EMAILS.includes(user.email),
-    [user?.email],
+    () => ['admin', 'superadmin'].includes(profile?.role),
+    [profile?.role],
   );
 
   // ─── 사용자의 전체 플랜 목록 조회 ───

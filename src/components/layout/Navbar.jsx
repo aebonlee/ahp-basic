@@ -16,7 +16,7 @@ function formatDateTime(date) {
 export default function Navbar({ projectName }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, mode, setMode, isAdmin, signOut } = useAuth();
+  const { user, profile, mode, setMode, isAdmin, signOut } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [now, setNow] = useState(new Date());
 
@@ -87,7 +87,7 @@ export default function Navbar({ projectName }) {
                 </button>
               )}
 
-              {user?.email === 'aebon@kakao.com' && (
+              {profile?.role === 'superadmin' && (
                 <button className={styles.saBadge} onClick={() => navigate('/superadmin')} aria-label="슈퍼관리자 페이지">SA</button>
               )}
 
