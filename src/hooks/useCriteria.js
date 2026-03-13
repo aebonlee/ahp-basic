@@ -135,15 +135,27 @@ export function useCriteria(projectId) {
       });
     }
 
-    await Promise.all(
-      dbUpdates.map(u => supabase.from('criteria').update(u.changes).eq('id', u.id))
-    );
+    // 낙관적 업데이트를 위해 이전 상태 저장
+    const prevCriteria = criteriaRef.current;
 
+    // 낙관적 로컬 업데이트
     setCriteria(prev => prev.map(c => {
       const update = dbUpdates.find(u => u.id === c.id);
       if (!update) return c;
       return { ...c, ...update.changes };
     }));
+
+    try {
+      const results = await Promise.all(
+        dbUpdates.map(u => supabase.from('criteria').update(u.changes).eq('id', u.id))
+      );
+      const failed = results.find(r => r.error);
+      if (failed) throw failed.error;
+    } catch {
+      // 실패 시 이전 상태 복원
+      setCriteria(prevCriteria);
+      throw new Error('기준 순서 변경 실패');
+    }
   }, []);
 
   const getLevel = useCallback((id) => {

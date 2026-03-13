@@ -30,14 +30,14 @@ export default function ParticipantForm({ evaluator, onSave, onClose }) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      {error && <div className={styles.error}>{error}</div>}
+      {error && <div id="participantFormError" className={styles.error} role="alert">{error}</div>}
       <label className={styles.field} htmlFor="participantEmail">
         <span>이메일</span>
-        <input id="participantEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" autoFocus />
+        <input id="participantEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" autoFocus aria-describedby={error ? 'participantFormError' : undefined} />
       </label>
       <label className={styles.field} htmlFor="participantName">
         <span>이름</span>
-        <input id="participantName" value={name} onChange={(e) => setName(e.target.value)} placeholder="이름" />
+        <input id="participantName" value={name} onChange={(e) => setName(e.target.value)} placeholder="이름" aria-describedby={error ? 'participantFormError' : undefined} />
       </label>
       <label className={styles.field} htmlFor="participantPhone">
         <span>전화번호</span>
@@ -47,6 +47,7 @@ export default function ParticipantForm({ evaluator, onSave, onClose }) {
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(formatPhone(e.target.value))}
           placeholder="010-1234-5678"
+          aria-describedby={error ? 'participantFormError' : undefined}
         />
       </label>
       <div className={styles.actions}>

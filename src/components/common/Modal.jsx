@@ -1,9 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useId } from 'react';
 import styles from './Modal.module.css';
 
 export default function Modal({ isOpen, onClose, title, children, width }) {
   const overlayRef = useRef(null);
   const modalRef = useRef(null);
+  const previousActiveElementRef = useRef(null);
+  const titleId = useId();
+
+  // 열릴 때 포커스 저장, 닫힐 때 복원
+  useEffect(() => {
+    if (isOpen) {
+      previousActiveElementRef.current = document.activeElement;
+    } else if (previousActiveElementRef.current) {
+      previousActiveElementRef.current.focus();
+      previousActiveElementRef.current = null;
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -62,10 +74,10 @@ export default function Modal({ isOpen, onClose, title, children, width }) {
         ref={modalRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby={titleId}
       >
         <div className={styles.header}>
-          <h3 id="modal-title" className={styles.title}>{title}</h3>
+          <h3 id={titleId} className={styles.title}>{title}</h3>
           <button className={styles.closeBtn} onClick={onClose} aria-label="닫기">&times;</button>
         </div>
         <div className={styles.body}>

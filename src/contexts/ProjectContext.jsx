@@ -1,4 +1,4 @@
-import { createContext, useReducer, useCallback, useContext } from 'react';
+import { createContext, useReducer, useCallback, useContext, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 const ProjectContext = createContext(null);
@@ -135,89 +135,104 @@ export function ProjectProvider({ children }) {
       .single();
     if (projErr) throw new Error('프로젝트 복제 실패: ' + projErr.message);
 
-    // 3) 기준 복제 (계층 구조 유지)
-    const { data: srcCriteria } = await supabase
-      .from('criteria')
-      .select('*')
-      .eq('project_id', sourceId)
-      .order('sort_order');
+    // 롤백 헬퍼: 실패 시 생성된 프로젝트 삭제
+    const rollback = async () => {
+      await supabase.from('projects').delete().eq('id', newProj.id);
+    };
 
-    if (srcCriteria && srcCriteria.length > 0) {
-      const idMap = {};
-      // 루트 먼저, 자식 나중에 (sort_order 순)
-      for (const c of srcCriteria) {
-        const { data: newC } = await supabase
-          .from('criteria')
-          .insert({
-            project_id: newProj.id,
-            name: c.name,
-            description: c.description,
-            parent_id: c.parent_id ? idMap[c.parent_id] : null,
-            sort_order: c.sort_order,
-          })
-          .select()
-          .single();
-        if (newC) idMap[c.id] = newC.id;
+    try {
+      // 3) 기준 복제 (계층 구조 유지)
+      const { data: srcCriteria, error: critFetchErr } = await supabase
+        .from('criteria')
+        .select('*')
+        .eq('project_id', sourceId)
+        .order('sort_order');
+      if (critFetchErr) throw new Error('기준 조회 실패: ' + critFetchErr.message);
+
+      if (srcCriteria && srcCriteria.length > 0) {
+        const idMap = {};
+        for (const c of srcCriteria) {
+          const { data: newC, error: critErr } = await supabase
+            .from('criteria')
+            .insert({
+              project_id: newProj.id,
+              name: c.name,
+              description: c.description,
+              parent_id: c.parent_id ? idMap[c.parent_id] : null,
+              sort_order: c.sort_order,
+            })
+            .select()
+            .single();
+          if (critErr) throw new Error('기준 복제 실패: ' + critErr.message);
+          idMap[c.id] = newC.id;
+        }
       }
-    }
 
-    // 4) 대안 복제
-    const { data: srcAlts } = await supabase
-      .from('alternatives')
-      .select('*')
-      .eq('project_id', sourceId)
-      .order('sort_order');
+      // 4) 대안 복제
+      const { data: srcAlts, error: altFetchErr } = await supabase
+        .from('alternatives')
+        .select('*')
+        .eq('project_id', sourceId)
+        .order('sort_order');
+      if (altFetchErr) throw new Error('대안 조회 실패: ' + altFetchErr.message);
 
-    if (srcAlts && srcAlts.length > 0) {
-      await supabase.from('alternatives').insert(
-        srcAlts.map(a => ({
-          project_id: newProj.id,
-          name: a.name,
-          description: a.description,
-          sort_order: a.sort_order,
-        }))
-      );
-    }
+      if (srcAlts && srcAlts.length > 0) {
+        const { error: altErr } = await supabase.from('alternatives').insert(
+          srcAlts.map(a => ({
+            project_id: newProj.id,
+            name: a.name,
+            description: a.description,
+            sort_order: a.sort_order,
+          }))
+        );
+        if (altErr) throw new Error('대안 복제 실패: ' + altErr.message);
+      }
 
-    // 5) 설문 질문 복제
-    const { data: srcQuestions } = await supabase
-      .from('survey_questions')
-      .select('*')
-      .eq('project_id', sourceId)
-      .order('sort_order');
+      // 5) 설문 질문 복제
+      const { data: srcQuestions, error: qFetchErr } = await supabase
+        .from('survey_questions')
+        .select('*')
+        .eq('project_id', sourceId)
+        .order('sort_order');
+      if (qFetchErr) throw new Error('설문 조회 실패: ' + qFetchErr.message);
 
-    if (srcQuestions && srcQuestions.length > 0) {
-      await supabase.from('survey_questions').insert(
-        srcQuestions.map(q => ({
-          project_id: newProj.id,
-          question_text: q.question_text,
-          question_type: q.question_type,
-          options: q.options,
-          required: q.required,
-          sort_order: q.sort_order,
-          category: q.category,
-          description: q.description,
-        }))
-      );
+      if (srcQuestions && srcQuestions.length > 0) {
+        const { error: qErr } = await supabase.from('survey_questions').insert(
+          srcQuestions.map(q => ({
+            project_id: newProj.id,
+            question_text: q.question_text,
+            question_type: q.question_type,
+            options: q.options,
+            required: q.required,
+            sort_order: q.sort_order,
+            category: q.category,
+            description: q.description,
+          }))
+        );
+        if (qErr) throw new Error('설문 복제 실패: ' + qErr.message);
+      }
+    } catch (cloneErr) {
+      await rollback();
+      throw cloneErr;
     }
 
     dispatch({ type: 'ADD_PROJECT', payload: newProj });
     return newProj;
   }, []);
 
+  const value = useMemo(() => ({
+    ...state,
+    dispatch,
+    fetchProjects,
+    fetchProject,
+    createProject,
+    updateProject,
+    deleteProject,
+    cloneProject,
+  }), [state, fetchProjects, fetchProject, createProject, updateProject, deleteProject, cloneProject]);
+
   return (
-    <ProjectContext.Provider
-      value={{
-        ...state,
-        dispatch,
-        fetchProjects,
-        fetchProject,
-        createProject,
-        updateProject,
-        deleteProject,
-        cloneProject,
-      }}
-    >
+    <ProjectContext.Provider value={value}>
       {children}
     </ProjectContext.Provider>
   );

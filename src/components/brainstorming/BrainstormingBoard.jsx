@@ -29,36 +29,46 @@ export default function BrainstormingBoard({ projectId }) {
   }, [projectId]);
 
   const loadItems = async () => {
-    const { data } = await supabase
-      .from('brainstorming_items')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('sort_order');
-    if (data) {
-      const grouped = { alternative: [], advantage: [], disadvantage: [], criterion: [] };
-      for (const item of data) {
-        if (grouped[item.zone]) grouped[item.zone].push(item);
+    try {
+      const { data, error } = await supabase
+        .from('brainstorming_items')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('sort_order');
+      if (error) { toast.error('브레인스토밍 항목 로드 실패: ' + error.message); return; }
+      if (data) {
+        const grouped = { alternative: [], advantage: [], disadvantage: [], criterion: [] };
+        for (const item of data) {
+          if (grouped[item.zone]) grouped[item.zone].push(item);
+        }
+        setItems(grouped);
       }
-      setItems(grouped);
+    } catch (err) {
+      toast.error('브레인스토밍 항목 로드 실패: ' + (err.message || ''));
     }
   };
 
   const addItem = async (zone, text) => {
     if (!text.trim()) return;
     const maxOrder = items[zone].reduce((max, i) => Math.max(max, i.sort_order || 0), 0);
-    const { data } = await supabase
-      .from('brainstorming_items')
-      .insert({
-        project_id: projectId,
-        zone,
-        text: text.trim(),
-        sort_order: maxOrder + 1,
-        parent_id: null,
-      })
-      .select()
-      .single();
-    if (data) {
-      setItems(prev => ({ ...prev, [zone]: [...prev[zone], data] }));
+    try {
+      const { data, error } = await supabase
+        .from('brainstorming_items')
+        .insert({
+          project_id: projectId,
+          zone,
+          text: text.trim(),
+          sort_order: maxOrder + 1,
+          parent_id: null,
+        })
+        .select()
+        .single();
+      if (error) { toast.error('항목 추가 실패: ' + error.message); return; }
+      if (data) {
+        setItems(prev => ({ ...prev, [zone]: [...prev[zone], data] }));
+      }
+    } catch (err) {
+      toast.error('항목 추가 실패: ' + (err.message || ''));
     }
   };
 
@@ -99,9 +109,8 @@ export default function BrainstormingBoard({ projectId }) {
       return;
     }
 
-    await supabase.from('brainstorming_items')
-      .update({ zone: targetZone, parent_id: targetParentId || null })
-      .eq('id', id);
+    // 낙관적 업데이트를 위해 이전 상태 저장
+    const prevItems = items;
 
     setItems(prev => {
       const next = { ...prev };
@@ -112,6 +121,19 @@ export default function BrainstormingBoard({ projectId }) {
     });
 
     setDragItem(null);
+
+    try {
+      const { error } = await supabase.from('brainstorming_items')
+        .update({ zone: targetZone, parent_id: targetParentId || null })
+        .eq('id', id);
+      if (error) {
+        setItems(prevItems);
+        toast.error('항목 이동 실패: ' + error.message);
+      }
+    } catch (err) {
+      setItems(prevItems);
+      toast.error('항목 이동 실패: ' + (err.message || ''));
+    }
   };
 
   const handleTrashDrop = async () => {

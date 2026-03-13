@@ -36,7 +36,7 @@ export default function ProjectForm({ project, onClose }) {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      {error && <div className={styles.error}>{error}</div>}
+      {error && <div id="projectFormError" className={styles.error} role="alert">{error}</div>}
 
       <label className={styles.field} htmlFor="projectName">
         <span>프로젝트 이름 <HelpButton helpKey="projectName" /></span>
@@ -46,6 +46,7 @@ export default function ProjectForm({ project, onClose }) {
           onChange={(e) => setName(e.target.value)}
           placeholder="예: 대학원생의 연구역량"
           autoFocus
+          aria-describedby={error ? 'projectFormError' : undefined}
         />
       </label>
 

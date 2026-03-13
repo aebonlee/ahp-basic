@@ -34,8 +34,7 @@ export function ToastProvider({ children }) {
     info: (msg) => addToast(msg, 'info'),
   }), [addToast]);
 
-  // Make toast callable with a reassignment trick — expose as object with methods
-  const value = { toasts, removeToast, toast };
+  const value = useMemo(() => ({ toasts, removeToast, toast }), [toasts, removeToast, toast]);
 
   return (
     <ToastContext.Provider value={value}>

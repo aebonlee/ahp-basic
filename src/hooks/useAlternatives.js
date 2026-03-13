@@ -92,15 +92,27 @@ export function useAlternatives(projectId) {
 
     const dbUpdates = reordered.map((a, i) => ({ id: a.id, sort_order: i }));
 
-    await Promise.all(
-      dbUpdates.map(u => supabase.from('alternatives').update({ sort_order: u.sort_order }).eq('id', u.id))
-    );
+    // 낙관적 업데이트를 위해 이전 상태 저장
+    const prevAlternatives = alternativesRef.current;
 
+    // 낙관적 로컬 업데이트
     setAlternatives(prev => prev.map(a => {
       const update = dbUpdates.find(u => u.id === a.id);
       if (!update) return a;
       return { ...a, sort_order: update.sort_order };
     }));
+
+    try {
+      const results = await Promise.all(
+        dbUpdates.map(u => supabase.from('alternatives').update({ sort_order: u.sort_order }).eq('id', u.id))
+      );
+      const failed = results.find(r => r.error);
+      if (failed) throw failed.error;
+    } catch {
+      // 실패 시 이전 상태 복원
+      setAlternatives(prevAlternatives);
+      throw new Error('대안 순서 변경 실패');
+    }
   }, []);
 
   return {

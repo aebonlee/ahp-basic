@@ -7,45 +7,58 @@ const STORAGE_KEYS = {
   custom_key: 'ahp_custom_api_key',
 };
 
+// ─── localStorage → sessionStorage 마이그레이션 ──────────
+(function migrateToSessionStorage() {
+  Object.values(STORAGE_KEYS).forEach(key => {
+    const old = localStorage.getItem(key);
+    if (old !== null) {
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, old);
+      }
+      localStorage.removeItem(key);
+    }
+  });
+})();
+
 // ─── API Key Management ───────────────────────────────────
 
 export function getApiKey(provider) {
   if (provider === 'custom') {
     return {
-      url: localStorage.getItem(STORAGE_KEYS.custom_url) || '',
-      key: localStorage.getItem(STORAGE_KEYS.custom_key) || '',
+      url: sessionStorage.getItem(STORAGE_KEYS.custom_url) || '',
+      key: sessionStorage.getItem(STORAGE_KEYS.custom_key) || '',
     };
   }
-  return localStorage.getItem(STORAGE_KEYS[provider]) || '';
+  return sessionStorage.getItem(STORAGE_KEYS[provider]) || '';
 }
 
 export function setApiKey(provider, value) {
   if (provider === 'custom') {
-    localStorage.setItem(STORAGE_KEYS.custom_url, value.url || '');
-    localStorage.setItem(STORAGE_KEYS.custom_key, value.key || '');
+    sessionStorage.setItem(STORAGE_KEYS.custom_url, value.url || '');
+    sessionStorage.setItem(STORAGE_KEYS.custom_key, value.key || '');
   } else {
-    localStorage.setItem(STORAGE_KEYS[provider], value);
+    sessionStorage.setItem(STORAGE_KEYS[provider], value);
   }
 }
 
 export function removeApiKey(provider) {
   if (provider === 'custom') {
-    localStorage.removeItem(STORAGE_KEYS.custom_url);
-    localStorage.removeItem(STORAGE_KEYS.custom_key);
+    sessionStorage.removeItem(STORAGE_KEYS.custom_url);
+    sessionStorage.removeItem(STORAGE_KEYS.custom_key);
   } else {
-    localStorage.removeItem(STORAGE_KEYS[provider]);
+    sessionStorage.removeItem(STORAGE_KEYS[provider]);
   }
 }
 
 export function hasApiKey(provider) {
   if (provider === 'custom') {
-    return !!localStorage.getItem(STORAGE_KEYS.custom_url);
+    return !!sessionStorage.getItem(STORAGE_KEYS.custom_url);
   }
-  return !!localStorage.getItem(STORAGE_KEYS[provider]);
+  return !!sessionStorage.getItem(STORAGE_KEYS[provider]);
 }
 
 export function clearAllApiKeys() {
-  Object.values(STORAGE_KEYS).forEach(key => localStorage.removeItem(key));
+  Object.values(STORAGE_KEYS).forEach(key => sessionStorage.removeItem(key));
 }
 
 // ─── Streaming Chat ───────────────────────────────────────

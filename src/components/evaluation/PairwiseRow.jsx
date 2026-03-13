@@ -19,6 +19,16 @@ function getCellValue(cellIndex) {
   return cellIndex - 7;                           // 2, 3, 4, 5, 6, 7, 8, 9
 }
 
+function getCellAriaLabel(cellIndex, leftName, rightName) {
+  if (cellIndex === 8) return '동일';
+  if (cellIndex < 8) {
+    const scale = 9 - cellIndex;
+    return `${leftName}이(가) ${scale}배 중요`;
+  }
+  const scale = cellIndex - 7;
+  return `${rightName}이(가) ${scale}배 중요`;
+}
+
 export default memo(function PairwiseRow({ pair, parentId, projectId, evaluatorId }) {
   const { comparisons, saveComparison } = useEvaluation();
 
@@ -66,6 +76,7 @@ export default memo(function PairwiseRow({ pair, parentId, projectId, evaluatorI
               isSelected={selectedIndex === i}
               fillPercent={fillPercent}
               onClick={() => handleCellClick(i)}
+              ariaLabel={getCellAriaLabel(i, pair.left.name, pair.right.name)}
             />
           );
         })}

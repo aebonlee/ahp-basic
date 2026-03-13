@@ -7,19 +7,21 @@ import { supabase } from '../lib/supabaseClient';
 export function useSurveyQuestions(projectId) {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(!!projectId);
+  const [error, setError] = useState(null);
   const questionsRef = useRef(questions);
   useEffect(() => { questionsRef.current = questions; }, [questions]);
 
   const fetchQuestions = useCallback(async () => {
     if (!projectId) { setLoading(false); return; }
     setLoading(true);
-    const { data, error } = await supabase
+    setError(null);
+    const { data, error: fetchError } = await supabase
       .from('survey_questions')
       .select('*')
       .eq('project_id', projectId)
       .order('sort_order');
-    if (error) {
-      console.error('[useSurveyQuestions] fetch error:', error.message);
+    if (fetchError) {
+      setError(fetchError.message);
     } else {
       setQuestions(data || []);
     }
@@ -93,7 +95,7 @@ export function useSurveyQuestions(projectId) {
     });
   }, []);
 
-  return { questions, loading, fetchQuestions, addQuestion, updateQuestion, deleteQuestion, deleteQuestionsByCategory, reorderQuestions };
+  return { questions, loading, error, fetchQuestions, addQuestion, updateQuestion, deleteQuestion, deleteQuestionsByCategory, reorderQuestions };
 }
 
 /**
@@ -102,16 +104,18 @@ export function useSurveyQuestions(projectId) {
 export function useSurveyResponses(projectId) {
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(!!projectId);
+  const [error, setError] = useState(null);
 
   const fetchResponses = useCallback(async () => {
     if (!projectId) { setLoading(false); return; }
     setLoading(true);
-    const { data, error } = await supabase
+    setError(null);
+    const { data, error: fetchError } = await supabase
       .from('survey_responses')
       .select('*')
       .eq('project_id', projectId);
-    if (error) {
-      console.error('[useSurveyResponses] fetch error:', error.message);
+    if (fetchError) {
+      setError(fetchError.message);
     } else {
       setResponses(data || []);
     }
@@ -144,7 +148,7 @@ export function useSurveyResponses(projectId) {
     await fetchResponses();
   }, [projectId, fetchResponses]);
 
-  return { responses, loading, fetchResponses, getResponsesByEvaluator, getResponsesByQuestion, submitResponses };
+  return { responses, loading, error, fetchResponses, getResponsesByEvaluator, getResponsesByQuestion, submitResponses };
 }
 
 /**
@@ -158,17 +162,19 @@ export function useSurveyConfig(projectId) {
     public_access_enabled: false,
   });
   const [loading, setLoading] = useState(!!projectId);
+  const [error, setError] = useState(null);
 
   const fetchConfig = useCallback(async () => {
     if (!projectId) { setLoading(false); return; }
     setLoading(true);
-    const { data, error } = await supabase
+    setError(null);
+    const { data, error: fetchError } = await supabase
       .from('projects')
       .select('research_description, consent_text, access_code, public_access_enabled')
       .eq('id', projectId)
       .single();
-    if (error) {
-      console.error('[useSurveyConfig] fetch error:', error.message);
+    if (fetchError) {
+      setError(fetchError.message);
     } else if (data) {
       setConfig({
         research_description: data.research_description || '',
@@ -192,7 +198,7 @@ export function useSurveyConfig(projectId) {
     setConfig(prev => ({ ...prev, ...updates }));
   }, [projectId]);
 
-  return { config, loading, fetchConfig, saveConfig };
+  return { config, loading, error, fetchConfig, saveConfig };
 }
 
 /**
@@ -201,16 +207,18 @@ export function useSurveyConfig(projectId) {
 export function useConsentRecords(projectId) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(!!projectId);
+  const [error, setError] = useState(null);
 
   const fetchRecords = useCallback(async () => {
     if (!projectId) { setLoading(false); return; }
     setLoading(true);
-    const { data, error } = await supabase
+    setError(null);
+    const { data, error: fetchError } = await supabase
       .from('consent_records')
       .select('*')
       .eq('project_id', projectId);
-    if (error) {
-      console.error('[useConsentRecords] fetch error:', error.message);
+    if (fetchError) {
+      setError(fetchError.message);
     } else {
       setRecords(data || []);
     }
@@ -237,5 +245,5 @@ export function useConsentRecords(projectId) {
     return records.some(r => r.evaluator_id === evaluatorId && r.agreed);
   }, [records]);
 
-  return { records, loading, fetchRecords, submitConsent, hasConsented };
+  return { records, loading, error, fetchRecords, submitConsent, hasConsented };
 }

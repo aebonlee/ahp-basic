@@ -1,4 +1,4 @@
-import { createContext, useReducer, useContext, useCallback } from 'react';
+import { createContext, useReducer, useContext, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 const EvaluationContext = createContext(null);
@@ -148,8 +148,12 @@ export function EvaluationProvider({ children }) {
     if (error) throw error;
   }, []);
 
+  const value = useMemo(() => ({
+    ...state, dispatch, loadProjectData, saveComparison, saveDirectInput,
+  }), [state, loadProjectData, saveComparison, saveDirectInput]);
+
   return (
-    <EvaluationContext.Provider value={{ ...state, dispatch, loadProjectData, saveComparison, saveDirectInput }}>
+    <EvaluationContext.Provider value={value}>
       {children}
     </EvaluationContext.Provider>
   );

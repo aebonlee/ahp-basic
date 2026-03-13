@@ -1,4 +1,4 @@
-import { createContext, useReducer, useEffect, useCallback } from 'react';
+import { createContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { USER_MODE } from '../lib/constants';
 import {
@@ -174,7 +174,7 @@ export function AuthProvider({ children }) {
   const isLoggedIn = !!state.user;
   const isAdmin = isLoggedIn && ['admin', 'superadmin'].includes(state.profile?.role);
 
-  const value = {
+  const value = useMemo(() => ({
     ...state,
     isLoggedIn,
     isAdmin,
@@ -187,7 +187,7 @@ export function AuthProvider({ children }) {
     resetPassword,
     refreshProfile,
     updateProfile,
-  };
+  }), [state, isLoggedIn, isAdmin, setMode, signIn, loginWithGoogle, loginWithKakao, signUp, signOut, resetPassword, refreshProfile, updateProfile]);
 
   return (
     <AuthContext.Provider value={value}>
