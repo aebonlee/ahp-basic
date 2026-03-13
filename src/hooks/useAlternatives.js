@@ -14,17 +14,22 @@ export function useAlternatives(projectId) {
     if (!projectId) { setLoading(false); return; }
     setLoading(true);
     setError(null);
-    const { data, error: fetchError } = await supabase
-      .from('alternatives')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('sort_order');
-    if (fetchError) {
-      setError(fetchError.message);
-    } else {
-      setAlternatives(data || []);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('alternatives')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('sort_order');
+      if (fetchError) {
+        setError(fetchError.message);
+      } else {
+        setAlternatives(data || []);
+      }
+    } catch (err) {
+      setError(err.message || '대안 조회 실패');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [projectId]);
 
   useEffect(() => { fetchAlternatives(); }, [fetchAlternatives]);

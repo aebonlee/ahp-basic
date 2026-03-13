@@ -14,17 +14,22 @@ export function useCriteria(projectId) {
     if (!projectId) { setLoading(false); return; }
     setLoading(true);
     setError(null);
-    const { data, error: fetchError } = await supabase
-      .from('criteria')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('sort_order');
-    if (fetchError) {
-      setError(fetchError.message);
-    } else {
-      setCriteria(data || []);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('criteria')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('sort_order');
+      if (fetchError) {
+        setError(fetchError.message);
+      } else {
+        setCriteria(data || []);
+      }
+    } catch (err) {
+      setError(err.message || '기준 조회 실패');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [projectId]);
 
   useEffect(() => { fetchCriteria(); }, [fetchCriteria]);

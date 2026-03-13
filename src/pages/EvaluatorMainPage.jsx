@@ -22,61 +22,68 @@ export default function EvaluatorMainPage() {
   const { user, isAdmin, mode, setMode } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const toast = useToast();
 
   const isAdminPreview = isAdmin && mode === USER_MODE.EVALUATOR;
 
   const loadAssignedProjects = useCallback(async () => {
     if (!user) return;
+    setError(null);
 
-    // 1) 평가자로 배정된 프로젝트 (user_id 또는 email 매칭)
-    const { data: evaluators } = await supabase
-      .from('evaluators')
-      .select('id, project_id, completed, user_id')
-      .or(`user_id.eq.${user.id},email.eq.${user.email}`);
+    try {
+      // 1) 평가자로 배정된 프로젝트 (user_id 또는 email 매칭)
+      const { data: evaluators } = await supabase
+        .from('evaluators')
+        .select('id, project_id, completed, user_id')
+        .or(`user_id.eq.${user.id},email.eq.${user.email}`);
 
-    // user_id 미연결 평가자 자동 연결
-    if (evaluators) {
-      for (const ev of evaluators) {
-        if (!ev.user_id) {
-          await supabase.from('evaluators').update({ user_id: user.id }).eq('id', ev.id);
+      // user_id 미연결 평가자 자동 연결
+      if (evaluators) {
+        for (const ev of evaluators) {
+          if (!ev.user_id) {
+            await supabase.from('evaluators').update({ user_id: user.id }).eq('id', ev.id);
+          }
         }
       }
-    }
 
-    // 2) 본인 소유 프로젝트도 포함 (관리자가 직접 평가 테스트 가능)
-    const { data: ownedProjects } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('owner_id', user.id)
-      .in('status', [PROJECT_STATUS.CREATING, PROJECT_STATUS.WAITING, PROJECT_STATUS.EVALUATING]);
-
-    // 배정된 프로젝트 ID 목록
-    const assignedIds = [...new Set((evaluators || []).map(e => e.project_id))];
-
-    // 배정된 프로젝트 로드
-    let assignedProjects = [];
-    if (assignedIds.length > 0) {
-      const { data } = await supabase
+      // 2) 본인 소유 프로젝트도 포함 (관리자가 직접 평가 테스트 가능)
+      const { data: ownedProjects } = await supabase
         .from('projects')
         .select('*')
-        .in('id', assignedIds)
-        .in('status', [PROJECT_STATUS.WAITING, PROJECT_STATUS.EVALUATING]);
-      assignedProjects = data || [];
+        .eq('owner_id', user.id)
+        .in('status', [PROJECT_STATUS.CREATING, PROJECT_STATUS.WAITING, PROJECT_STATUS.EVALUATING]);
+
+      // 배정된 프로젝트 ID 목록
+      const assignedIds = [...new Set((evaluators || []).map(e => e.project_id))];
+
+      // 배정된 프로젝트 로드
+      let assignedProjects = [];
+      if (assignedIds.length > 0) {
+        const { data } = await supabase
+          .from('projects')
+          .select('*')
+          .in('id', assignedIds)
+          .in('status', [PROJECT_STATUS.WAITING, PROJECT_STATUS.EVALUATING]);
+        assignedProjects = data || [];
+      }
+
+      // 병합 (중복 제거)
+      const allMap = {};
+      for (const p of assignedProjects) allMap[p.id] = p;
+      for (const p of (ownedProjects || [])) allMap[p.id] = p;
+
+      const enriched = Object.values(allMap).map(p => {
+        const ev = (evaluators || []).find(e => e.project_id === p.id);
+        return { ...p, completed: ev?.completed || false, hasEvaluator: !!ev };
+      });
+
+      setProjects(enriched);
+    } catch (err) {
+      setError(err.message || '프로젝트 목록 로딩 실패');
+    } finally {
+      setLoading(false);
     }
-
-    // 병합 (중복 제거)
-    const allMap = {};
-    for (const p of assignedProjects) allMap[p.id] = p;
-    for (const p of (ownedProjects || [])) allMap[p.id] = p;
-
-    const enriched = Object.values(allMap).map(p => {
-      const ev = (evaluators || []).find(e => e.project_id === p.id);
-      return { ...p, completed: ev?.completed || false, hasEvaluator: !!ev };
-    });
-
-    setProjects(enriched);
-    setLoading(false);
   }, [user]);
 
   useEffect(() => {
@@ -89,34 +96,38 @@ export default function EvaluatorMainPage() {
   }, [setMode, navigate]);
 
   const handleStartEval = useCallback(async (p) => {
-    if (!p.hasEvaluator) {
-      const { error: insertErr } = await supabase.from('evaluators').insert({
-        project_id: p.id,
-        user_id: user.id,
-        name: user.user_metadata?.full_name || user.email,
-        email: user.email,
-      });
-      if (insertErr) { toast.error('평가자 등록 실패: ' + insertErr.message); return; }
-    }
-    const { data: surveyQs } = await supabase
-      .from('survey_questions')
-      .select('id')
-      .eq('project_id', p.id)
-      .limit(1);
-    const { data: projData } = await supabase
-      .from('projects')
-      .select('research_description, consent_text')
-      .eq('id', p.id)
-      .single();
-    const hasSurvey = (surveyQs && surveyQs.length > 0) ||
-      (projData?.research_description) ||
-      (projData?.consent_text);
-    if (hasSurvey) {
-      navigate(`/eval/project/${p.id}/pre-survey`);
-    } else if (p.eval_method === EVAL_METHOD.DIRECT_INPUT) {
-      navigate(`/eval/project/${p.id}/direct`);
-    } else {
-      navigate(`/eval/project/${p.id}`);
+    try {
+      if (!p.hasEvaluator) {
+        const { error: insertErr } = await supabase.from('evaluators').insert({
+          project_id: p.id,
+          user_id: user.id,
+          name: user.user_metadata?.full_name || user.email,
+          email: user.email,
+        });
+        if (insertErr) { toast.error('평가자 등록 실패: ' + insertErr.message); return; }
+      }
+      const { data: surveyQs } = await supabase
+        .from('survey_questions')
+        .select('id')
+        .eq('project_id', p.id)
+        .limit(1);
+      const { data: projData } = await supabase
+        .from('projects')
+        .select('research_description, consent_text')
+        .eq('id', p.id)
+        .single();
+      const hasSurvey = (surveyQs && surveyQs.length > 0) ||
+        (projData?.research_description) ||
+        (projData?.consent_text);
+      if (hasSurvey) {
+        navigate(`/eval/project/${p.id}/pre-survey`);
+      } else if (p.eval_method === EVAL_METHOD.DIRECT_INPUT) {
+        navigate(`/eval/project/${p.id}/direct`);
+      } else {
+        navigate(`/eval/project/${p.id}`);
+      }
+    } catch (err) {
+      toast.error('평가 시작 중 오류가 발생했습니다: ' + (err.message || '알 수 없는 오류'));
     }
   }, [user, navigate, toast]);
 
@@ -154,6 +165,12 @@ export default function EvaluatorMainPage() {
 
       {loading ? (
         <LoadingSpinner message="프로젝트 로딩 중..." />
+      ) : error ? (
+        <div className={styles.empty}>
+          <h3 className={styles.emptyTitle}>프로젝트 로딩 실패</h3>
+          <p className={styles.emptyDesc}>{error}</p>
+          <Button variant="secondary" onClick={loadAssignedProjects}>다시 시도</Button>
+        </div>
       ) : projects.length === 0 ? (
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>

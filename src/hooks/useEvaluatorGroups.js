@@ -4,17 +4,28 @@ import { supabase } from '../lib/supabaseClient';
 export function useEvaluatorGroups(projectId) {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchGroups = useCallback(async () => {
     if (!projectId) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from('evaluator_groups')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('created_at');
-    if (!error) setGroups(data || []);
-    setLoading(false);
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('evaluator_groups')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at');
+      if (fetchError) {
+        setError(fetchError.message);
+      } else {
+        setGroups(data || []);
+      }
+    } catch (err) {
+      setError(err.message || '그룹 조회 실패');
+    } finally {
+      setLoading(false);
+    }
   }, [projectId]);
 
   useEffect(() => { fetchGroups(); }, [fetchGroups]);
@@ -51,5 +62,5 @@ export function useEvaluatorGroups(projectId) {
     setGroups(prev => prev.filter(g => g.id !== groupId));
   }, []);
 
-  return { groups, loading, saveGroup, deleteGroup, fetchGroups };
+  return { groups, loading, error, saveGroup, deleteGroup, fetchGroups };
 }

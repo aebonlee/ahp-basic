@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { LEVEL_COLORS } from '../../lib/constants';
 import styles from '../../styles/results.module.css';
 
-export default function ComprehensiveChart({ criteria, alternatives, results }) {
+export default memo(function ComprehensiveChart({ criteria, alternatives, results }) {
   const chartData = useMemo(() => {
     if (!alternatives || alternatives.length === 0) return [];
 
@@ -44,7 +44,7 @@ export default function ComprehensiveChart({ criteria, alternatives, results }) 
       </ResponsiveContainer>
     </div>
   );
-}
+})
 
 function getCriteriaGlobal(criteria, criterionId, results) {
   let global = 1;

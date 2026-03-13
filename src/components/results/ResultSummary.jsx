@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { LEVEL_COLORS } from '../../lib/constants';
 import styles from '../../styles/results.module.css';
 
-export default function ResultSummary({ criteria, alternatives, results }) {
+export default memo(function ResultSummary({ criteria, alternatives, results }) {
   const globalPriorityMap = useMemo(() => {
     const map = {};
     for (const c of criteria) {
@@ -79,7 +79,7 @@ export default function ResultSummary({ criteria, alternatives, results }) {
       </div>
     </div>
   );
-}
+})
 
 function getLevel(criteria, id) {
   let level = 0;

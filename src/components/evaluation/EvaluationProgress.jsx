@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import styles from './EvaluationProgress.module.css';
 
-export default function EvaluationProgress({ current, total, pageSequence, comparisons }) {
+export default memo(function EvaluationProgress({ current, total, pageSequence, comparisons }) {
   const { totalPairs, completedPairs, pairPercent } = useMemo(() => {
     let tp = 0;
     let cp = 0;
@@ -44,4 +44,4 @@ export default function EvaluationProgress({ current, total, pageSequence, compa
       </div>
     </div>
   );
-}
+})

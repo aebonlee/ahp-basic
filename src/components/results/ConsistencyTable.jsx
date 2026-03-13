@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { CR_THRESHOLD } from '../../lib/constants';
 import styles from '../../styles/results.module.css';
 
-export default function ConsistencyTable({ results, onNavigateToPage }) {
+export default memo(function ConsistencyTable({ results, onNavigateToPage }) {
   const pages = results.pageSequence;
 
   return (
@@ -53,4 +54,4 @@ export default function ConsistencyTable({ results, onNavigateToPage }) {
       </table>
     </div>
   );
-}
+})

@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import styles from '../../styles/results.module.css';
 
-export default function LevelResultView({ parentName, items, priorities, cr }) {
+export default memo(function LevelResultView({ parentName, items, priorities, cr }) {
   return (
     <div className={styles.resultBlock}>
       <h4 className={styles.blockTitle}>
@@ -23,4 +24,4 @@ export default function LevelResultView({ parentName, items, priorities, cr }) {
       </div>
     </div>
   );
-}
+})

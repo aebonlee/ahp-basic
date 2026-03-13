@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { CR_THRESHOLD } from '../../lib/constants';
 import HelpButton from '../common/HelpButton';
 import styles from './ConsistencyDisplay.module.css';
 
-export default function ConsistencyDisplay({ cr }) {
+export default memo(function ConsistencyDisplay({ cr }) {
   const isOk = cr <= CR_THRESHOLD;
   const crDisplay = cr === 0 ? '-' : cr.toFixed(5);
   const gaugePercent = cr === 0 ? 0 : Math.min((cr / CR_THRESHOLD) * 100, 100);
@@ -30,4 +31,4 @@ export default function ConsistencyDisplay({ cr }) {
       )}
     </div>
   );
-}
+})

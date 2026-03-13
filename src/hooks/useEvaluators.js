@@ -11,30 +11,35 @@ export function useEvaluators(projectId) {
     setLoading(true);
     setError(null);
 
-    // anon 평가자: sessionStorage에 evaluator_id가 있으면 RPC로 조회 (PII 제외)
-    const storedEvalId = sessionStorage.getItem(`evaluator_${projectId}`);
-    const { data: session } = await supabase.auth.getSession();
-    const isAnon = !session?.session && storedEvalId;
+    try {
+      // anon 평가자: sessionStorage에 evaluator_id가 있으면 RPC로 조회 (PII 제외)
+      const storedEvalId = sessionStorage.getItem(`evaluator_${projectId}`);
+      const { data: session } = await supabase.auth.getSession();
+      const isAnon = !session?.session && storedEvalId;
 
-    let data, fetchError;
-    if (isAnon) {
-      ({ data, error: fetchError } = await supabase.rpc('anon_get_evaluators', {
-        p_evaluator_id: storedEvalId,
-      }));
-    } else {
-      ({ data, error: fetchError } = await supabase
-        .from('evaluators')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('created_at'));
-    }
+      let data, fetchError;
+      if (isAnon) {
+        ({ data, error: fetchError } = await supabase.rpc('anon_get_evaluators', {
+          p_evaluator_id: storedEvalId,
+        }));
+      } else {
+        ({ data, error: fetchError } = await supabase
+          .from('evaluators')
+          .select('*')
+          .eq('project_id', projectId)
+          .order('created_at'));
+      }
 
-    if (fetchError) {
-      setError(fetchError.message);
-    } else {
-      setEvaluators(data || []);
+      if (fetchError) {
+        setError(fetchError.message);
+      } else {
+        setEvaluators(data || []);
+      }
+    } catch (err) {
+      setError(err.message || '평가자 조회 실패');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [projectId]);
 
   useEffect(() => {

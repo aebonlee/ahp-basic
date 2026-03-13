@@ -4,16 +4,23 @@ import { supabase } from '../lib/supabaseClient';
 export function useBrainstormingImport(projectId) {
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   const fetchBrainstormingItems = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('brainstorming_items')
-      .select('*')
-      .eq('project_id', projectId)
-      .in('zone', ['criterion', 'alternative'])
-      .order('sort_order');
-    if (error) throw error;
-    return data || [];
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('brainstorming_items')
+        .select('*')
+        .eq('project_id', projectId)
+        .in('zone', ['criterion', 'alternative'])
+        .order('sort_order');
+      if (fetchError) throw fetchError;
+      return data || [];
+    } catch (err) {
+      setError(err.message || '브레인스토밍 항목 조회 실패');
+      throw err;
+    }
   }, [projectId]);
 
   const importToModel = useCallback(async (criteria, alternatives, addCriterion, addAlternative) => {
@@ -68,5 +75,5 @@ export function useBrainstormingImport(projectId) {
 
   const clearResult = useCallback(() => setResult(null), []);
 
-  return { importing, result, importToModel, fetchBrainstormingItems, clearResult };
+  return { importing, result, error, importToModel, fetchBrainstormingItems, clearResult };
 }

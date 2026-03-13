@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import Button from '../common/Button';
 import styles from './PageNavigator.module.css';
 
-export default function PageNavigator({ current, total, pageStatuses, onPrev, onNext, onGoTo }) {
+export default memo(function PageNavigator({ current, total, pageStatuses, onPrev, onNext, onGoTo }) {
   return (
     <div className={styles.container}>
       <Button
@@ -49,4 +50,4 @@ export default function PageNavigator({ current, total, pageStatuses, onPrev, on
       </Button>
     </div>
   );
-}
+})

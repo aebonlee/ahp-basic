@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import Button from './Button';
 import styles from './EmptyState.module.css';
 
@@ -10,7 +11,7 @@ const DefaultIcon = () => (
   </svg>
 );
 
-export default function EmptyState({ icon, title, description, action }) {
+export default memo(function EmptyState({ icon, title, description, action }) {
   return (
     <div className={styles.container}>
       <div className={styles.icon}>
@@ -25,4 +26,4 @@ export default function EmptyState({ icon, title, description, action }) {
       )}
     </div>
   );
-}
+})

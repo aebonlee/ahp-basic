@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { LEVEL_COLORS } from '../../lib/constants';
 import styles from './SensitivityChart.module.css';
 
-export default function SensitivityChart({ data, alternatives, criterionName }) {
+export default memo(function SensitivityChart({ data, alternatives, criterionName }) {
   if (!data || !alternatives) return null;
 
   const chartData = data.map(d => {
@@ -38,4 +39,4 @@ export default function SensitivityChart({ data, alternatives, criterionName }) 
       </ResponsiveContainer>
     </div>
   );
-}
+})

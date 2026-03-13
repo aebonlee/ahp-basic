@@ -4,16 +4,25 @@ import { supabase } from '../lib/supabaseClient';
 export function useSuperAdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.rpc('sa_list_users');
-    if (error) {
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase.rpc('sa_list_users');
+      if (fetchError) {
+        setError(fetchError.message);
+        setUsers([]);
+      } else {
+        setUsers(data || []);
+      }
+    } catch (err) {
+      setError(err.message || '사용자 조회 실패');
       setUsers([]);
-    } else {
-      setUsers(data || []);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -29,22 +38,31 @@ export function useSuperAdminUsers() {
     await fetchUsers();
   }, [fetchUsers]);
 
-  return { users, loading, updateRole, refresh: fetchUsers };
+  return { users, loading, error, updateRole, refresh: fetchUsers };
 }
 
 export function useSuperAdminProjects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.rpc('sa_list_projects');
-    if (error) {
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase.rpc('sa_list_projects');
+      if (fetchError) {
+        setError(fetchError.message);
+        setProjects([]);
+      } else {
+        setProjects(data || []);
+      }
+    } catch (err) {
+      setError(err.message || '프로젝트 조회 실패');
       setProjects([]);
-    } else {
-      setProjects(data || []);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -59,27 +77,36 @@ export function useSuperAdminProjects() {
     await fetchProjects();
   }, [fetchProjects]);
 
-  return { projects, loading, deleteProject, refresh: fetchProjects };
+  return { projects, loading, error, deleteProject, refresh: fetchProjects };
 }
 
 export function useSuperAdminSmsStats() {
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchStats = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase.rpc('sa_sms_stats');
-    if (error) {
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase.rpc('sa_sms_stats');
+      if (fetchError) {
+        setError(fetchError.message);
+        setStats([]);
+      } else {
+        setStats(data || []);
+      }
+    } catch (err) {
+      setError(err.message || 'SMS 통계 조회 실패');
       setStats([]);
-    } else {
-      setStats(data || []);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
 
-  return { stats, loading, refresh: fetchStats };
+  return { stats, loading, error, refresh: fetchStats };
 }

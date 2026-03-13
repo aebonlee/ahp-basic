@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import styles from './Button.module.css';
 
-export default function Button({
+export default memo(function Button({
   children,
   variant = 'primary',
   size = 'md',
@@ -24,4 +25,4 @@ export default function Button({
       {children}
     </button>
   );
-}
+})
