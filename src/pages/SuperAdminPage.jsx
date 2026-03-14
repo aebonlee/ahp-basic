@@ -4,7 +4,8 @@ import Footer from '../components/layout/Footer';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 import { useToast } from '../contexts/ToastContext';
-import { useSuperAdminUsers, useSuperAdminProjects, useSuperAdminSmsStats } from '../hooks/useSuperAdmin';
+import { useSuperAdminUsers, useSuperAdminProjects, useSuperAdminSmsStats, useSuperAdminVisitorStats } from '../hooks/useSuperAdmin';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { PROJECT_STATUS_LABELS, PROJECT_STATUS_COLORS } from '../lib/constants';
 import styles from './SuperAdminPage.module.css';
 
@@ -230,6 +231,90 @@ function SmsTab() {
   );
 }
 
+function VisitorStats() {
+  const { stats, loading, error, refresh } = useSuperAdminVisitorStats(30);
+
+  if (loading) return <div className={styles.loading}>방문자 통계 로딩 중...</div>;
+  if (error) return <div className={styles.empty}>통계 조회 실패: {error}</div>;
+  if (!stats) return null;
+
+  const daily7 = (stats.daily || []).slice(-7);
+
+  return (
+    <section className={styles.visitorSection}>
+      <div className={styles.visitorHeader}>
+        <h2 className={styles.visitorTitle}>방문자 통계</h2>
+        <button className={styles.refreshBtn} onClick={refresh}>새로고침</button>
+      </div>
+
+      <div className={styles.visitorCards}>
+        <div className={styles.visitorCard}>
+          <span className={styles.visitorCardValue}>{stats.today_views}</span>
+          <span className={styles.visitorCardLabel}>오늘 방문</span>
+        </div>
+        <div className={styles.visitorCard}>
+          <span className={styles.visitorCardValue}>{stats.today_unique}</span>
+          <span className={styles.visitorCardLabel}>오늘 유니크</span>
+        </div>
+        <div className={styles.visitorCard}>
+          <span className={styles.visitorCardValue}>{stats.total_views}</span>
+          <span className={styles.visitorCardLabel}>총 방문</span>
+        </div>
+        <div className={styles.visitorCard}>
+          <span className={styles.visitorCardValue}>{stats.total_unique}</span>
+          <span className={styles.visitorCardLabel}>총 유니크</span>
+        </div>
+      </div>
+
+      <div className={styles.visitorChart}>
+        <h3 className={styles.visitorSubTitle}>최근 7일 일별 방문</h3>
+        <ResponsiveContainer width="100%" height={250}>
+          <BarChart data={daily7}>
+            <XAxis
+              dataKey="date"
+              tickFormatter={(v) => v?.slice(5)}
+              fontSize={12}
+            />
+            <YAxis fontSize={12} allowDecimals={false} />
+            <Tooltip
+              labelFormatter={(v) => v}
+              formatter={(value, name) =>
+                [value, name === 'views' ? '조회수' : '유니크']
+              }
+            />
+            <Bar dataKey="views" fill="var(--color-primary, #3b82f6)" name="views" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="unique_visitors" fill="var(--color-success, #16a34a)" name="unique" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {stats.by_page?.length > 0 && (
+        <div className={styles.tableWrap}>
+          <h3 className={styles.visitorSubTitle} style={{ padding: '12px 14px 0' }}>페이지별 방문 수</h3>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>페이지</th>
+                <th>조회수</th>
+                <th>유니크</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.by_page.slice(0, 10).map((p) => (
+                <tr key={p.path}>
+                  <td>{p.path}</td>
+                  <td>{p.views}</td>
+                  <td>{p.unique_visitors}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function SuperAdminPage() {
   const [activeTab, setActiveTab] = useState('users');
   const toast = useToast();
@@ -265,6 +350,8 @@ export default function SuperAdminPage() {
         {activeTab === 'users' && <UsersTab toast={toast} />}
         {activeTab === 'projects' && <ProjectsTab toast={toast} confirm={confirm} />}
         {activeTab === 'sms' && <SmsTab />}
+
+        <VisitorStats />
       </div>
       <Footer />
       <ConfirmDialog {...confirmDialogProps} />

@@ -13,6 +13,12 @@ import SuperAdminGuard from './components/common/SuperAdminGuard';
 import EvaluatorGuard from './components/common/EvaluatorGuard';
 import ToastContainer from './components/common/Toast';
 import LoadingSpinner from './components/common/LoadingSpinner';
+import { usePageView } from './hooks/usePageView';
+
+function PageViewTracker() {
+  usePageView();
+  return null;
+}
 
 // Eager-loaded pages (initial landing)
 import HomePage from './pages/HomePage';
@@ -68,6 +74,7 @@ export default function App() {
             <ToastProvider>
             <CartProvider>
             <ToastContainer />
+            <PageViewTracker />
             <Suspense fallback={<LoadingSpinner message="페이지 로딩 중..." />}>
             <Routes>
               {/* Public */}

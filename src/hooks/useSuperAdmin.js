@@ -110,3 +110,34 @@ export function useSuperAdminSmsStats() {
 
   return { stats, loading, error, refresh: fetchStats };
 }
+
+export function useSuperAdminVisitorStats(days = 30) {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchStats = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase.rpc('sa_visitor_stats', { p_days: days });
+      if (fetchError) {
+        setError(fetchError.message);
+        setStats(null);
+      } else {
+        setStats(data || null);
+      }
+    } catch (err) {
+      setError(err.message || '방문자 통계 조회 실패');
+      setStats(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [days]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  return { stats, loading, error, refresh: fetchStats };
+}

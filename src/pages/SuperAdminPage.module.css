@@ -227,6 +227,89 @@
   color: var(--color-danger, #dc2626);
 }
 
+/* ─── Visitor Stats Section ─── */
+.visitorSection {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: 2px solid var(--color-border-light);
+}
+
+.visitorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.visitorTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.visitorSubTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--spacing-sm);
+}
+
+.refreshBtn {
+  padding: 6px 14px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.refreshBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.visitorCards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.visitorCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.visitorCardValue {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.visitorCardLabel {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.visitorChart {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
 @media (max-width: 768px) {
   .page {
     padding: var(--spacing-md);
@@ -283,5 +366,17 @@
   .deleteBtn {
     padding: 3px 8px;
     font-size: 0.72rem;
+  }
+
+  .visitorCards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .visitorCard {
+    padding: 12px;
+  }
+
+  .visitorCardValue {
+    font-size: 1.1rem;
   }
 }
