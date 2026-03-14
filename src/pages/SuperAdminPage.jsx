@@ -231,7 +231,83 @@ function SmsTab() {
   );
 }
 
-function VisitorStats() {
+function DashboardTab() {
+  const { users, loading: usersLoading } = useSuperAdminUsers();
+  const { projects, loading: projectsLoading } = useSuperAdminProjects();
+  const { stats: smsStats, loading: smsLoading } = useSuperAdminSmsStats();
+  const { stats: visitorStats, loading: visitorLoading } = useSuperAdminVisitorStats(7);
+
+  const loading = usersLoading || projectsLoading || smsLoading || visitorLoading;
+  if (loading) return <div className={styles.loading}>대시보드 로딩 중...</div>;
+
+  const totalSms = (smsStats || []).reduce((s, r) => s + r.total_count, 0);
+  const totalSmsSuccess = (smsStats || []).reduce((s, r) => s + r.success_count, 0);
+  const totalSmsFail = (smsStats || []).reduce((s, r) => s + r.fail_count, 0);
+  const daily7 = (visitorStats?.daily || []).slice(-7);
+
+  return (
+    <>
+      <div className={styles.dashboardCards}>
+        <div className={styles.dashboardCard}>
+          <span className={styles.visitorCardValue}>{users.length}</span>
+          <span className={styles.visitorCardLabel}>전체 회원</span>
+        </div>
+        <div className={styles.dashboardCard}>
+          <span className={styles.visitorCardValue}>{users.filter(u => u.role === 'admin').length}</span>
+          <span className={styles.visitorCardLabel}>관리자</span>
+        </div>
+        <div className={styles.dashboardCard}>
+          <span className={styles.visitorCardValue}>{projects.length}</span>
+          <span className={styles.visitorCardLabel}>전체 프로젝트</span>
+        </div>
+        <div className={styles.dashboardCard}>
+          <span className={styles.visitorCardValue}>{totalSms}</span>
+          <span className={styles.visitorCardLabel}>SMS 총 발송</span>
+        </div>
+        <div className={styles.dashboardCard}>
+          <span className={`${styles.visitorCardValue} ${styles.successText}`}>{totalSmsSuccess}</span>
+          <span className={styles.visitorCardLabel}>SMS 성공</span>
+        </div>
+        <div className={styles.dashboardCard}>
+          <span className={`${styles.visitorCardValue} ${styles.failText}`}>{totalSmsFail}</span>
+          <span className={styles.visitorCardLabel}>SMS 실패</span>
+        </div>
+        <div className={styles.dashboardCard}>
+          <span className={styles.visitorCardValue}>{visitorStats?.today_views ?? '-'}</span>
+          <span className={styles.visitorCardLabel}>오늘 방문</span>
+        </div>
+        <div className={styles.dashboardCard}>
+          <span className={styles.visitorCardValue}>{visitorStats?.today_unique ?? '-'}</span>
+          <span className={styles.visitorCardLabel}>오늘 유니크</span>
+        </div>
+        <div className={styles.dashboardCard}>
+          <span className={styles.visitorCardValue}>{visitorStats?.total_views ?? '-'}</span>
+          <span className={styles.visitorCardLabel}>총 방문</span>
+        </div>
+      </div>
+
+      {daily7.length > 0 && (
+        <div className={styles.dashboardChart}>
+          <h3 className={styles.visitorSubTitle}>최근 7일 방문</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={daily7}>
+              <XAxis dataKey="date" tickFormatter={(v) => v?.slice(5)} fontSize={12} />
+              <YAxis fontSize={12} allowDecimals={false} />
+              <Tooltip
+                labelFormatter={(v) => v}
+                formatter={(value, name) => [value, name === 'views' ? '조회수' : '유니크']}
+              />
+              <Bar dataKey="views" fill="var(--color-primary, #3b82f6)" name="views" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="unique_visitors" fill="var(--color-success, #16a34a)" name="unique" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </>
+  );
+}
+
+function VisitorsTab() {
   const { stats, loading, error, refresh } = useSuperAdminVisitorStats(30);
 
   if (loading) return <div className={styles.loading}>방문자 통계 로딩 중...</div>;
@@ -241,7 +317,7 @@ function VisitorStats() {
   const daily7 = (stats.daily || []).slice(-7);
 
   return (
-    <section className={styles.visitorSection}>
+    <>
       <div className={styles.visitorHeader}>
         <h2 className={styles.visitorTitle}>방문자 통계</h2>
         <button className={styles.refreshBtn} onClick={refresh}>새로고침</button>
@@ -270,17 +346,11 @@ function VisitorStats() {
         <h3 className={styles.visitorSubTitle}>최근 7일 일별 방문</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={daily7}>
-            <XAxis
-              dataKey="date"
-              tickFormatter={(v) => v?.slice(5)}
-              fontSize={12}
-            />
+            <XAxis dataKey="date" tickFormatter={(v) => v?.slice(5)} fontSize={12} />
             <YAxis fontSize={12} allowDecimals={false} />
             <Tooltip
               labelFormatter={(v) => v}
-              formatter={(value, name) =>
-                [value, name === 'views' ? '조회수' : '유니크']
-              }
+              formatter={(value, name) => [value, name === 'views' ? '조회수' : '유니크']}
             />
             <Bar dataKey="views" fill="var(--color-primary, #3b82f6)" name="views" radius={[4, 4, 0, 0]} />
             <Bar dataKey="unique_visitors" fill="var(--color-success, #16a34a)" name="unique" radius={[4, 4, 0, 0]} />
@@ -311,14 +381,22 @@ function VisitorStats() {
           </table>
         </div>
       )}
-    </section>
+    </>
   );
 }
 
 export default function SuperAdminPage() {
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const toast = useToast();
   const { confirm, confirmDialogProps } = useConfirm();
+
+  const tabs = [
+    { key: 'dashboard', label: '대시보드' },
+    { key: 'users', label: '회원 관리' },
+    { key: 'projects', label: '프로젝트 관리' },
+    { key: 'sms', label: 'SMS 관리' },
+    { key: 'visitors', label: '방문자 통계' },
+  ];
 
   return (
     <div>
@@ -327,31 +405,22 @@ export default function SuperAdminPage() {
         <h1 className={styles.title}>Super Admin</h1>
 
         <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${activeTab === 'users' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('users')}
-          >
-            회원 관리
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'projects' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('projects')}
-          >
-            프로젝트 관리
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'sms' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('sms')}
-          >
-            SMS 관리
-          </button>
+          {tabs.map(t => (
+            <button
+              key={t.key}
+              className={`${styles.tab} ${activeTab === t.key ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab(t.key)}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
+        {activeTab === 'dashboard' && <DashboardTab />}
         {activeTab === 'users' && <UsersTab toast={toast} />}
         {activeTab === 'projects' && <ProjectsTab toast={toast} confirm={confirm} />}
         {activeTab === 'sms' && <SmsTab />}
-
-        <VisitorStats />
+        {activeTab === 'visitors' && <VisitorsTab />}
       </div>
       <Footer />
       <ConfirmDialog {...confirmDialogProps} />
