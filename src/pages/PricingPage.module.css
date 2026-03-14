@@ -1,7 +1,7 @@
 /* ─── Hero Banner ─── */
 .hero {
   position: relative;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e3a8a 100%);
+  background: var(--hero-gradient);
   padding: 80px var(--spacing-xl) 60px;
   text-align: center;
   overflow: hidden;
@@ -394,7 +394,7 @@
 
 /* ─── CTA Section ─── */
 .ctaSection {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e3a8a 100%);
+  background: var(--hero-gradient);
   padding: 80px var(--spacing-xl);
   text-align: center;
 }

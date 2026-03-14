@@ -47,6 +47,9 @@
   --color-brand: #0046C8;
   --color-brand-dark: #002E8A;
 
+  /* ─── Hero Gradient (all public pages) ─── */
+  --hero-gradient: linear-gradient(135deg, #1e40af 0%, #1a3590 50%, #0f2b5b 100%);
+
   /* Error */
   --color-error: #dc2626;
   --color-error-bg: #fef2f2;

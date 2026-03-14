@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: 120px var(--spacing-xl) 80px;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 40%, #1e3a8a 100%);
+  background: var(--hero-gradient);
   overflow: hidden;
 }
 

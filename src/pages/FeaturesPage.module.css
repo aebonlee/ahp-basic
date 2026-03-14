@@ -1,7 +1,7 @@
 /* ─── Hero Banner ─── */
 .hero {
   position: relative;
-  background: linear-gradient(135deg, #6366f1 0%, #4338ca 50%, #312e81 100%);
+  background: var(--hero-gradient);
   padding: 80px var(--spacing-xl) 60px;
   text-align: center;
   overflow: hidden;
