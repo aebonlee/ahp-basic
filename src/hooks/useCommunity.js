@@ -18,7 +18,19 @@ export function useCommunityPosts(category, pageSize = 20) {
       setPosts([]);
       setHasMore(false);
     } else {
-      const items = data || [];
+      const raw = data || [];
+      // DB RETURNS TABLE uses out_ prefix — normalize to clean keys
+      const items = raw.map((r) => ({
+        id: r.out_id,
+        category: r.out_category,
+        title: r.out_title,
+        content: r.out_content,
+        author_id: r.out_author_id,
+        author_name: r.out_author_name,
+        views: r.out_views,
+        created_at: r.out_created_at,
+        updated_at: r.out_updated_at,
+      }));
       setHasMore(items.length > pageSize);
       setPosts(items.slice(0, pageSize));
     }
