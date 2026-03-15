@@ -172,7 +172,50 @@ DROP FUNCTION IF EXISTS public.get_marketplace_projects();
 
 ---
 
+## 7. 중복 참여 방지 (동일 전화번호 재설문 차단)
+
+### 문제
+
+QR 접속으로 설문을 완료한 평가자가, 마켓플레이스 직접 접속이나 다른 경로로 같은 전화번호를 입력하면 재설문이 가능하였음.
+
+### 원인
+
+`marketplace_register_evaluator`와 `public_register_evaluator` RPC가 기존 평가자를 감지할 때 `is_existing = TRUE`만 반환하고, `completed` 필드를 반환하지 않음. 프론트엔드에서 평가 완료 여부를 판단할 수 없어 "이어서 진행하기"로 재참여 가능.
+
+### 수정
+
+#### DB 변경 (migration 037)
+
+- `marketplace_register_evaluator` RETURNS TABLE에 `completed BOOLEAN` 추가
+- `public_register_evaluator` RETURNS TABLE에 `completed BOOLEAN` 추가
+- 기존 평가자 반환 시 `COALESCE(evaluators.completed, FALSE)` 포함
+- 신규 등록 시 `FALSE` 반환
+
+```sql
+-- 변경 전
+RETURNS TABLE(id UUID, name TEXT, is_existing BOOLEAN)
+-- 변경 후
+RETURNS TABLE(id UUID, name TEXT, is_existing BOOLEAN, completed BOOLEAN)
+```
+
+#### 프론트엔드 변경 (InviteLandingPage.jsx)
+
+- `handlePublicRegister`와 `handleMarketplaceRegister` 양쪽에 완료 감지 로직 추가
+- `is_existing && completed` → 확인 다이얼로그 없이 바로 `ready` 상태로 이동 (`completed: true`)
+- `ready` 상태에서 `evaluator.completed = true`이면 "이미 평가를 완료하셨습니다" 메시지 + "결과 확인" 버튼만 표시
+
+### 동작 흐름
+
+| 접근 방식 | 기존 평가자 | completed | 결과 |
+|---|---|---|---|
+| QR → 마켓플레이스 | 동일 전화번호 감지 | true | "이미 완료" 표시, 결과 확인만 가능 |
+| QR → 마켓플레이스 | 동일 전화번호 감지 | false | "이어서 진행" 확인 후 평가 계속 |
+| 마켓플레이스 → QR | 동일 전화번호 감지 | true | "이미 완료" 표시 |
+| 신규 접속 | 없음 | - | 정상 등록 후 평가 시작 |
+
+---
+
 ## 검증
 
 - `npx vite build` 성공 확인
-- Supabase SQL Editor에서 migration 036 SQL 실행 필요
+- Supabase SQL Editor에서 migration 037 SQL 실행 필요

@@ -222,8 +222,10 @@ export default function InviteLandingPage() {
     if (data && data.length > 0) {
       const row = data[0];
       if (row.is_existing) {
-        // 기존 평가자: 이름 일치 여부 확인
-        if (row.name === regName.trim()) {
+        if (row.completed) {
+          // 이미 평가 완료 → 바로 완료 상태로
+          completeVerification({ id: row.id, name: row.name, completed: true });
+        } else if (row.name === regName.trim()) {
           setPendingEvaluator(row);
           setStatus('confirm_existing');
         } else {
@@ -269,7 +271,10 @@ export default function InviteLandingPage() {
     if (data && data.length > 0) {
       const row = data[0];
       if (row.is_existing) {
-        if (row.name === regName.trim()) {
+        if (row.completed) {
+          // 이미 평가 완료 → 바로 완료 상태로
+          completeVerification({ id: row.id, name: row.name, completed: true });
+        } else if (row.name === regName.trim()) {
           setPendingEvaluator(row);
           setStatus('confirm_existing');
         } else {
