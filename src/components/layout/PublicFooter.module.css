@@ -5,7 +5,7 @@
 .footer {
   background: linear-gradient(180deg, var(--color-dark) 0%, #0A0F1A 100%);
   color: #fff;
-  padding: 80px 0 32px;
+  padding: 48px 0 24px;
   margin-top: 0;
 }
 
@@ -18,14 +18,14 @@
 .footerContent {
   display: grid;
   grid-template-columns: 2fr 1.5fr 1.3fr;
-  gap: 48px;
-  margin-bottom: 40px;
+  gap: 32px;
+  margin-bottom: 24px;
 }
 
 /* ── 브랜드 + 회사 정보 ── */
 .brandTitle {
-  font-size: 24px;
-  margin-bottom: 16px;
+  font-size: 22px;
+  margin-bottom: 10px;
   font-weight: 800;
 }
 
@@ -39,22 +39,22 @@
 
 .brandTagline {
   color: rgba(255, 255, 255, 0.8);
-  line-height: 1.7;
-  margin-bottom: 24px;
-  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  font-size: 14px;
 }
 
 .companyInfo {
-  margin-top: 24px;
-  padding-top: 24px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .companyInfo p {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-  margin-bottom: 6px;
-  line-height: 1.7;
+  font-size: 13px;
+  margin-bottom: 3px;
+  line-height: 1.5;
 }
 
 .companyInfo p strong {
@@ -63,8 +63,8 @@
 
 /* ── 바로가기 ── */
 .footerLinks h4 {
-  font-size: 16px;
-  margin-bottom: 16px;
+  font-size: 15px;
+  margin-bottom: 10px;
   color: #fff;
   font-weight: 600;
 }
@@ -78,16 +78,16 @@
 }
 
 .footerLinks li {
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   break-inside: avoid;
 }
 
 .footerLinks a {
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  font-size: 15px;
+  font-size: 14px;
   transition: color 0.2s ease;
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .footerLinks a:hover {
@@ -96,17 +96,17 @@
 
 /* ── 연락처 ── */
 .footerContact h4 {
-  font-size: 16px;
-  margin-bottom: 16px;
+  font-size: 15px;
+  margin-bottom: 10px;
   color: #fff;
   font-weight: 600;
 }
 
 .footerContact p {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 15px;
-  margin-bottom: 10px;
-  line-height: 1.7;
+  font-size: 14px;
+  margin-bottom: 5px;
+  line-height: 1.4;
 }
 
 .businessHours {
@@ -115,7 +115,7 @@
 
 /* ── Family Site ── */
 .footerFamily {
-  margin-top: 20px;
+  margin-top: 12px;
 }
 
 .footerFamily select {
@@ -142,7 +142,7 @@
 /* ── 하단 저작권 ── */
 .footerBottom {
   text-align: center;
-  padding-top: 24px;
+  padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
@@ -162,7 +162,7 @@
 
 @media (max-width: 600px) {
   .footer {
-    padding: 48px 0 24px;
+    padding: 32px 0 20px;
   }
 
   .container {
@@ -171,7 +171,7 @@
 
   .footerContent {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 24px;
   }
 
   .footerLinks ul {
