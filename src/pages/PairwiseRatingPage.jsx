@@ -26,7 +26,7 @@ export default function PairwiseRatingPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { evaluators } = useEvaluators(id);
+  const { evaluators, loading: evalLoading } = useEvaluators(id);
   const { criteria, alternatives, comparisons, loading, loadProjectData } = useEvaluation();
   const [currentPage, setCurrentPage] = useState(0);
   const [showIntro, setShowIntro] = useState(true);
@@ -123,10 +123,17 @@ export default function PairwiseRatingPage() {
     });
   }, [pageSequence, comparisons]);
 
-  const currentPageData = pageSequence[currentPage] || null;
+  // Clamp currentPage to valid range
+  const safeCurrentPage = pageSequence.length > 0
+    ? Math.min(currentPage, pageSequence.length - 1)
+    : 0;
+  const currentPageData = pageSequence[safeCurrentPage] || null;
   const comparison = usePairwiseComparison(currentPageData);
 
-  if (loading) return <PageLayout projectName={projectName}><LoadingSpinner message="평가 데이터 로딩 중..." /></PageLayout>;
+  // evaluator 로딩 중이거나 데이터 로딩 중이면 스피너 표시
+  if (loading || evalLoading || (!evaluatorId && evaluators.length === 0)) {
+    return <PageLayout projectName={projectName}><LoadingSpinner message="평가 데이터 로딩 중..." /></PageLayout>;
+  }
 
   if (showIntro) {
     return (
@@ -148,7 +155,7 @@ export default function PairwiseRatingPage() {
   return (
     <PageLayout wide projectName={projectName}>
       <EvaluationProgress
-        current={currentPage + 1}
+        current={safeCurrentPage + 1}
         total={pageSequence.length}
         pageSequence={pageSequence}
         comparisons={comparisons}
@@ -185,7 +192,7 @@ export default function PairwiseRatingPage() {
               )}
               {resultsLayout === 'bottom' ? '우측 배치' : '하단 배치'}
             </button>
-            <span className={styles.pageNum}>{currentPage + 1}/{pageSequence.length}</span>
+            <span className={styles.pageNum}>{safeCurrentPage + 1}/{pageSequence.length}</span>
             <HelpButton helpKey="evalProgress" />
           </span>
         </div>
@@ -230,12 +237,12 @@ export default function PairwiseRatingPage() {
       </div>
 
       <PageNavigator
-        current={currentPage}
+        current={safeCurrentPage}
         total={pageSequence.length}
         pageStatuses={pageStatuses}
         onPrev={() => setCurrentPage(p => Math.max(0, p - 1))}
         onNext={() => {
-          if (currentPage < pageSequence.length - 1) {
+          if (safeCurrentPage < pageSequence.length - 1) {
             setCurrentPage(p => p + 1);
           } else {
             navigate(`/eval/project/${id}/result`);

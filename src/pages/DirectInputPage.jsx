@@ -18,7 +18,7 @@ export default function DirectInputPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { evaluators } = useEvaluators(id);
+  const { evaluators, loading: evalLoading } = useEvaluators(id);
   const { criteria, alternatives, loading, loadProjectData, directInputValues } = useEvaluation();
   const [validations, setValidations] = useState({});
   const [projectName, setProjectName] = useState('');
@@ -80,7 +80,9 @@ export default function DirectInputPage() {
     return result;
   }, [pages, directInputValues]);
 
-  if (loading) return <PageLayout projectName={projectName}><LoadingSpinner /></PageLayout>;
+  if (loading || evalLoading || (!evaluatorId && evaluators.length === 0)) {
+    return <PageLayout projectName={projectName}><LoadingSpinner /></PageLayout>;
+  }
 
   return (
     <PageLayout projectName={projectName}>

@@ -40,7 +40,11 @@ export default memo(function PairwiseRow({ pair, parentId, projectId, evaluatorI
   const handleCellClick = useCallback(async (cellIndex) => {
     if (!evaluatorId) return; // guard: don't save without valid evaluatorId
     const newValue = getCellValue(cellIndex);
-    await saveComparison(projectId, evaluatorId, parentId, pair.left.id, pair.right.id, newValue);
+    try {
+      await saveComparison(projectId, evaluatorId, parentId, pair.left.id, pair.right.id, newValue);
+    } catch (err) {
+      console.error('비교 저장 실패:', err);
+    }
   }, [projectId, evaluatorId, parentId, pair, saveComparison]);
 
   // Determine which cell is selected

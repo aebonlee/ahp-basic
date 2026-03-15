@@ -39,6 +39,7 @@ const NAV_GROUPS = [
       { to: '/community?tab=recruit-team', label: '연구팀원 모집' },
     ],
   },
+  { label: '온라인 강의', to: '/lecture-apply' },
 ];
 
 const COLOR_SCHEMES = [

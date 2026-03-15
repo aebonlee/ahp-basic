@@ -40,13 +40,22 @@ export default function EvaluatorGuard({ children }) {
         return;
       }
 
-      // 2) 배정된 평가자인지 확인
-      const { data: evaluators } = await supabase
+      // 2) 배정된 평가자인지 확인 (or 필터 대신 순차 쿼리 — 406 방지)
+      let { data: evaluators } = await supabase
         .from('evaluators')
         .select('id')
         .eq('project_id', id)
-        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+        .eq('user_id', user.id)
         .limit(1);
+
+      if ((!evaluators || evaluators.length === 0) && user.email) {
+        ({ data: evaluators } = await supabase
+          .from('evaluators')
+          .select('id')
+          .eq('project_id', id)
+          .eq('email', user.email)
+          .limit(1));
+      }
 
       setAuthorized(evaluators && evaluators.length > 0);
       setChecking(false);
