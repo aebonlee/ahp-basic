@@ -24,19 +24,14 @@ const NAV_GROUPS = [
     ],
   },
   { label: '사용요금', to: '/pricing' },
-  {
-    label: '평가자활동',
-    children: [
-      { to: '/evaluator-info', label: '평가자 안내' },
-      { to: '/community?tab=recruit-evaluator', label: '평가자 모집' },
-    ],
-  },
+  { label: '평가자 안내', to: '/evaluator-info' },
   {
     label: '커뮤니티',
     children: [
       { to: '/community?tab=notice', label: '공지사항' },
       { to: '/community?tab=qna', label: 'Q&A' },
       { to: '/community?tab=recruit-team', label: '연구팀원 모집' },
+      { to: '/community?tab=recruit-evaluator', label: '평가자 모집' },
     ],
   },
   { label: '온라인 강의', to: '/lecture-apply' },
