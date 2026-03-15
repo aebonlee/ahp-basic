@@ -68,7 +68,7 @@ function InterpretSection({ title, items }) {
         {items.map((item, i) => (
           <li key={i} className={styles.interpretItem}>
             <span className={styles.interpretIcon}>{item.icon || '\u{1F4CC}'}</span>
-            <span>{item.text}</span>
+            <span>{typeof item.text === 'string' ? item.text : String(item.text ?? '')}</span>
           </li>
         ))}
       </ul>
@@ -99,7 +99,8 @@ function SampleSizeWarning({ n }) {
 /* ── 요약 카드 ── */
 function SummaryCards({ summary }) {
   if (!summary || summary.error) {
-    return <div className={styles.error}>{summary?.error || '결과 없음'}</div>;
+    const errMsg = typeof summary?.error === 'string' ? summary.error : '결과 없음';
+    return <div className={styles.error}>{errMsg}</div>;
   }
   const entries = Object.entries(summary);
   return (
@@ -107,7 +108,7 @@ function SummaryCards({ summary }) {
       {entries.map(([k, v]) => (
         <div key={k} className={styles.summaryCard}>
           <div className={styles.summaryLabel}>{k}</div>
-          <div className={styles.summaryValue}>{String(v)}</div>
+          <div className={styles.summaryValue}>{v == null ? '-' : String(v)}</div>
         </div>
       ))}
     </div>

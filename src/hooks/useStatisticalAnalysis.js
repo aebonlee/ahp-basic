@@ -57,9 +57,9 @@ export function useStatisticalAnalysis(projectId) {
     for (const q of questions) {
       const varInfo = {
         id: q.id,
-        label: q.question_text || `질문 ${q.sort_order + 1}`,
+        label: typeof q.question_text === 'string' ? q.question_text : `질문 ${(q.sort_order ?? 0) + 1}`,
         type: q.question_type,
-        options: q.options || [],
+        options: Array.isArray(q.options) ? q.options : [],
         sortOrder: q.sort_order,
       };
 
@@ -106,7 +106,7 @@ export function useStatisticalAnalysis(projectId) {
           max: vals.length > 0 ? Math.max(...vals) : null,
           mean: vals.length > 0 ? Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 100) / 100 : null,
           // 리커트: 옵션 라벨도 포함
-          likertLabels: q.question_type === 'likert' ? q.options : null,
+          likertLabels: q.question_type === 'likert' && Array.isArray(q.options) ? q.options.map(o => typeof o === 'string' ? o : (o?.label || o?.text || String(o))) : null,
         };
       } else if (CATEGORICAL_TYPES.includes(q.question_type)) {
         const catCounts = {};

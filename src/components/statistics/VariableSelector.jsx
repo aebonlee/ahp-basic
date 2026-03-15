@@ -457,7 +457,7 @@ export default function VariableSelector({
                           onChange={() => handleChange(field.key, opt.id, true)}
                         />
                         <span className={styles.checkLabel}>
-                          <span>{opt.label}</span>
+                          <span>{String(opt.label)}</span>
                           {responseCounts?.[opt.id] !== undefined && (
                             <span className={styles.respCount}>({responseCounts[opt.id]}명)</span>
                           )}
@@ -478,7 +478,7 @@ export default function VariableSelector({
                     {options.map(opt => {
                       const summary = variableSummaries[opt.id];
                       const noData = summary && summary.count === 0;
-                      let label = opt.label;
+                      let label = String(opt.label);
                       if (responseCounts?.[opt.id] !== undefined) label += ` (${responseCounts[opt.id]}명)`;
                       if (noData) label += ' [응답없음]';
                       return (
@@ -574,7 +574,7 @@ function SelectedVarPreview({ varId, summary }) {
             <div className={styles.likertMap}>
               {summary.likertLabels.map((label, i) => (
                 <span key={i} className={styles.likertMapItem}>
-                  <strong>{i + 1}</strong> = {label}
+                  <strong>{i + 1}</strong> = {typeof label === 'string' ? label : String(label)}
                 </span>
               ))}
             </div>
