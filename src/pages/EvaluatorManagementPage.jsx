@@ -47,6 +47,7 @@ export default function EvaluatorManagementPage() {
   const [recruitDesc, setRecruitDesc] = useState('');
   const [saving, setSaving] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [resuming, setResuming] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sourceFilter, setSourceFilter] = useState('all');
@@ -223,6 +224,23 @@ export default function EvaluatorManagementPage() {
     }
   };
 
+  const handleResumeEvaluation = async () => {
+    if (!(await confirm({
+      title: '평가 재개',
+      message: '마감된 평가를 다시 재개하시겠습니까?\n평가자들이 다시 평가에 참여할 수 있게 됩니다.',
+      variant: 'warning',
+    }))) return;
+    setResuming(true);
+    try {
+      await updateProject(id, { status: PROJECT_STATUS.EVALUATING });
+      toast.success('평가가 재개되었습니다.');
+    } catch (err) {
+      toast.error('재개 실패: ' + err.message);
+    } finally {
+      setResuming(false);
+    }
+  };
+
   const handleDeleteEvaluator = async (evalId) => {
     if (!(await confirm({ title: '평가자 삭제', message: '삭제하시겠습니까?', variant: 'danger' }))) return;
     try {
@@ -267,6 +285,11 @@ export default function EvaluatorManagementPage() {
           {currentProject.status === PROJECT_STATUS.EVALUATING && (
             <Button variant="danger" loading={closing} onClick={handleCloseEvaluation}>
               평가 마감
+            </Button>
+          )}
+          {currentProject.status === PROJECT_STATUS.COMPLETED && (
+            <Button variant="warning" loading={resuming} onClick={handleResumeEvaluation}>
+              평가 재개
             </Button>
           )}
         </div>
