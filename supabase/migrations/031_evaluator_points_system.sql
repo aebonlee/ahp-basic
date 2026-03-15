@@ -3,7 +3,30 @@
 -- =============================================
 
 -- 1) user_profiles: role CHECK에 'evaluator' 추가 + points_balance 컬럼
-ALTER TABLE public.user_profiles DROP CONSTRAINT IF EXISTS user_profiles_role_check;
+
+-- 기존 CHECK 제약조건 자동 제거 (이름이 다를 수 있으므로 동적 탐색)
+DO $$
+DECLARE
+  r RECORD;
+BEGIN
+  FOR r IN
+    SELECT con.conname
+    FROM pg_constraint con
+    JOIN pg_attribute att ON att.attnum = ANY(con.conkey)
+      AND att.attrelid = con.conrelid
+    WHERE con.conrelid = 'public.user_profiles'::regclass
+      AND con.contype = 'c'
+      AND att.attname = 'role'
+  LOOP
+    EXECUTE format('ALTER TABLE public.user_profiles DROP CONSTRAINT %I', r.conname);
+  END LOOP;
+END $$;
+
+-- 허용 목록 외 role 값을 'user'로 정규화
+UPDATE public.user_profiles
+SET role = 'user'
+WHERE role IS NULL OR role NOT IN ('user', 'admin', 'superadmin', 'evaluator');
+
 ALTER TABLE public.user_profiles
   ADD CONSTRAINT user_profiles_role_check
   CHECK (role IN ('user', 'admin', 'superadmin', 'evaluator'));
