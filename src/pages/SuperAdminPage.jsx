@@ -563,11 +563,11 @@ const LECTURE_STATUS_STYLES = {
 const LECTURE_SMS_TEMPLATES = [
   {
     name: '일정 확정 안내',
-    content: `[AHP Basic] {이름}님, 온라인 강의 일정이 확정되었습니다.\n\n- 강의: {강의유형}\n- 일시: (여기에 확정 일시 입력)\n- Zoom 링크: (여기에 링크 입력)\n\n감사합니다.`,
+    content: `[AHP Basic] {이름}님, 온라인 강의 일정이 확정되었습니다.\n\n- 강의: {강의유형}\n- 확정일: {확정일}\n- Zoom 링크: (여기에 링크 입력)\n\n감사합니다.`,
   },
   {
     name: '강의 리마인드',
-    content: `[AHP Basic] {이름}님, 내일 예정된 온라인 강의를 안내드립니다.\n\n- 강의: {강의유형}\n- Zoom 링크: (여기에 링크 입력)\n\n시간에 맞춰 참여 부탁드립니다.`,
+    content: `[AHP Basic] {이름}님, 내일 예정된 온라인 강의를 안내드립니다.\n\n- 강의: {강의유형}\n- 확정일: {확정일}\n- Zoom 링크: (여기에 링크 입력)\n\n시간에 맞춰 참여 부탁드립니다.`,
   },
   {
     name: '자유 입력',
@@ -595,6 +595,7 @@ function LecturesTab({ toast }) {
   const [sendProgress, setSendProgress] = useState({ current: 0, total: 0 });
   const [sendResults, setSendResults] = useState(null);
   const [updatingIds, setUpdatingIds] = useState(new Set());
+  const [confirmDate, setConfirmDate] = useState('');
 
   const fetchApplications = () => {
     setLoading(true);
@@ -629,9 +630,13 @@ function LecturesTab({ toast }) {
 
   // 확인 문자 발송 + 확정 처리 (선택된 신청자)
   const handleConfirmAndSms = async () => {
-    const targets = selectedApps.filter(a => (a.status || 'pending') === 'pending');
+    if (!confirmDate) {
+      toast.warning('확정일을 먼저 선택해 주세요.');
+      return;
+    }
+    const targets = selectedApps.filter(a => (a.status || 'pending') !== 'completed');
     if (targets.length === 0) {
-      toast.warning('접수 상태인 신청자가 없습니다.');
+      toast.warning('확정 처리할 신청자가 없습니다.');
       return;
     }
 
@@ -641,7 +646,7 @@ function LecturesTab({ toast }) {
 
     for (let i = 0; i < targets.length; i++) {
       const app = targets[i];
-      const msg = `[AHP Basic] ${app.name}님, 온라인 강의 신청이 확정되었습니다.\n- 강의: ${LECTURE_TYPE_LABELS[app.lecture_type] || app.lecture_type}\n- 희망일: ${app.preferred_date || '-'}\n확정 일정은 별도 안내드리겠습니다.`;
+      const msg = `[AHP Basic] ${app.name}님, 온라인 강의 일정이 확정되었습니다.\n- 강의: ${LECTURE_TYPE_LABELS[app.lecture_type] || app.lecture_type}\n- 확정일: ${confirmDate}\n자세한 안내는 별도 연락드리겠습니다.`;
 
       let smsOk = false;
       try {
@@ -649,14 +654,14 @@ function LecturesTab({ toast }) {
         smsOk = true;
       } catch { /* SMS 실패해도 확정 처리 */ }
 
-      // DB 상태 → confirmed
+      // DB 상태 → confirmed + confirmed_date
       const { error } = await supabase
         .from('lecture_applications')
-        .update({ status: 'confirmed' })
+        .update({ status: 'confirmed', confirmed_date: confirmDate })
         .eq('id', app.id);
 
       if (!error) {
-        setApplications(prev => prev.map(a => a.id === app.id ? { ...a, status: 'confirmed' } : a));
+        setApplications(prev => prev.map(a => a.id === app.id ? { ...a, status: 'confirmed', confirmed_date: confirmDate } : a));
       }
 
       results.push({ name: app.name, phone: app.phone, success: !error, smsOk });
@@ -796,7 +801,8 @@ function LecturesTab({ toast }) {
       const app = selectedApps[i];
       const personalMsg = smsMessage
         .replace(/\{이름\}/g, app.name || '')
-        .replace(/\{강의유형\}/g, LECTURE_TYPE_LABELS[app.lecture_type] || app.lecture_type || '');
+        .replace(/\{강의유형\}/g, LECTURE_TYPE_LABELS[app.lecture_type] || app.lecture_type || '')
+        .replace(/\{확정일\}/g, app.confirmed_date || confirmDate || '-');
 
       try {
         await sendSms({ receiver: app.phone, message: personalMsg });
@@ -848,14 +854,22 @@ function LecturesTab({ toast }) {
             {f.label}
           </button>
         ))}
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
+          <input
+            type="date"
+            className={styles.roleSelect}
+            value={confirmDate}
+            onChange={e => setConfirmDate(e.target.value)}
+            title="확정일 선택"
+            style={{ minWidth: 130 }}
+          />
           <button
             className={styles.confirmBtn}
-            disabled={selected.size === 0 || sending}
+            disabled={selected.size === 0 || sending || !confirmDate}
             onClick={handleConfirmAndSms}
-            title="선택된 접수 건에 확인 문자 발송 + 확정 처리"
+            title="확정일 지정 + 확인 문자 발송 + 확정 처리"
           >
-            확인문자 + 확정 ({selected.size}명)
+            확정 + 문자 ({selected.size}명)
           </button>
           <button
             className={styles.completeBtn}
@@ -891,7 +905,7 @@ function LecturesTab({ toast }) {
               <th>전화번호</th>
               <th>강의 유형</th>
               <th>희망일</th>
-              <th>문의사항</th>
+              <th>확정일</th>
               <th>신청일</th>
               <th>관리</th>
             </tr>
@@ -937,7 +951,7 @@ function LecturesTab({ toast }) {
                     </span>
                   </td>
                   <td>{a.preferred_date || (a.preferred_dates?.join(', ')) || '-'}</td>
-                  <td>{a.message || '-'}</td>
+                  <td>{a.confirmed_date || '-'}</td>
                   <td>{formatDate(a.created_at)}</td>
                   <td>
                     <select
@@ -1002,7 +1016,7 @@ function LecturesTab({ toast }) {
                 ))}
               </div>
               <div className={styles.smsHint}>
-                사용 가능 변수: <code>{'{이름}'}</code> <code>{'{강의유형}'}</code>
+                사용 가능 변수: <code>{'{이름}'}</code> <code>{'{강의유형}'}</code> <code>{'{확정일}'}</code>
               </div>
               <textarea
                 className={styles.smsTextarea}

@@ -49,10 +49,19 @@
 - 완료 행 시각 구분 (opacity 0.55)
 - 상태별 배지 색상: 접수(노란색), 확정(파란색), 완료(녹색)
 
+### 8. 확정일 관리 + 확정 시 문자 자동 발송
+- DB: `confirmed_date` 컬럼 추가
+- 테이블에 **희망일 / 확정일** 2개 날짜 컬럼 표시
+- 액션 바에 **확정일 date picker** 추가 — 날짜 선택 후 "확정 + 문자" 버튼 클릭
+- 확정 처리 시 자동 SMS 발송: 신청자에게 강의유형 + 확정일 포함 문자 전달
+- SMS 템플릿에 `{확정일}` 변수 추가 (일정 확정 안내 / 강의 리마인드 / 자유 입력)
+- 자유 문자 발송 시에도 `{확정일}` 변수 자동 치환
+
 ## 변경 파일
 - `src/pages/LectureApplyPage.jsx` — 전면 개편
 - `src/pages/LectureApplyPage.module.css` — 카드 스타일 변경
-- `src/pages/SuperAdminPage.jsx` — 강의 신청 탭 + SMS 발송 기능
+- `src/pages/SuperAdminPage.jsx` — 강의 신청 탭 + SMS + 확정일 관리
 - `src/pages/SuperAdminPage.module.css` — SMS 패널 스타일 추가
-- `supabase/migrations/038_lecture_type_column.sql` — DB 마이그레이션 (lecture_type, preferred_date)
-- `supabase/migrations/039_lecture_status.sql` — DB 마이그레이션 (status + UPDATE RLS)
+- `supabase/migrations/038_lecture_type_column.sql` — lecture_type, preferred_date
+- `supabase/migrations/039_lecture_status.sql` — status + UPDATE RLS
+- `supabase/migrations/040_lecture_confirmed_date.sql` — confirmed_date
