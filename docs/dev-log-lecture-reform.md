@@ -28,8 +28,19 @@
 - 신청자 이름, 이메일, 전화번호, 강의유형, 희망일, 문의사항, 신청일 테이블 표시
 - 유형별 통계 카드 (전체/무료/1:1 건수)
 
+### 6. 강의 신청자 SMS 발송 기능
+- 테이블에 체크박스 추가 → 전체 선택 / 개별 선택
+- **"문자 보내기 (N명)"** 버튼 → 선택된 신청자에게 SMS 발송
+- SMS 패널 기능:
+  - 3개 템플릿: 일정 확정 안내 / 강의 리마인드 / 자유 입력
+  - `{이름}`, `{강의유형}` 변수 자동 치환
+  - 바이트 카운터 (SMS 90B / LMS 2000B)
+  - 순차 발송 + 진행 표시 + 결과 리포트 (성공/실패)
+- 전화번호 없는 신청자는 체크박스 비활성화
+
 ## 변경 파일
 - `src/pages/LectureApplyPage.jsx` — 전면 개편
 - `src/pages/LectureApplyPage.module.css` — 카드 스타일 변경
-- `src/pages/SuperAdminPage.jsx` — 강의 신청 탭 추가
+- `src/pages/SuperAdminPage.jsx` — 강의 신청 탭 + SMS 발송 기능
+- `src/pages/SuperAdminPage.module.css` — SMS 패널 스타일 추가
 - `supabase/migrations/038_lecture_type_column.sql` — DB 마이그레이션
