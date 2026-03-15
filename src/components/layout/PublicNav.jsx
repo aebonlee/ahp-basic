@@ -7,7 +7,7 @@ import '../../styles/shop.css';
 
 const NAV_GROUPS = [
   {
-    label: '소개',
+    label: '플랫폼소개',
     children: [
       { to: '/about', label: 'AHP 소개' },
       { to: '/features', label: '주요 기능' },
@@ -16,11 +16,19 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: '가이드',
+    label: '활용가이드',
     children: [
       { to: '/guide', label: '이용 가이드' },
       { to: '/learn', label: '학습 가이드' },
       { to: '/manual', label: '사용설명서' },
+    ],
+  },
+  { label: '사용요금', to: '/pricing' },
+  {
+    label: '평가자활동',
+    children: [
+      { to: '/evaluator-info', label: '평가자 안내' },
+      { to: '/community?tab=recruit-evaluator', label: '평가자 모집' },
     ],
   },
   {
@@ -29,11 +37,8 @@ const NAV_GROUPS = [
       { to: '/community?tab=notice', label: '공지사항' },
       { to: '/community?tab=qna', label: 'Q&A' },
       { to: '/community?tab=recruit-team', label: '연구팀원 모집' },
-      { to: '/community?tab=recruit-evaluator', label: '평가자 모집' },
     ],
   },
-  { label: '평가자', to: '/evaluator-info' },
-  { label: '사용요금', to: '/pricing' },
 ];
 
 const COLOR_SCHEMES = [
