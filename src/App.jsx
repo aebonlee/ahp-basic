@@ -55,6 +55,7 @@ const GuidePage = lazy(() => import('./pages/GuidePage'));
 const ManualPage = lazy(() => import('./pages/ManualPage'));
 const LearnPage = lazy(() => import('./pages/LearnPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
+const StatsGuidePage = lazy(() => import('./pages/StatsGuidePage'));
 const StatisticalAnalysisPage = lazy(() => import('./pages/StatisticalAnalysisPage'));
 const AiAnalysisPage = lazy(() => import('./pages/AiAnalysisPage'));
 const SmsHistoryPage = lazy(() => import('./pages/SmsHistoryPage'));
@@ -98,6 +99,7 @@ export default function App() {
               <Route path="/shared/result/:token" element={<ErrorBoundary><SharedResultPage /></ErrorBoundary>} />
               <Route path="/survey-stats" element={<ErrorBoundary><SurveyStatsPage /></ErrorBoundary>} />
               <Route path="/management" element={<ErrorBoundary><ManagementPage /></ErrorBoundary>} />
+              <Route path="/stats-guide" element={<ErrorBoundary><StatsGuidePage /></ErrorBoundary>} />
               <Route path="/pricing" element={<ErrorBoundary><PricingPage /></ErrorBoundary>} />
               <Route path="/evaluator-info" element={<ErrorBoundary><EvaluatorInfoPage /></ErrorBoundary>} />
               <Route path="/community" element={<ErrorBoundary><CommunityPage /></ErrorBoundary>} />

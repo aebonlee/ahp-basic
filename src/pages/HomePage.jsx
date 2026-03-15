@@ -57,16 +57,16 @@ const FEATURES = [
 ];
 
 const STAT_FEATURES = [
-  { icon: '📊', title: '기술통계', desc: '평균, 표준편차, 왜도, 첨도 등' },
-  { icon: '📏', title: '독립표본 T검정', desc: '두 집단 간 평균 차이 검정' },
-  { icon: '🔁', title: '대응표본 T검정', desc: '사전-사후 비교 등 대응 검정' },
-  { icon: '📈', title: '일원분산분석', desc: '3개 이상 집단 간 평균 비교' },
-  { icon: '📋', title: '카이제곱 검정', desc: '범주형 변수 간 독립성 검정' },
-  { icon: '🔗', title: '상관분석', desc: 'Pearson 상관계수 행렬' },
-  { icon: '📉', title: '단순선형회귀', desc: '독립-종속 변수 회귀 분석' },
-  { icon: '✅', title: '크론바흐 알파', desc: '리커트 문항 신뢰도 분석' },
-  { icon: '🗂', title: '교차분석', desc: '빈도표, 비율, 기대빈도, 잔차' },
-  { icon: '📇', title: 'Spearman 순위상관', desc: '비정규 데이터 순위 상관분석' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="4" y="16" width="4" height="8" rx="1" stroke="currentColor" strokeWidth="1.5"/><rect x="12" y="10" width="4" height="14" rx="1" stroke="currentColor" strokeWidth="1.5"/><rect x="20" y="4" width="4" height="20" rx="1" stroke="currentColor" strokeWidth="1.5"/></svg>), title: '기술통계', desc: '평균, 표준편차, 왜도, 첨도 등' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><circle cx="9" cy="14" r="5" stroke="currentColor" strokeWidth="1.5"/><circle cx="19" cy="14" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M14 10.5v7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="2 2"/></svg>), title: '독립표본 T검정', desc: '두 집단 간 평균 차이 검정' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M7 18l4-8 4 5 3-3 3 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 22h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M10 6l1 2M18 6l-1 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>), title: '대응표본 T검정', desc: '사전-사후 비교 등 대응 검정' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M4 22L10 14L16 18L24 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="10" cy="14" r="2" fill="currentColor"/><circle cx="16" cy="18" r="2" fill="currentColor"/><circle cx="24" cy="6" r="2" fill="currentColor"/></svg>), title: '일원분산분석', desc: '3개 이상 집단 간 평균 비교' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="4" y="4" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="1.5"/><rect x="15" y="4" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="1.5"/><rect x="4" y="15" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="1.5"/><rect x="15" y="15" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="1.5"/></svg>), title: '카이제곱 검정', desc: '범주형 변수 간 독립성 검정' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><circle cx="8" cy="20" r="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="12" cy="16" r="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="18" cy="12" r="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="22" cy="8" r="2" stroke="currentColor" strokeWidth="1.5"/><path d="M8 20L22 8" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2"/></svg>), title: '상관분석', desc: 'Pearson 상관계수 행렬' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M4 22l20-14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="8" cy="18" r="1.5" fill="currentColor"/><circle cx="14" cy="13" r="1.5" fill="currentColor"/><circle cx="20" cy="10" r="1.5" fill="currentColor"/><path d="M4 24h20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>), title: '단순선형회귀', desc: '독립-종속 변수 회귀 분석' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M9 14l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="14" cy="14" r="10" stroke="currentColor" strokeWidth="1.5"/></svg>), title: '크론바흐 알파', desc: '리커트 문항 신뢰도 분석' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M4 4h20v20H4z" stroke="currentColor" strokeWidth="1.5" rx="2"/><path d="M4 12h20M4 20h20M12 4v20M20 4v20" stroke="currentColor" strokeWidth="1" opacity="0.4"/></svg>), title: '교차분석', desc: '빈도표, 비율, 기대빈도, 잔차' },
+  { icon: (<svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M6 22l4-6 4 3 4-5 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M6 6v16h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><text x="19" y="10" fontSize="7" fill="currentColor" fontWeight="700">r</text></svg>), title: 'Spearman 순위상관', desc: '비정규 데이터 순위 상관분석' },
 ];
 
 const STEPS = [
@@ -311,8 +311,9 @@ export default function HomePage() {
             ))}
           </div>
           <div className={styles.sectionMore}>
-            <Link to="/features" className={styles.moreLink}>
-              자세히 보기 →
+            <Link to="/stats-guide" className={styles.moreLink}>
+              자세히 보기
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
           </div>
         </div>
