@@ -25,6 +25,8 @@ import SmsModal from '../components/admin/SmsModal';
 import common from '../styles/common.module.css';
 import styles from './EvaluatorManagementPage.module.css';
 
+const PAGE_SIZE = 10;
+
 export default function EvaluatorManagementPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -40,6 +42,7 @@ export default function EvaluatorManagementPage() {
   const [comparisonCounts, setComparisonCounts] = useState({});
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [planRequiredOpen, setPlanRequiredOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const { canAddEvaluator, isSuperAdmin } = useSubscription();
   const projectPlan = useProjectPlan(id);
   const maxEvaluators = isSuperAdmin ? Infinity : (projectPlan?.max_evaluators ?? 1);
@@ -110,10 +113,18 @@ export default function EvaluatorManagementPage() {
     if (!(await confirm({ title: '평가자 삭제', message: '삭제하시겠습니까?', variant: 'danger' }))) return;
     try {
       await deleteEvaluator(evalId);
+      // 삭제 후 마지막 페이지 보정
+      const remaining = evaluators.length - 1;
+      const newTotalPages = Math.max(1, Math.ceil(remaining / PAGE_SIZE));
+      if (currentPage > newTotalPages) setCurrentPage(newTotalPages);
     } catch (err) {
       toast.error('삭제 실패: ' + err.message);
     }
   };
+
+  const totalPages = Math.max(1, Math.ceil(evaluators.length / PAGE_SIZE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pagedEvaluators = evaluators.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
     <ProjectLayout projectName={currentProject.name}>
@@ -169,54 +180,91 @@ export default function EvaluatorManagementPage() {
             }}
           />
         ) : (
-          <table className={common.dataTable}>
-            <thead>
-              <tr>
-                <th>이름</th>
-                <th>이메일</th>
-                <th>전화번호</th>
-                <th>구분</th>
-                <th>진행률</th>
-                <th>상태</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {evaluators.map(ev => {
-                const done = comparisonCounts[ev.id] || 0;
-                const pct = totalRequired > 0 ? Math.min(100, Math.round((done / totalRequired) * 100)) : 0;
-                const isPublic = ev.registration_source === 'public';
+          <>
+          <div className={styles.evaluatorGrid}>
+            {pagedEvaluators.map(ev => {
+              const done = comparisonCounts[ev.id] || 0;
+              const pct = totalRequired > 0 ? Math.min(100, Math.round((done / totalRequired) * 100)) : 0;
+              const isPublic = ev.registration_source === 'public';
+              const completed = ev.completed || pct >= 100;
 
-                return (
-                  <tr key={ev.id}>
-                    <td>{ev.name}</td>
-                    <td>{isPublic ? '-' : ev.email}</td>
-                    <td>{ev.phone_number ? formatPhone(ev.phone_number) : '-'}</td>
-                    <td>
-                      <span className={isPublic ? styles.badgePublic : styles.badgeAdmin}>
-                        {isPublic ? 'QR 접속' : '직접 등록'}
-                      </span>
-                    </td>
-                    <td className={styles.progressCell}>
-                      <div className={styles.progressBar}>
-                        <div className={styles.progressBarFill} style={{ width: `${pct}%` }} />
+              return (
+                <div key={ev.id} className={styles.evaluatorCard}>
+                  <div className={styles.cardHeader}>
+                    <span className={styles.cardName}>{ev.name}</span>
+                    <span className={isPublic ? styles.badgePublic : styles.badgeAdmin}>
+                      {isPublic ? 'QR 접속' : '직접 등록'}
+                    </span>
+                  </div>
+
+                  <div className={styles.cardInfo}>
+                    {!isPublic && ev.email && (
+                      <div className={styles.cardInfoRow}>
+                        <span className={styles.cardLabel}>이메일</span>
+                        <span className={styles.cardValue}>{ev.email}</span>
                       </div>
+                    )}
+                    {ev.phone_number && (
+                      <div className={styles.cardInfoRow}>
+                        <span className={styles.cardLabel}>전화번호</span>
+                        <span className={styles.cardValue}>{formatPhone(ev.phone_number)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={styles.cardProgress}>
+                    <div className={styles.progressBar}>
+                      <div className={styles.progressBarFill} style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className={styles.progressMeta}>
                       <span className={styles.progressPct}>{pct}%</span>
-                    </td>
-                    <td>{(ev.completed || pct >= 100) ? '완료' : '미완료'}</td>
-                    <td>
-                      <button className={common.linkAction} onClick={handleCopyLink}>
-                        링크 복사
-                      </button>
-                      <button className={common.linkActionDanger} onClick={() => handleDeleteEvaluator(ev.id)}>
-                        삭제
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <span className={completed ? styles.statusDone : styles.statusPending}>
+                        {completed ? '완료' : '미완료'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={styles.cardActions}>
+                    <button className={common.linkAction} onClick={handleCopyLink}>
+                      링크 복사
+                    </button>
+                    <button className={common.linkActionDanger} onClick={() => handleDeleteEvaluator(ev.id)}>
+                      삭제
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className={styles.pagination}>
+              <button
+                className={styles.pageBtn}
+                disabled={safePage === 1}
+                onClick={() => setCurrentPage(safePage - 1)}
+              >
+                &laquo;
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                <button
+                  key={p}
+                  className={`${styles.pageBtn} ${p === safePage ? styles.pageBtnActive : ''}`}
+                  onClick={() => setCurrentPage(p)}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                className={styles.pageBtn}
+                disabled={safePage === totalPages}
+                onClick={() => setCurrentPage(safePage + 1)}
+              >
+                &raquo;
+              </button>
+            </div>
+          )}
+          </>
         )}
       </div>
 

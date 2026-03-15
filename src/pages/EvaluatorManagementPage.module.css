@@ -10,6 +10,45 @@
   gap: var(--spacing-xs);
 }
 
+/* ─── 카드 그리드 ─── */
+.evaluatorGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .evaluatorGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.evaluatorCard {
+  border: 1px solid var(--color-border-light, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+  padding: 16px;
+  background: var(--color-surface, #fff);
+  transition: box-shadow 0.2s ease;
+}
+
+.evaluatorCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* 카드 헤더 */
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.cardName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text, #111827);
+}
+
 /* 구분 배지 */
 .badgePublic {
   display: inline-block;
@@ -33,20 +72,43 @@
   white-space: nowrap;
 }
 
-/* 진행률 */
-.progressCell {
-  min-width: 120px;
+/* 카드 정보 */
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.cardInfoRow {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 0.85rem;
+}
+
+.cardLabel {
+  color: var(--color-text-muted, #6b7280);
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.cardValue {
+  color: var(--color-text, #111827);
+  word-break: break-all;
+}
+
+/* 진행률 */
+.cardProgress {
+  margin-bottom: 12px;
 }
 
 .progressBar {
-  flex: 1;
   height: 8px;
   background: var(--color-border-light, #e5e7eb);
   border-radius: 4px;
   overflow: hidden;
+  margin-bottom: 6px;
 }
 
 .progressBarFill {
@@ -56,10 +118,78 @@
   transition: width 0.3s ease;
 }
 
+.progressMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .progressPct {
   font-size: 0.78rem;
   color: var(--color-text-muted);
   font-weight: 600;
-  min-width: 32px;
-  text-align: right;
+}
+
+.statusDone {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.statusPending {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #6b7280);
+}
+
+/* 카드 액션 */
+.cardActions {
+  display: flex;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-light, #e5e7eb);
+}
+
+/* ─── Pagination ─── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--spacing-md);
+}
+
+.pageBtn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pageBtnActive {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.pageBtnActive:hover {
+  background: var(--color-primary-hover, var(--color-primary));
+  color: #fff;
 }
