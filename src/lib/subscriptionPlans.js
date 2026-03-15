@@ -59,3 +59,16 @@ export function isMultiPlan(planType) {
   return planType === PLAN_TYPES.PLAN_MULTI_100 || planType === PLAN_TYPES.PLAN_MULTI_200;
 }
 
+// ─── 플랜별 포인트 전환 비용 (1P = 1원) ───
+export function getPlanPointCost(planType) {
+  const plan = PLAN_LIMITS[planType];
+  return plan ? plan.price : null;
+}
+
+// ─── 포인트 전환 가능한 유료 플랜 목록 ───
+export function getConvertiblePlans() {
+  return Object.entries(PLAN_LIMITS)
+    .filter(([key]) => key !== PLAN_TYPES.FREE)
+    .map(([key, val]) => ({ type: key, ...val }));
+}
+

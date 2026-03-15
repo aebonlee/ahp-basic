@@ -1,3 +1,64 @@
+/* ─── 보상/모집 설정 ─── */
+.rewardRow {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.rewardField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rewardLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-light);
+}
+
+.rewardInput {
+  width: 140px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+}
+
+.rewardInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.15);
+}
+
+.rewardHint {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.recruitToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.recruitToggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .rewardRow {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
 .listHeader {
   display: flex;
   justify-content: space-between;

@@ -130,6 +130,50 @@ export default function EvaluatorManagementPage() {
     <ProjectLayout projectName={currentProject.name}>
       <h1 className={common.pageTitle}>평가자 관리</h1>
 
+      {/* 보상 포인트 & 마켓플레이스 모집 설정 */}
+      <div className={common.cardSpaced} style={{ marginBottom: 'var(--spacing-md)' }}>
+        <div className={styles.rewardRow}>
+          <div className={styles.rewardField}>
+            <label className={styles.rewardLabel} htmlFor="rewardPoints">보상 포인트</label>
+            <input
+              id="rewardPoints"
+              type="number"
+              min="0"
+              className={styles.rewardInput}
+              value={currentProject?.reward_points ?? 0}
+              onChange={async (e) => {
+                const val = parseInt(e.target.value, 10) || 0;
+                try {
+                  await updateProject(id, { reward_points: val });
+                } catch (err) {
+                  toast.error('보상 포인트 저장 실패: ' + err.message);
+                }
+              }}
+              placeholder="0"
+            />
+            <span className={styles.rewardHint}>평가 완료 시 평가자에게 지급 (1P = 1원)</span>
+          </div>
+          <div className={styles.rewardField}>
+            <label className={styles.recruitToggle}>
+              <input
+                type="checkbox"
+                checked={currentProject?.recruit_evaluators ?? false}
+                onChange={async (e) => {
+                  try {
+                    await updateProject(id, { recruit_evaluators: e.target.checked });
+                    toast.success(e.target.checked ? '마켓플레이스 공개됨' : '마켓플레이스 비공개');
+                  } catch (err) {
+                    toast.error('설정 변경 실패: ' + err.message);
+                  }
+                }}
+              />
+              <span>마켓플레이스 공개 모집</span>
+            </label>
+            <span className={styles.rewardHint}>공개 시 평가자 대시보드에 자동 노출</span>
+          </div>
+        </div>
+      </div>
+
       <div className={common.cardSpaced}>
         <div className={styles.listHeader}>
           <h2 className={common.cardTitle}>

@@ -46,13 +46,17 @@ export async function signInWithEmail(email, password) {
   return data;
 }
 
-// 회원가입 (displayName 포함)
-export async function signUp(email, password, displayName) {
+// 회원가입 (displayName + role 포함)
+export async function signUp(email, password, displayName, role = 'user') {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { full_name: displayName, signup_domain: window.location.hostname },
+      data: {
+        full_name: displayName,
+        signup_domain: window.location.hostname,
+        role: role === 'evaluator' ? 'evaluator' : undefined,
+      },
       emailRedirectTo: getRedirectUrl('/login'),
     },
   });

@@ -40,3 +40,19 @@ export function truncate(text, maxLen = 30) {
   if (!text || text.length <= maxLen) return text;
   return text.slice(0, maxLen) + '...';
 }
+
+/**
+ * Format points (예: 30,000P)
+ */
+export function formatPoints(amount) {
+  if (amount == null) return '0P';
+  return `${Number(amount).toLocaleString('ko-KR')}P`;
+}
+
+/**
+ * Format currency in KRW (예: 30,000원)
+ */
+export function formatCurrency(amount) {
+  if (amount == null) return '0원';
+  return `${Number(amount).toLocaleString('ko-KR')}원`;
+}

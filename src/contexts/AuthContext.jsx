@@ -133,11 +133,11 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // 회원가입
-  const signUp = useCallback(async (email, password, displayName) => {
+  // 회원가입 (role: 'user' | 'evaluator')
+  const signUp = useCallback(async (email, password, displayName, role) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      await authSignUp(email, password, displayName);
+      await authSignUp(email, password, displayName, role);
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
       throw error;
@@ -173,11 +173,13 @@ export function AuthProvider({ children }) {
 
   const isLoggedIn = !!state.user;
   const isAdmin = isLoggedIn && ['admin', 'superadmin'].includes(state.profile?.role);
+  const isEvaluator = isLoggedIn && state.profile?.role === 'evaluator';
 
   const value = useMemo(() => ({
     ...state,
     isLoggedIn,
     isAdmin,
+    isEvaluator,
     setMode,
     signIn,
     loginWithGoogle,
@@ -187,7 +189,7 @@ export function AuthProvider({ children }) {
     resetPassword,
     refreshProfile,
     updateProfile,
-  }), [state, isLoggedIn, isAdmin, setMode, signIn, loginWithGoogle, loginWithKakao, signUp, signOut, resetPassword, refreshProfile, updateProfile]);
+  }), [state, isLoggedIn, isAdmin, isEvaluator, setMode, signIn, loginWithGoogle, loginWithKakao, signUp, signOut, resetPassword, refreshProfile, updateProfile]);
 
   return (
     <AuthContext.Provider value={value}>

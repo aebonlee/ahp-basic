@@ -5,6 +5,9 @@ import ConfirmDialog from '../components/common/ConfirmDialog';
 import { useConfirm } from '../hooks/useConfirm';
 import { useToast } from '../contexts/ToastContext';
 import { useSuperAdminUsers, useSuperAdminProjects, useSuperAdminSmsStats, useSuperAdminVisitorStats } from '../hooks/useSuperAdmin';
+import { useSuperAdminWithdrawals } from '../hooks/useSuperAdminWithdrawals';
+import { WITHDRAWAL_STATUS_LABELS } from '../lib/constants';
+import { formatPoints } from '../utils/formatters';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { PROJECT_STATUS_LABELS, PROJECT_STATUS_COLORS } from '../lib/constants';
 import styles from './SuperAdminPage.module.css';
@@ -139,6 +142,7 @@ function UsersTab({ toast }) {
                     onChange={e => handleRoleChange(u.id, e.target.value)}
                   >
                     <option value="user">user</option>
+                    <option value="evaluator">evaluator</option>
                     <option value="admin">admin</option>
                   </select>
                 </td>
@@ -436,6 +440,115 @@ function VisitorsTab() {
   );
 }
 
+function WithdrawalsTab({ toast }) {
+  const { withdrawals, loading, processWithdrawal } = useSuperAdminWithdrawals();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [processingId, setProcessingId] = useState(null);
+
+  const totalPages = Math.ceil(withdrawals.length / PAGE_SIZE);
+  const safePage = Math.min(currentPage, totalPages || 1);
+  const pagedWithdrawals = withdrawals.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  const pendingCount = withdrawals.filter(w => w.status === 'pending').length;
+  const totalAmount = withdrawals.filter(w => w.status === 'approved').reduce((s, w) => s + w.amount, 0);
+
+  const handleProcess = async (id, action) => {
+    setProcessingId(id);
+    try {
+      const note = action === 'reject' ? prompt('거절 사유를 입력하세요:') : null;
+      if (action === 'reject' && note === null) { setProcessingId(null); return; }
+      await processWithdrawal(id, action, note);
+      toast.success(action === 'approve' ? '승인 완료' : '거절 완료');
+    } catch (err) {
+      toast.error('처리 실패: ' + err.message);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  if (loading) return <div className={styles.loading}>출금 목록 로딩 중...</div>;
+  if (!withdrawals.length) return <div className={styles.empty}>출금 요청이 없습니다.</div>;
+
+  return (
+    <>
+      <div className={styles.stats}>
+        <div className={styles.stat}>
+          <strong>{withdrawals.length}</strong>전체 요청
+        </div>
+        <div className={styles.stat}>
+          <strong className={styles.failText}>{pendingCount}</strong>대기 중
+        </div>
+        <div className={styles.stat}>
+          <strong className={styles.successText}>{formatPoints(totalAmount)}</strong>승인 총액
+        </div>
+      </div>
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>요청자</th>
+              <th>금액</th>
+              <th>은행</th>
+              <th>계좌</th>
+              <th>예금주</th>
+              <th>상태</th>
+              <th>요청일</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pagedWithdrawals.map(w => (
+              <tr key={w.id}>
+                <td>{w.user_email}<br/><small>{w.user_name || ''}</small></td>
+                <td><strong>{formatPoints(w.amount)}</strong></td>
+                <td>{w.bank_name}</td>
+                <td>{w.account_number}</td>
+                <td>{w.account_holder}</td>
+                <td>
+                  <span
+                    className={styles.statusBadge}
+                    style={{
+                      background: w.status === 'pending' ? '#fef3c7' : w.status === 'approved' ? '#ecfdf5' : '#fef2f2',
+                      color: w.status === 'pending' ? '#92400e' : w.status === 'approved' ? '#065f46' : '#991b1b',
+                    }}
+                  >
+                    {WITHDRAWAL_STATUS_LABELS[w.status] || w.status}
+                  </span>
+                </td>
+                <td>{formatDate(w.created_at)}</td>
+                <td>
+                  {w.status === 'pending' ? (
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        className={styles.filterBtn}
+                        style={{ background: '#ecfdf5', color: '#065f46', borderColor: '#86efac' }}
+                        disabled={processingId === w.id}
+                        onClick={() => handleProcess(w.id, 'approve')}
+                      >
+                        승인
+                      </button>
+                      <button
+                        className={styles.deleteBtn}
+                        disabled={processingId === w.id}
+                        onClick={() => handleProcess(w.id, 'reject')}
+                      >
+                        거절
+                      </button>
+                    </div>
+                  ) : (
+                    w.admin_note ? <small>{w.admin_note}</small> : '-'
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={setCurrentPage} />
+    </>
+  );
+}
+
 export default function SuperAdminPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const toast = useToast();
@@ -445,6 +558,7 @@ export default function SuperAdminPage() {
     { key: 'dashboard', label: '대시보드' },
     { key: 'users', label: '회원 관리' },
     { key: 'projects', label: '프로젝트 관리' },
+    { key: 'withdrawals', label: '출금 관리' },
     { key: 'sms', label: 'SMS 관리' },
     { key: 'visitors', label: '방문자 통계' },
   ];
@@ -470,6 +584,7 @@ export default function SuperAdminPage() {
         {activeTab === 'dashboard' && <DashboardTab />}
         {activeTab === 'users' && <UsersTab toast={toast} />}
         {activeTab === 'projects' && <ProjectsTab toast={toast} confirm={confirm} />}
+        {activeTab === 'withdrawals' && <WithdrawalsTab toast={toast} />}
         {activeTab === 'sms' && <SmsTab />}
         {activeTab === 'visitors' && <VisitorsTab />}
       </div>

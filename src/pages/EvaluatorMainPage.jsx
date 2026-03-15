@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { PROJECT_STATUS, PROJECT_STATUS_LABELS, EVAL_METHOD, EVAL_METHOD_LABELS, USER_MODE } from '../lib/constants';
 import { useToast } from '../contexts/ToastContext';
+import { formatPoints } from '../utils/formatters';
 import PageLayout from '../components/layout/PageLayout';
 import EvaluatorGuide from '../components/evaluation/EvaluatorGuide';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -19,7 +20,7 @@ const STATUS_ICONS = {
 
 export default function EvaluatorMainPage() {
   const navigate = useNavigate();
-  const { user, isAdmin, mode, setMode } = useAuth();
+  const { user, isAdmin, isEvaluator, mode, setMode, profile } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -159,6 +160,11 @@ export default function EvaluatorMainPage() {
           <p className={styles.bannerDesc}>배정된 프로젝트에 대해 쌍대비교 평가를 진행합니다.</p>
         </div>
         <div className={styles.bannerActions}>
+          {isEvaluator && (
+            <Link to="/eval/dashboard" className={styles.pointsBadge}>
+              {formatPoints(profile?.points_balance ?? 0)}
+            </Link>
+          )}
           <EvaluatorGuide />
         </div>
       </div>

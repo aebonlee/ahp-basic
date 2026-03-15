@@ -203,3 +203,40 @@
 .backBtn:hover {
   text-decoration: underline;
 }
+
+/* ─── Role Toggle ─── */
+.roleToggle {
+  display: flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: var(--spacing-sm);
+}
+
+.roleBtn {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.roleBtn:first-child {
+  border-right: 1px solid var(--color-border);
+}
+
+.roleBtnActive {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.roleHint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-xs);
+}

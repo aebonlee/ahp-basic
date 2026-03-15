@@ -91,3 +91,31 @@ export const USER_MODE = {
   ADMIN: 'admin',
   EVALUATOR: 'evaluator',
 };
+
+// Point transaction types
+export const POINT_TYPE = {
+  EARN: 'earn',
+  WITHDRAW: 'withdraw',
+  WITHDRAW_REFUND: 'withdraw_refund',
+  CONVERT: 'convert',
+};
+
+export const POINT_TYPE_LABELS = {
+  [POINT_TYPE.EARN]: '적립',
+  [POINT_TYPE.WITHDRAW]: '출금',
+  [POINT_TYPE.WITHDRAW_REFUND]: '출금 환불',
+  [POINT_TYPE.CONVERT]: '연구자 전환',
+};
+
+// Withdrawal request status
+export const WITHDRAWAL_STATUS = {
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+};
+
+export const WITHDRAWAL_STATUS_LABELS = {
+  [WITHDRAWAL_STATUS.PENDING]: '대기',
+  [WITHDRAWAL_STATUS.APPROVED]: '승인',
+  [WITHDRAWAL_STATUS.REJECTED]: '거절',
+};

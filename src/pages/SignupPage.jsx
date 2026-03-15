@@ -15,6 +15,7 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [role, setRole] = useState('user');
 
   // Field-level validation state
   const [emailTouched, setEmailTouched] = useState(false);
@@ -50,7 +51,7 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      await signUp(email, password, displayName);
+      await signUp(email, password, displayName, role);
       setSuccess(true);
     } catch (err) {
       setError(err.message || '회원가입에 실패했습니다.');
@@ -81,6 +82,26 @@ export default function SignupPage() {
       <div className={styles.card}>
         <h1 className={styles.title}>AHP Basic</h1>
         <p className={styles.subtitle}>회원가입</p>
+
+        <div className={styles.roleToggle}>
+          <button
+            type="button"
+            className={`${styles.roleBtn} ${role === 'user' ? styles.roleBtnActive : ''}`}
+            onClick={() => setRole('user')}
+          >
+            연구자
+          </button>
+          <button
+            type="button"
+            className={`${styles.roleBtn} ${role === 'evaluator' ? styles.roleBtnActive : ''}`}
+            onClick={() => setRole('evaluator')}
+          >
+            평가자
+          </button>
+        </div>
+        {role === 'evaluator' && (
+          <p className={styles.roleHint}>평가자로 가입하면 평가 참여 후 포인트를 적립할 수 있습니다.</p>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
           {error && <div className={styles.error} role="alert">{error}</div>}

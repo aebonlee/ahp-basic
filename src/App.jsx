@@ -40,6 +40,10 @@ const WorkshopPage = lazy(() => import('./pages/WorkshopPage'));
 const SurveyBuilderPage = lazy(() => import('./pages/SurveyBuilderPage'));
 const SurveyResultPage = lazy(() => import('./pages/SurveyResultPage'));
 const EvaluatorMainPage = lazy(() => import('./pages/EvaluatorMainPage'));
+const EvaluatorDashboardPage = lazy(() => import('./pages/EvaluatorDashboardPage'));
+const PointHistoryPage = lazy(() => import('./pages/PointHistoryPage'));
+const WithdrawalRequestPage = lazy(() => import('./pages/WithdrawalRequestPage'));
+const RoleConversionPage = lazy(() => import('./pages/RoleConversionPage'));
 const PairwiseRatingPage = lazy(() => import('./pages/PairwiseRatingPage'));
 const DirectInputPage = lazy(() => import('./pages/DirectInputPage'));
 const EvalResultPage = lazy(() => import('./pages/EvalResultPage'));
@@ -118,6 +122,10 @@ export default function App() {
 
               {/* Evaluator */}
               <Route path="/eval" element={<ProtectedRoute><ErrorBoundary><EvaluatorMainPage /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/eval/dashboard" element={<ProtectedRoute><ErrorBoundary><EvaluatorDashboardPage /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/eval/points" element={<ProtectedRoute><ErrorBoundary><PointHistoryPage /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/eval/withdraw" element={<ProtectedRoute><ErrorBoundary><WithdrawalRequestPage /></ErrorBoundary></ProtectedRoute>} />
+              <Route path="/eval/upgrade" element={<ProtectedRoute><ErrorBoundary><RoleConversionPage /></ErrorBoundary></ProtectedRoute>} />
               <Route path="/eval/project/:id" element={<EvaluatorGuard><ErrorBoundary><PairwiseRatingPage /></ErrorBoundary></EvaluatorGuard>} />
               <Route path="/eval/project/:id/direct" element={<EvaluatorGuard><ErrorBoundary><DirectInputPage /></ErrorBoundary></EvaluatorGuard>} />
               <Route path="/eval/project/:id/pre-survey" element={<EvaluatorGuard><ErrorBoundary><EvalPreSurveyPage /></ErrorBoundary></EvaluatorGuard>} />
