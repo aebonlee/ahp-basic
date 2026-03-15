@@ -102,6 +102,24 @@ DROP FUNCTION IF EXISTS public.get_marketplace_projects();
 
 ---
 
+## 4. 마켓플레이스 카드 클릭 시 초대 페이지 이동
+
+### 문제
+
+메인페이지, 커뮤니티 "평가자 모집" 탭, 평가자 안내 페이지의 마켓플레이스 프로젝트 카드가 클릭 불가 상태.
+
+### 수정
+
+3개 페이지의 마켓플레이스 카드에 `onClick={() => navigate('/eval/invite/${p.id}')}` 추가:
+
+- `HomePage.jsx` — 메인페이지 "현재 모집 중인 평가" 카드
+- `CommunityPage.jsx` — 커뮤니티 "평가자 모집" 탭 카드
+- `EvaluatorInfoPage.jsx` — 평가자 안내 "현재 모집 중인 프로젝트" 카드
+
+클릭 시 기존 초대 랜딩 페이지(`/eval/invite/:token`)로 이동하여 평가 참여 가능.
+
+---
+
 ## 검증
 
 - `npx vite build` 성공 확인

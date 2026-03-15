@@ -162,7 +162,7 @@ export default function EvaluatorInfoPage() {
           ) : (
             <div className={styles.projectsGrid}>
               {projects.map((p) => (
-                <div key={p.id} className={styles.projectCard}>
+                <div key={p.id} className={styles.projectCard} onClick={() => navigate(`/eval/invite/${p.id}`)} style={{ cursor: 'pointer' }}>
                   <h4 className={styles.projectTitle}>{p.name}</h4>
                   {p.recruit_description && (
                     <p className={styles.projectDesc}>{p.recruit_description}</p>

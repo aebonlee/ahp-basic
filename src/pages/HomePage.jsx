@@ -265,7 +265,7 @@ export default function HomePage() {
               <h3 className={styles.evalMarketTitle}>현재 모집 중인 평가</h3>
               <div className={styles.evalMarketGrid}>
                 {marketProjects.map(p => (
-                  <div key={p.id} className={styles.evalMarketCard}>
+                  <div key={p.id} className={styles.evalMarketCard} onClick={() => navigate(`/eval/invite/${p.id}`)} style={{ cursor: 'pointer' }}>
                     <div className={styles.evalMarketName}>{p.name}</div>
                     {p.recruit_description && (
                       <p className={styles.evalMarketDesc}>{p.recruit_description}</p>

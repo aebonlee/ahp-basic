@@ -148,7 +148,7 @@ export default function CommunityPage() {
               ) : (
                 <div className={styles.marketGrid}>
                   {marketProjects.map(p => (
-                    <div key={p.id} className={styles.marketCard}>
+                    <div key={p.id} className={styles.marketCard} onClick={() => navigate(`/eval/invite/${p.id}`)} style={{ cursor: 'pointer' }}>
                       <div className={styles.marketCardName}>{p.name}</div>
                       {p.recruit_description && (
                         <p className={styles.marketCardDesc}>{p.recruit_description}</p>
