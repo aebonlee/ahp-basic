@@ -553,6 +553,12 @@ function WithdrawalsTab({ toast }) {
 }
 
 const LECTURE_TYPE_LABELS = { free: '무료강의', consulting: '1:1 맞춤강의' };
+const LECTURE_STATUS_LABELS = { pending: '접수', confirmed: '확정', completed: '완료' };
+const LECTURE_STATUS_STYLES = {
+  pending:   { background: '#fef3c7', color: '#92400e' },
+  confirmed: { background: '#dbeafe', color: '#1e40af' },
+  completed: { background: '#ecfdf5', color: '#065f46' },
+};
 
 const LECTURE_SMS_TEMPLATES = [
   {
@@ -569,10 +575,18 @@ const LECTURE_SMS_TEMPLATES = [
   },
 ];
 
+const STATUS_FILTERS = [
+  { value: 'all', label: '전체' },
+  { value: 'pending', label: '접수' },
+  { value: 'confirmed', label: '확정' },
+  { value: 'completed', label: '완료' },
+];
+
 function LecturesTab({ toast }) {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [selected, setSelected] = useState(new Set());
   const [smsOpen, setSmsOpen] = useState(false);
@@ -580,8 +594,10 @@ function LecturesTab({ toast }) {
   const [sending, setSending] = useState(false);
   const [sendProgress, setSendProgress] = useState({ current: 0, total: 0 });
   const [sendResults, setSendResults] = useState(null);
+  const [updatingIds, setUpdatingIds] = useState(new Set());
 
-  useEffect(() => {
+  const fetchApplications = () => {
+    setLoading(true);
     supabase
       .from('lecture_applications')
       .select('*')
@@ -590,24 +606,131 @@ function LecturesTab({ toast }) {
         setApplications(data || []);
         setLoading(false);
       }, () => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { fetchApplications(); }, []);
+
+  // 상태 변경
+  const handleStatusChange = async (id, newStatus) => {
+    setUpdatingIds(prev => new Set(prev).add(id));
+    const { error } = await supabase
+      .from('lecture_applications')
+      .update({ status: newStatus })
+      .eq('id', id);
+
+    if (error) {
+      toast.error('상태 변경 실패: ' + error.message);
+    } else {
+      setApplications(prev => prev.map(a => a.id === id ? { ...a, status: newStatus } : a));
+      toast.success(`${LECTURE_STATUS_LABELS[newStatus]}(으)로 변경되었습니다.`);
+    }
+    setUpdatingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
+  };
+
+  // 확인 문자 발송 + 확정 처리 (선택된 신청자)
+  const handleConfirmAndSms = async () => {
+    const targets = selectedApps.filter(a => (a.status || 'pending') === 'pending');
+    if (targets.length === 0) {
+      toast.warning('접수 상태인 신청자가 없습니다.');
+      return;
+    }
+
+    setSending(true);
+    setSendProgress({ current: 0, total: targets.length });
+    const results = [];
+
+    for (let i = 0; i < targets.length; i++) {
+      const app = targets[i];
+      const msg = `[AHP Basic] ${app.name}님, 온라인 강의 신청이 확정되었습니다.\n- 강의: ${LECTURE_TYPE_LABELS[app.lecture_type] || app.lecture_type}\n- 희망일: ${app.preferred_date || '-'}\n확정 일정은 별도 안내드리겠습니다.`;
+
+      let smsOk = false;
+      try {
+        await sendSms({ receiver: app.phone, message: msg });
+        smsOk = true;
+      } catch { /* SMS 실패해도 확정 처리 */ }
+
+      // DB 상태 → confirmed
+      const { error } = await supabase
+        .from('lecture_applications')
+        .update({ status: 'confirmed' })
+        .eq('id', app.id);
+
+      if (!error) {
+        setApplications(prev => prev.map(a => a.id === app.id ? { ...a, status: 'confirmed' } : a));
+      }
+
+      results.push({ name: app.name, phone: app.phone, success: !error, smsOk });
+      setSendProgress({ current: i + 1, total: targets.length });
+    }
+
+    const okCount = results.filter(r => r.success).length;
+    const smsOkCount = results.filter(r => r.smsOk).length;
+    toast.success(`${okCount}명 확정 완료 (문자 발송 ${smsOkCount}건 성공)`);
+    setSelected(new Set());
+    setSending(false);
+  };
+
+  // 선택된 신청자 일괄 완료 처리
+  const handleBulkComplete = async () => {
+    const targets = selectedApps.filter(a => (a.status || 'pending') !== 'completed');
+    if (targets.length === 0) {
+      toast.warning('완료 처리할 신청자가 없습니다.');
+      return;
+    }
+
+    setUpdatingIds(prev => {
+      const next = new Set(prev);
+      targets.forEach(a => next.add(a.id));
+      return next;
+    });
+
+    const ids = targets.map(a => a.id);
+    const { error } = await supabase
+      .from('lecture_applications')
+      .update({ status: 'completed' })
+      .in('id', ids);
+
+    if (error) {
+      toast.error('완료 처리 실패: ' + error.message);
+    } else {
+      setApplications(prev => prev.map(a => ids.includes(a.id) ? { ...a, status: 'completed' } : a));
+      toast.success(`${targets.length}명 강의 완료 처리되었습니다.`);
+      setSelected(new Set());
+    }
+
+    setUpdatingIds(prev => {
+      const next = new Set(prev);
+      ids.forEach(id => next.delete(id));
+      return next;
+    });
+  };
 
   if (loading) return <div className={styles.loading}>강의 신청 목록 로딩 중...</div>;
   if (!applications.length) return <div className={styles.empty}>강의 신청 내역이 없습니다.</div>;
 
   const filtered = applications.filter(a => {
-    if (typeFilter === 'all') return true;
-    return a.lecture_type === typeFilter;
+    if (statusFilter !== 'all' && (a.status || 'pending') !== statusFilter) return false;
+    if (typeFilter !== 'all' && a.lecture_type !== typeFilter) return false;
+    return true;
   });
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const safePage = Math.min(currentPage, totalPages || 1);
   const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const freeCount = applications.filter(a => a.lecture_type === 'free').length;
-  const consultingCount = applications.filter(a => a.lecture_type === 'consulting').length;
+  const statusCounts = {
+    all: applications.length,
+    pending: applications.filter(a => (a.status || 'pending') === 'pending').length,
+    confirmed: applications.filter(a => a.status === 'confirmed').length,
+    completed: applications.filter(a => a.status === 'completed').length,
+  };
 
   const handleFilterChange = (value) => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+  };
+
+  const handleTypeFilterChange = (value) => {
     setTypeFilter(value);
     setCurrentPage(1);
   };
@@ -692,34 +815,64 @@ function LecturesTab({ toast }) {
 
   return (
     <>
+      {/* 상태별 통계 */}
       <div className={styles.stats}>
-        <div className={styles.stat}>
-          <strong>{applications.length}</strong>전체 신청
-        </div>
-        <div className={styles.stat}>
-          <strong>{freeCount}</strong>무료강의
-        </div>
-        <div className={styles.stat}>
-          <strong>{consultingCount}</strong>1:1 맞춤
-        </div>
+        {STATUS_FILTERS.map(f => (
+          <div className={styles.stat} key={f.value}>
+            <strong>{statusCounts[f.value]}</strong>{f.label}
+          </div>
+        ))}
       </div>
+
+      {/* 상태 필터 */}
       <div className={styles.filterBar}>
-        {[{ value: 'all', label: '전체' }, { value: 'free', label: '무료강의' }, { value: 'consulting', label: '1:1 맞춤' }].map(f => (
+        {STATUS_FILTERS.map(f => (
+          <button
+            key={f.value}
+            className={`${styles.filterBtn} ${statusFilter === f.value ? styles.filterBtnActive : ''}`}
+            onClick={() => handleFilterChange(f.value)}
+          >
+            {f.label} ({statusCounts[f.value]})
+          </button>
+        ))}
+      </div>
+
+      {/* 유형 필터 + 액션 버튼 */}
+      <div className={styles.filterBar} style={{ marginTop: 0 }}>
+        {[{ value: 'all', label: '전체 유형' }, { value: 'free', label: '무료강의' }, { value: 'consulting', label: '1:1 맞춤' }].map(f => (
           <button
             key={f.value}
             className={`${styles.filterBtn} ${typeFilter === f.value ? styles.filterBtnActive : ''}`}
-            onClick={() => handleFilterChange(f.value)}
+            onClick={() => handleTypeFilterChange(f.value)}
           >
             {f.label}
           </button>
         ))}
-        <button
-          className={styles.smsBtn}
-          disabled={selected.size === 0}
-          onClick={handleOpenSms}
-        >
-          문자 보내기 ({selected.size}명)
-        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+          <button
+            className={styles.confirmBtn}
+            disabled={selected.size === 0 || sending}
+            onClick={handleConfirmAndSms}
+            title="선택된 접수 건에 확인 문자 발송 + 확정 처리"
+          >
+            확인문자 + 확정 ({selected.size}명)
+          </button>
+          <button
+            className={styles.completeBtn}
+            disabled={selected.size === 0 || sending}
+            onClick={handleBulkComplete}
+            title="선택된 건을 강의 완료로 변경"
+          >
+            완료 처리
+          </button>
+          <button
+            className={styles.smsBtn}
+            disabled={selected.size === 0 || sending}
+            onClick={handleOpenSms}
+          >
+            문자 보내기 ({selected.size}명)
+          </button>
+        </div>
       </div>
 
       <div className={styles.tableWrap}>
@@ -733,20 +886,27 @@ function LecturesTab({ toast }) {
                   onChange={handleToggleAll}
                 />
               </th>
+              <th>상태</th>
               <th>이름</th>
-              <th>이메일</th>
               <th>전화번호</th>
               <th>강의 유형</th>
               <th>희망일</th>
               <th>문의사항</th>
               <th>신청일</th>
+              <th>관리</th>
             </tr>
           </thead>
           <tbody>
             {paged.map(a => {
               const hasPhone = !!a.phone;
+              const status = a.status || 'pending';
+              const isUpdating = updatingIds.has(a.id);
               return (
-                <tr key={a.id} style={selected.has(a.id) ? { background: 'var(--color-primary-surface, rgba(0,70,200,0.04))' } : undefined}>
+                <tr
+                  key={a.id}
+                  className={status === 'completed' ? styles.rowCompleted : undefined}
+                  style={selected.has(a.id) ? { background: 'var(--color-primary-surface, rgba(0,70,200,0.04))' } : undefined}
+                >
                   <td style={{ textAlign: 'center' }}>
                     <input
                       type="checkbox"
@@ -755,8 +915,15 @@ function LecturesTab({ toast }) {
                       disabled={!hasPhone}
                     />
                   </td>
+                  <td>
+                    <span
+                      className={styles.statusBadge}
+                      style={LECTURE_STATUS_STYLES[status] || LECTURE_STATUS_STYLES.pending}
+                    >
+                      {LECTURE_STATUS_LABELS[status] || status}
+                    </span>
+                  </td>
                   <td>{a.name}</td>
-                  <td>{a.email}</td>
                   <td>{hasPhone ? a.phone : <span style={{ color: '#9ca3af' }}>(없음)</span>}</td>
                   <td>
                     <span
@@ -772,6 +939,18 @@ function LecturesTab({ toast }) {
                   <td>{a.preferred_date || (a.preferred_dates?.join(', ')) || '-'}</td>
                   <td>{a.message || '-'}</td>
                   <td>{formatDate(a.created_at)}</td>
+                  <td>
+                    <select
+                      className={styles.roleSelect}
+                      value={status}
+                      onChange={e => handleStatusChange(a.id, e.target.value)}
+                      disabled={isUpdating}
+                    >
+                      <option value="pending">접수</option>
+                      <option value="confirmed">확정</option>
+                      <option value="completed">완료</option>
+                    </select>
+                  </td>
                 </tr>
               );
             })}

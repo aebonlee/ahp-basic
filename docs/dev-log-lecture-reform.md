@@ -38,9 +38,21 @@
   - 순차 발송 + 진행 표시 + 결과 리포트 (성공/실패)
 - 전화번호 없는 신청자는 체크박스 비활성화
 
+### 7. 강의 신청 상태 관리 (접수 → 확정 → 완료)
+- DB: `lecture_applications`에 `status` 컬럼 추가 (`pending`/`confirmed`/`completed`)
+- RLS: admin/superadmin만 UPDATE 가능
+- 상태별 통계 카드: 전체/접수/확정/완료 건수
+- 상태 필터 + 유형 필터 2단 필터 바
+- **"확인문자 + 확정" 버튼**: 선택된 접수 건에 확인 SMS 발송 후 자동 확정 처리
+- **"완료 처리" 버튼**: 선택된 건을 일괄 완료 상태로 변경
+- 개별 상태 변경: 행별 드롭다운(접수/확정/완료) 선택
+- 완료 행 시각 구분 (opacity 0.55)
+- 상태별 배지 색상: 접수(노란색), 확정(파란색), 완료(녹색)
+
 ## 변경 파일
 - `src/pages/LectureApplyPage.jsx` — 전면 개편
 - `src/pages/LectureApplyPage.module.css` — 카드 스타일 변경
 - `src/pages/SuperAdminPage.jsx` — 강의 신청 탭 + SMS 발송 기능
 - `src/pages/SuperAdminPage.module.css` — SMS 패널 스타일 추가
-- `supabase/migrations/038_lecture_type_column.sql` — DB 마이그레이션
+- `supabase/migrations/038_lecture_type_column.sql` — DB 마이그레이션 (lecture_type, preferred_date)
+- `supabase/migrations/039_lecture_status.sql` — DB 마이그레이션 (status + UPDATE RLS)

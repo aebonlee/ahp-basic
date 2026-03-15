@@ -383,22 +383,50 @@
   color: #fff;
 }
 
-/* ─── SMS Button ─── */
-.smsBtn {
+/* ─── Action Buttons ─── */
+.smsBtn,
+.confirmBtn,
+.completeBtn {
   padding: 6px 16px;
   border: none;
   border-radius: var(--radius-round);
-  background: var(--color-primary);
-  color: #fff;
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: opacity var(--transition-fast);
-  margin-left: auto;
 }
 
-.smsBtn:hover:not(:disabled) {
+.smsBtn {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.confirmBtn {
+  background: #2563eb;
+  color: #fff;
+}
+
+.completeBtn {
+  background: #059669;
+  color: #fff;
+}
+
+.smsBtn:hover:not(:disabled),
+.confirmBtn:hover:not(:disabled),
+.completeBtn:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.smsBtn:disabled,
+.confirmBtn:disabled,
+.completeBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Completed row ─── */
+.rowCompleted {
+  opacity: 0.55;
 }
 
 .smsBtn:disabled {
