@@ -87,5 +87,58 @@
 1. Supabase SQL Editor에서 031_evaluator_points_system.sql 실행
 2. git commit & push → GitHub Actions 자동 배포
 
+## 트러블슈팅: role CHECK 제약조건 오류
+
+### 증상
+Supabase SQL Editor에서 마이그레이션 실행 시 오류 발생:
+```
+ERROR: 23514: check constraint "user_profiles_role_check" of relation "user_profiles" is violated by some row
+```
+
+### 원인
+- `001_user_profiles.sql`에서 inline `CHECK (role IN ('user', 'admin'))`으로 생성된 제약조건의 실제 이름이
+  PostgreSQL 자동 생성 이름(예: `user_profiles_role_check1`)이었음
+- `DROP CONSTRAINT IF EXISTS user_profiles_role_check`가 이름 불일치로 아무것도 삭제하지 못함
+- 기존 `superadmin` role 행이 남아있는 원래 제약조건과 충돌
+
+### 해결
+`pg_constraint` 카탈로그에서 `role` 컬럼의 CHECK 제약조건을 동적으로 탐색하여 제거:
+```sql
+DO $$
+DECLARE
+  r RECORD;
+BEGIN
+  FOR r IN
+    SELECT con.conname
+    FROM pg_constraint con
+    JOIN pg_attribute att ON att.attnum = ANY(con.conkey)
+      AND att.attrelid = con.conrelid
+    WHERE con.conrelid = 'public.user_profiles'::regclass
+      AND con.contype = 'c'
+      AND att.attname = 'role'
+  LOOP
+    EXECUTE format('ALTER TABLE public.user_profiles DROP CONSTRAINT %I', r.conname);
+  END LOOP;
+END $$;
+
+-- 허용 목록 외 role 값 정규화
+UPDATE public.user_profiles
+SET role = 'user'
+WHERE role IS NULL OR role NOT IN ('user', 'admin', 'superadmin', 'evaluator');
+```
+
+### 교훈
+- PostgreSQL inline CHECK 제약조건은 자동 생성 이름이 예측 불가할 수 있음
+- `DROP CONSTRAINT IF EXISTS`는 이름이 다르면 무시되므로, `pg_constraint` 동적 탐색이 안전함
+
 ## 검증
 - vite build 성공 확인 (빌드 에러 없음)
+- Supabase SQL Editor 마이그레이션 실행 성공
+- 전체 시스템 가동 확인
+
+## 최종 배포 상태 (2026-03-15)
+- 커밋 1: `a8c25a1` — feat: 평가자 포인트 & 마켓플레이스 시스템 구축 (25 files, +2303 lines)
+- 커밋 2: `9dd9421` — fix: role CHECK 제약조건 — 기존 데이터 호환성 수정
+- DB 마이그레이션: Supabase SQL Editor 수동 실행 완료
+- 프론트엔드: GitHub Actions 자동 배포 완료
+- 도메인: ahp-basic.dreamitbiz.com 정상 서비스 중
