@@ -7,17 +7,17 @@ export const PROJECT_STATUS = {
 };
 
 export const PROJECT_STATUS_LABELS = {
-  [PROJECT_STATUS.CREATING]: '생성중',
-  [PROJECT_STATUS.WAITING]: '대기중',
-  [PROJECT_STATUS.EVALUATING]: '평가중',
-  [PROJECT_STATUS.COMPLETED]: '평가종료',
+  2: '생성중',    // CREATING
+  6: '대기중',    // WAITING
+  1: '평가중',    // EVALUATING
+  4: '평가종료',  // COMPLETED
 };
 
 export const PROJECT_STATUS_COLORS = {
-  [PROJECT_STATUS.CREATING]: 'var(--color-creating)',
-  [PROJECT_STATUS.WAITING]: 'var(--color-warning)',
-  [PROJECT_STATUS.EVALUATING]: 'var(--color-success)',
-  [PROJECT_STATUS.COMPLETED]: 'var(--color-primary)',
+  2: 'var(--color-creating)',  // CREATING
+  6: 'var(--color-warning)',   // WAITING
+  1: 'var(--color-success)',   // EVALUATING
+  4: 'var(--color-primary)',   // COMPLETED
 };
 
 // Evaluation method codes
@@ -28,9 +28,9 @@ export const EVAL_METHOD = {
 };
 
 export const EVAL_METHOD_LABELS = {
-  [EVAL_METHOD.PAIRWISE_THEORY]: '쌍대비교-이론',
-  [EVAL_METHOD.PAIRWISE_PRACTICAL]: '쌍대비교-실용',
-  [EVAL_METHOD.DIRECT_INPUT]: '직접입력',
+  10: '쌍대비교-이론',    // PAIRWISE_THEORY
+  12: '쌍대비교-실용',    // PAIRWISE_PRACTICAL
+  20: '직접입력',         // DIRECT_INPUT
 };
 
 // RI table for Consistency Ratio calculation
@@ -101,10 +101,10 @@ export const POINT_TYPE = {
 };
 
 export const POINT_TYPE_LABELS = {
-  [POINT_TYPE.EARN]: '적립',
-  [POINT_TYPE.WITHDRAW]: '출금',
-  [POINT_TYPE.WITHDRAW_REFUND]: '출금 환불',
-  [POINT_TYPE.CONVERT]: '연구자 전환',
+  earn: '적립',
+  withdraw: '출금',
+  withdraw_refund: '출금 환불',
+  convert: '연구자 전환',
 };
 
 // Withdrawal request status
@@ -115,7 +115,7 @@ export const WITHDRAWAL_STATUS = {
 };
 
 export const WITHDRAWAL_STATUS_LABELS = {
-  [WITHDRAWAL_STATUS.PENDING]: '대기',
-  [WITHDRAWAL_STATUS.APPROVED]: '승인',
-  [WITHDRAWAL_STATUS.REJECTED]: '거절',
+  pending: '대기',
+  approved: '승인',
+  rejected: '거절',
 };
