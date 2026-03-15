@@ -20,6 +20,7 @@ const NAV_GROUPS = [
     children: [
       { to: '/guide', label: '이용 가이드' },
       { to: '/learn', label: '학습 가이드' },
+      { to: '/stats-guide', label: '통계 분석 가이드' },
       { to: '/manual', label: '사용설명서' },
     ],
   },
