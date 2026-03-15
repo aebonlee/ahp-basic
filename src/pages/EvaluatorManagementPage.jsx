@@ -172,6 +172,30 @@ export default function EvaluatorManagementPage() {
             <span className={styles.rewardHint}>공개 시 평가자 대시보드에 자동 노출</span>
           </div>
         </div>
+
+        {currentProject?.recruit_evaluators && (
+          <div className={styles.recruitDescWrap}>
+            <label className={styles.rewardLabel} htmlFor="recruitDesc">모집 공고</label>
+            <textarea
+              id="recruitDesc"
+              className={styles.recruitDesc}
+              rows={3}
+              placeholder="모집 공고 내용을 입력하세요 (평가 내용, 소요 시간 등)"
+              defaultValue={currentProject?.recruit_description ?? ''}
+              onBlur={async (e) => {
+                const val = e.target.value.trim();
+                if (val === (currentProject?.recruit_description ?? '')) return;
+                try {
+                  await updateProject(id, { recruit_description: val || null });
+                  toast.success('모집 공고가 저장되었습니다.');
+                } catch (err) {
+                  toast.error('모집 공고 저장 실패: ' + err.message);
+                }
+              }}
+            />
+            <span className={styles.rewardHint}>마켓플레이스와 메인페이지에 노출됩니다</span>
+          </div>
+        )}
       </div>
 
       <div className={common.cardSpaced}>

@@ -1,5 +1,9 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
+import { EVAL_METHOD_LABELS } from '../lib/constants';
+import { formatPoints } from '../utils/formatters';
 import PublicLayout from '../components/layout/PublicLayout';
 import styles from './HomePage.module.css';
 
@@ -79,9 +83,56 @@ const STATS = [
   { value: 'N명', label: '다수 평가자 동시 지원' },
 ];
 
+const EVAL_BENEFITS = [
+  {
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <circle cx="14" cy="14" r="10" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M14 8v6l4 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+    title: '포인트 적립',
+    desc: '평가 완료 시 보상 포인트가 즉시 지급됩니다.',
+    color: '#f59e0b',
+    bg: '#fffbeb',
+  },
+  {
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect x="4" y="8" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M4 12h20" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M8 17h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+    title: '현금 출금',
+    desc: '적립 포인트를 출금 요청할 수 있습니다. (1P = 1원)',
+    color: '#10b981',
+    bg: '#ecfdf5',
+  },
+  {
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <path d="M14 4l3 6h7l-5.5 4.5 2 7L14 17l-6.5 4.5 2-7L4 10h7l3-6z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      </svg>
+    ),
+    title: '연구자 전환',
+    desc: '포인트로 연구자 이용권을 구매하여 전환하세요.',
+    color: '#8b5cf6',
+    bg: '#f5f3ff',
+  },
+];
+
 export default function HomePage() {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+  const [marketProjects, setMarketProjects] = useState([]);
+
+  useEffect(() => {
+    supabase.rpc('get_marketplace_projects').then(
+      ({ data }) => { if (data) setMarketProjects(data.slice(0, 3)); },
+      () => {}
+    );
+  }, []);
 
   return (
     <PublicLayout>
@@ -187,6 +238,57 @@ export default function HomePage() {
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* ─── Evaluator Recruitment ─── */}
+      <section className={styles.evaluatorSection}>
+        <div className={styles.sectionInner}>
+          <p className={styles.sectionTag}>EVALUATOR</p>
+          <h2 className={styles.sectionTitle}>평가에 참여하고 보상 받기</h2>
+          <p className={styles.sectionSub}>AHP 평가에 참여하여 포인트를 적립하고, 출금하거나 연구자로 전환하세요.</p>
+          <div className={styles.evalBenefitGrid}>
+            {EVAL_BENEFITS.map((b, i) => (
+              <div key={i} className={styles.evalCard} style={{ '--eval-color': b.color, '--eval-bg': b.bg }}>
+                <div className={styles.evalCardIcon}>{b.icon}</div>
+                <h3 className={styles.evalCardTitle}>{b.title}</h3>
+                <p className={styles.evalCardDesc}>{b.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {marketProjects.length > 0 && (
+            <div className={styles.evalMarket}>
+              <h3 className={styles.evalMarketTitle}>현재 모집 중인 평가</h3>
+              <div className={styles.evalMarketGrid}>
+                {marketProjects.map(p => (
+                  <div key={p.id} className={styles.evalMarketCard}>
+                    <div className={styles.evalMarketName}>{p.name}</div>
+                    {p.recruit_description && (
+                      <p className={styles.evalMarketDesc}>{p.recruit_description}</p>
+                    )}
+                    <div className={styles.evalMarketMeta}>
+                      <span>{EVAL_METHOD_LABELS[p.eval_method] || '평가'}</span>
+                      <span className={styles.evalMarketReward}>{formatPoints(p.reward_points)}</span>
+                      <span>{p.evaluator_count}명 참여</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {marketProjects.length === 0 && (
+            <p className={styles.evalMarketEmpty}>곧 새로운 평가가 시작됩니다.</p>
+          )}
+
+          {!isLoggedIn && (
+            <div className={styles.sectionMore}>
+              <button className={styles.evalCta} onClick={() => navigate('/register')}>
+                평가자로 가입하기
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

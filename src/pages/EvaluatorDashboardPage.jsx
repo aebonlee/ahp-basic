@@ -68,6 +68,9 @@ export default function EvaluatorDashboardPage() {
             projects.slice(0, 5).map(p => (
               <div key={p.id} className={styles.marketCard}>
                 <div className={styles.marketCardTitle}>{p.name}</div>
+                {p.recruit_description && (
+                  <p className={styles.marketCardDesc}>{p.recruit_description}</p>
+                )}
                 <div className={styles.marketCardMeta}>
                   <span>{EVAL_METHOD_LABELS[p.eval_method] || '평가'}</span>
                   <span className={styles.rewardBadge}>{formatPoints(p.reward_points)}</span>
