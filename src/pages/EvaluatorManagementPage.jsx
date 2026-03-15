@@ -43,6 +43,9 @@ export default function EvaluatorManagementPage() {
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [planRequiredOpen, setPlanRequiredOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const { canAddEvaluator, isSuperAdmin } = useSubscription();
   const projectPlan = useProjectPlan(id);
   const maxEvaluators = isSuperAdmin ? Infinity : (projectPlan?.max_evaluators ?? 1);
@@ -82,6 +85,53 @@ export default function EvaluatorManagementPage() {
       }, () => {});
   }, [id, evaluators, currentProject?.eval_method]);
 
+  // 검색/필터 적용
+  const filteredEvaluators = useMemo(() => {
+    let result = evaluators;
+
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(ev =>
+        (ev.name && ev.name.toLowerCase().includes(term)) ||
+        (ev.email && ev.email.toLowerCase().includes(term)) ||
+        (ev.phone_number && ev.phone_number.includes(term))
+      );
+    }
+
+    if (sourceFilter !== 'all') {
+      result = result.filter(ev =>
+        sourceFilter === 'public'
+          ? ev.registration_source === 'public'
+          : ev.registration_source !== 'public'
+      );
+    }
+
+    if (statusFilter !== 'all') {
+      result = result.filter(ev => {
+        const done = comparisonCounts[ev.id] || 0;
+        const pct = totalRequired > 0 ? Math.round((done / totalRequired) * 100) : 0;
+        const completed = ev.completed || pct >= 100;
+        return statusFilter === 'completed' ? completed : !completed;
+      });
+    }
+
+    return result;
+  }, [evaluators, searchTerm, sourceFilter, statusFilter, comparisonCounts, totalRequired]);
+
+  const isFiltered = searchTerm || sourceFilter !== 'all' || statusFilter !== 'all';
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setSourceFilter('all');
+    setStatusFilter('all');
+    setCurrentPage(1);
+  };
+
+  // 필터 변경 시 페이지 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sourceFilter, statusFilter]);
+
   if (projLoading || evalLoading || critLoading || altLoading) return <ProjectLayout><LoadingSpinner /></ProjectLayout>;
   if (!currentProject) return <ProjectLayout><p>프로젝트를 찾을 수 없습니다.</p></ProjectLayout>;
 
@@ -114,7 +164,7 @@ export default function EvaluatorManagementPage() {
     try {
       await deleteEvaluator(evalId);
       // 삭제 후 마지막 페이지 보정
-      const remaining = evaluators.length - 1;
+      const remaining = filteredEvaluators.length - 1;
       const newTotalPages = Math.max(1, Math.ceil(remaining / PAGE_SIZE));
       if (currentPage > newTotalPages) setCurrentPage(newTotalPages);
     } catch (err) {
@@ -122,9 +172,9 @@ export default function EvaluatorManagementPage() {
     }
   };
 
-  const totalPages = Math.max(1, Math.ceil(evaluators.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filteredEvaluators.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
-  const pagedEvaluators = evaluators.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const pagedEvaluators = filteredEvaluators.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
     <ProjectLayout projectName={currentProject.name}>
@@ -222,6 +272,43 @@ export default function EvaluatorManagementPage() {
           </div>
         </div>
 
+        {evaluators.length > 0 && (
+          <div className={styles.searchBar}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="이름, 이메일, 전화번호 검색"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            <select
+              className={styles.filterSelect}
+              value={sourceFilter}
+              onChange={e => setSourceFilter(e.target.value)}
+            >
+              <option value="all">등록유형: 전체</option>
+              <option value="admin">직접 등록</option>
+              <option value="public">QR 접속</option>
+            </select>
+            <select
+              className={styles.filterSelect}
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+            >
+              <option value="all">상태: 전체</option>
+              <option value="completed">완료</option>
+              <option value="pending">미완료</option>
+            </select>
+          </div>
+        )}
+
+        {isFiltered && (
+          <div className={styles.searchMeta}>
+            <span>{filteredEvaluators.length}명 검색됨 (전체 {evaluators.length}명)</span>
+            <button className={common.linkAction} onClick={handleResetFilters}>초기화</button>
+          </div>
+        )}
+
         {showForm && (
           <ParticipantForm
             onSave={async (data) => {
@@ -246,6 +333,12 @@ export default function EvaluatorManagementPage() {
                 setShowForm(true);
               },
             }}
+          />
+        ) : filteredEvaluators.length === 0 ? (
+          <EmptyState
+            title="검색 결과가 없습니다"
+            description="검색 조건을 변경하거나 초기화해 보세요."
+            action={{ label: '필터 초기화', onClick: handleResetFilters }}
           />
         ) : (
           <>
