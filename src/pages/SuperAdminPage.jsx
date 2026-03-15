@@ -595,7 +595,6 @@ function LecturesTab({ toast }) {
   const [sendProgress, setSendProgress] = useState({ current: 0, total: 0 });
   const [sendResults, setSendResults] = useState(null);
   const [updatingIds, setUpdatingIds] = useState(new Set());
-  const [confirmDate, setConfirmDate] = useState('');
 
   const fetchApplications = () => {
     setLoading(true);
@@ -628,15 +627,21 @@ function LecturesTab({ toast }) {
     setUpdatingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
   };
 
+  // 행별 확정일 변경
+  const handleConfirmedDateChange = (id, date) => {
+    setApplications(prev => prev.map(a => a.id === id ? { ...a, confirmed_date: date } : a));
+  };
+
   // 확인 문자 발송 + 확정 처리 (선택된 신청자)
   const handleConfirmAndSms = async () => {
-    if (!confirmDate) {
-      toast.warning('확정일을 먼저 선택해 주세요.');
-      return;
-    }
     const targets = selectedApps.filter(a => (a.status || 'pending') !== 'completed');
     if (targets.length === 0) {
       toast.warning('확정 처리할 신청자가 없습니다.');
+      return;
+    }
+    const noDate = targets.filter(a => !a.confirmed_date);
+    if (noDate.length > 0) {
+      toast.warning(`확정일이 미입력된 신청자가 ${noDate.length}명 있습니다. 각 행에서 날짜를 선택해 주세요.`);
       return;
     }
 
@@ -646,7 +651,8 @@ function LecturesTab({ toast }) {
 
     for (let i = 0; i < targets.length; i++) {
       const app = targets[i];
-      const msg = `[AHP Basic] ${app.name}님, 온라인 강의 일정이 확정되었습니다.\n- 강의: ${LECTURE_TYPE_LABELS[app.lecture_type] || app.lecture_type}\n- 확정일: ${confirmDate}\n자세한 안내는 별도 연락드리겠습니다.`;
+      const dateStr = app.confirmed_date;
+      const msg = `[AHP Basic] ${app.name}님, 온라인 강의 일정이 확정되었습니다.\n- 강의: ${LECTURE_TYPE_LABELS[app.lecture_type] || app.lecture_type}\n- 확정일: ${dateStr}\n자세한 안내는 별도 연락드리겠습니다.`;
 
       let smsOk = false;
       try {
@@ -657,11 +663,11 @@ function LecturesTab({ toast }) {
       // DB 상태 → confirmed + confirmed_date
       const { error } = await supabase
         .from('lecture_applications')
-        .update({ status: 'confirmed', confirmed_date: confirmDate })
+        .update({ status: 'confirmed', confirmed_date: dateStr })
         .eq('id', app.id);
 
       if (!error) {
-        setApplications(prev => prev.map(a => a.id === app.id ? { ...a, status: 'confirmed', confirmed_date: confirmDate } : a));
+        setApplications(prev => prev.map(a => a.id === app.id ? { ...a, status: 'confirmed', confirmed_date: dateStr } : a));
       }
 
       results.push({ name: app.name, phone: app.phone, success: !error, smsOk });
@@ -802,7 +808,7 @@ function LecturesTab({ toast }) {
       const personalMsg = smsMessage
         .replace(/\{이름\}/g, app.name || '')
         .replace(/\{강의유형\}/g, LECTURE_TYPE_LABELS[app.lecture_type] || app.lecture_type || '')
-        .replace(/\{확정일\}/g, app.confirmed_date || confirmDate || '-');
+        .replace(/\{확정일\}/g, app.confirmed_date || '-');
 
       try {
         await sendSms({ receiver: app.phone, message: personalMsg });
@@ -855,19 +861,11 @@ function LecturesTab({ toast }) {
           </button>
         ))}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
-          <input
-            type="date"
-            className={styles.roleSelect}
-            value={confirmDate}
-            onChange={e => setConfirmDate(e.target.value)}
-            title="확정일 선택"
-            style={{ minWidth: 130 }}
-          />
           <button
             className={styles.confirmBtn}
-            disabled={selected.size === 0 || sending || !confirmDate}
+            disabled={selected.size === 0 || sending}
             onClick={handleConfirmAndSms}
-            title="확정일 지정 + 확인 문자 발송 + 확정 처리"
+            title="각 행의 확정일로 확인 문자 발송 + 확정 처리"
           >
             확정 + 문자 ({selected.size}명)
           </button>
@@ -893,13 +891,6 @@ function LecturesTab({ toast }) {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th style={{ width: 40, textAlign: 'center' }}>
-                <input
-                  type="checkbox"
-                  checked={allChecked}
-                  onChange={handleToggleAll}
-                />
-              </th>
               <th>상태</th>
               <th>이름</th>
               <th>전화번호</th>
@@ -908,6 +899,13 @@ function LecturesTab({ toast }) {
               <th>확정일</th>
               <th>신청일</th>
               <th>관리</th>
+              <th style={{ width: 40, textAlign: 'center' }}>
+                <input
+                  type="checkbox"
+                  checked={allChecked}
+                  onChange={handleToggleAll}
+                />
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -921,14 +919,6 @@ function LecturesTab({ toast }) {
                   className={status === 'completed' ? styles.rowCompleted : undefined}
                   style={selected.has(a.id) ? { background: 'var(--color-primary-surface, rgba(0,70,200,0.04))' } : undefined}
                 >
-                  <td style={{ textAlign: 'center' }}>
-                    <input
-                      type="checkbox"
-                      checked={selected.has(a.id)}
-                      onChange={() => handleToggle(a.id)}
-                      disabled={!hasPhone}
-                    />
-                  </td>
                   <td>
                     <span
                       className={styles.statusBadge}
@@ -951,7 +941,15 @@ function LecturesTab({ toast }) {
                     </span>
                   </td>
                   <td>{a.preferred_date || (a.preferred_dates?.join(', ')) || '-'}</td>
-                  <td>{a.confirmed_date || '-'}</td>
+                  <td>
+                    <input
+                      type="date"
+                      className={styles.roleSelect}
+                      value={a.confirmed_date || ''}
+                      onChange={e => handleConfirmedDateChange(a.id, e.target.value)}
+                      style={{ minWidth: 130 }}
+                    />
+                  </td>
                   <td>{formatDate(a.created_at)}</td>
                   <td>
                     <select
@@ -964,6 +962,14 @@ function LecturesTab({ toast }) {
                       <option value="confirmed">확정</option>
                       <option value="completed">완료</option>
                     </select>
+                  </td>
+                  <td style={{ textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={selected.has(a.id)}
+                      onChange={() => handleToggle(a.id)}
+                      disabled={!hasPhone}
+                    />
                   </td>
                 </tr>
               );
