@@ -1,3 +1,59 @@
+/* ─── 상단 상태 바 ─── */
+.statusBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  margin-bottom: var(--spacing-md);
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border-light, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+}
+
+.statusInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.statusStats {
+  font-size: 0.88rem;
+  color: var(--color-text-muted, #6b7280);
+  font-weight: 500;
+}
+
+.statusActions {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .statusBar {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .statusInfo {
+    justify-content: center;
+  }
+
+  .statusActions {
+    justify-content: center;
+  }
+}
+
 /* ─── 보상/모집 설정 ─── */
 .rewardRow {
   display: flex;

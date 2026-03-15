@@ -141,6 +141,37 @@ DROP FUNCTION IF EXISTS public.get_marketplace_projects();
 
 ---
 
+## 6. 평가 시작/마감 버튼 상단 이동 및 평가 마감 기능
+
+### 변경 (EvaluatorManagementPage.jsx, EvaluatorManagementPage.module.css)
+
+#### 평가 시작 버튼 상단 이동
+
+기존 페이지 하단에 있던 "평가 시작" 버튼을 페이지 제목 바로 아래 상단 상태 바로 이동.
+
+#### 상태 바 추가 (statusBar)
+
+- 현재 프로젝트 상태 배지 (생성중/대기중/평가중/평가종료) + 색상 표시
+- 평가자 수 및 완료 수 통계 실시간 표시
+- 상태별 조건부 버튼 노출:
+  - **생성중/대기중** → "평가 시작" 버튼 (초록색)
+  - **평가중** → "평가 마감" 버튼 (빨간색)
+  - **평가종료** → 버튼 없음
+
+#### 평가 마감 기능
+
+- `handleCloseEvaluation` 핸들러 추가
+- 완료한 평가자가 0명이면 경고 표시 (`toast.warning`)
+- 확인 다이얼로그에 완료/전체 인원 표시
+- 마감 시 `status = PROJECT_STATUS.COMPLETED(4)` 로 변경
+
+#### 완료 평가자 수 계산 (completedCount)
+
+- `useMemo`로 `evaluators`, `comparisonCounts`, `totalRequired` 기반 실시간 계산
+- 각 평가자의 진행률 100% 이상이면 완료로 판정
+
+---
+
 ## 검증
 
 - `npx vite build` 성공 확인

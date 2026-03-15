@@ -11,7 +11,7 @@ import { useConfirm } from '../hooks/useConfirm';
 import { useSubscription } from '../hooks/useSubscription';
 import { useProjectPlan } from '../hooks/useProjectPlan';
 import { isMultiPlan } from '../lib/subscriptionPlans';
-import { PROJECT_STATUS, EVAL_METHOD } from '../lib/constants';
+import { PROJECT_STATUS, PROJECT_STATUS_LABELS, PROJECT_STATUS_COLORS, EVAL_METHOD } from '../lib/constants';
 import { buildPageSequence } from '../lib/pairwiseUtils';
 import ProjectLayout from '../components/layout/ProjectLayout';
 import ParticipantForm from '../components/admin/ParticipantForm';
@@ -46,6 +46,7 @@ export default function EvaluatorManagementPage() {
   const [recruitOpen, setRecruitOpen] = useState(false);
   const [recruitDesc, setRecruitDesc] = useState('');
   const [saving, setSaving] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [sourceFilter, setSourceFilter] = useState('all');
@@ -69,6 +70,14 @@ export default function EvaluatorManagementPage() {
     rewardPoints !== (currentProject?.reward_points ?? 0) ||
     recruitOpen !== (currentProject?.recruit_evaluators ?? false) ||
     recruitDesc !== (currentProject?.recruit_description ?? '');
+
+  const completedCount = useMemo(() => {
+    return evaluators.filter(ev => {
+      const done = comparisonCounts[ev.id] || 0;
+      const pct = totalRequired > 0 ? Math.round((done / totalRequired) * 100) : 0;
+      return ev.completed || pct >= 100;
+    }).length;
+  }, [evaluators, comparisonCounts, totalRequired]);
 
   const handleSaveRecruit = async () => {
     setSaving(true);
@@ -193,6 +202,27 @@ export default function EvaluatorManagementPage() {
     }
   };
 
+  const handleCloseEvaluation = async () => {
+    if (completedCount === 0) {
+      toast.warning('평가를 완료한 평가자가 없습니다.');
+      return;
+    }
+    if (!(await confirm({
+      title: '평가 마감',
+      message: `평가를 마감하시겠습니까?\n(완료: ${completedCount}명 / 전체: ${evaluators.length}명)`,
+      variant: 'danger',
+    }))) return;
+    setClosing(true);
+    try {
+      await updateProject(id, { status: PROJECT_STATUS.COMPLETED });
+      toast.success('평가가 마감되었습니다.');
+    } catch (err) {
+      toast.error('마감 실패: ' + err.message);
+    } finally {
+      setClosing(false);
+    }
+  };
+
   const handleDeleteEvaluator = async (evalId) => {
     if (!(await confirm({ title: '평가자 삭제', message: '삭제하시겠습니까?', variant: 'danger' }))) return;
     try {
@@ -213,6 +243,34 @@ export default function EvaluatorManagementPage() {
   return (
     <ProjectLayout projectName={currentProject.name}>
       <h1 className={common.pageTitle}>평가자 관리</h1>
+
+      {/* 상단 상태 & 액션 바 */}
+      <div className={styles.statusBar}>
+        <div className={styles.statusInfo}>
+          <span
+            className={styles.statusBadge}
+            style={{ background: PROJECT_STATUS_COLORS[currentProject.status] }}
+          >
+            {PROJECT_STATUS_LABELS[currentProject.status]}
+          </span>
+          <span className={styles.statusStats}>
+            평가자 {evaluators.length}명 · 완료 {completedCount}명
+          </span>
+        </div>
+        <div className={styles.statusActions}>
+          {currentProject.status !== PROJECT_STATUS.EVALUATING &&
+           currentProject.status !== PROJECT_STATUS.COMPLETED && (
+            <Button variant="success" loading={starting} onClick={handleStartEvaluation}>
+              평가 시작
+            </Button>
+          )}
+          {currentProject.status === PROJECT_STATUS.EVALUATING && (
+            <Button variant="danger" loading={closing} onClick={handleCloseEvaluation}>
+              평가 마감
+            </Button>
+          )}
+        </div>
+      </div>
 
       {/* 보상 포인트 & 마켓플레이스 모집 설정 */}
       <div className={common.cardSpaced} style={{ marginBottom: 'var(--spacing-md)' }}>
@@ -475,12 +533,6 @@ export default function EvaluatorManagementPage() {
           )}
           </>
         )}
-      </div>
-
-      <div className={common.actionRow}>
-        <Button variant="success" loading={starting} onClick={handleStartEvaluation}>
-          평가 시작
-        </Button>
       </div>
 
       <ConfirmDialog {...confirmDialogProps} />
