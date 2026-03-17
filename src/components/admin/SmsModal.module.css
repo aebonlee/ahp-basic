@@ -7,13 +7,15 @@
 }
 
 .panelLeft {
-  flex: 0 0 340px;
+  flex: 0 0 390px;
   min-width: 0;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .panelRight {
@@ -611,53 +613,91 @@
   transform: scale(0.95);
 }
 
-/* 직접 번호 입력 섹션 */
-.directSection {
-  margin-top: var(--spacing-sm);
-}
-
-.directToggle {
+/* 좌측 패널 탭 */
+.leftTabs {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  padding: 8px var(--spacing-sm);
+  gap: 0;
+  margin-bottom: var(--spacing-sm);
   border: 1px solid #86efac;
   border-radius: var(--radius-md);
-  background: #f0fdf4;
+  overflow: hidden;
+}
+
+.leftTab {
+  flex: 1;
+  padding: 7px 8px;
+  border: none;
+  background: #fff;
   color: #15803d;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
-.directToggle:hover:not(:disabled) {
+.leftTab:first-child {
+  border-right: 1px solid #86efac;
+}
+
+.leftTab:hover:not(:disabled) {
   background: #dcfce7;
-  border-color: #4ade80;
 }
 
-.directToggleIcon {
-  font-size: 0.7rem;
+.leftTabActive {
+  background: #16a34a;
+  color: #fff;
 }
 
-.directBody {
-  margin-top: 6px;
+.leftTabActive:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.leftTabBadge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 1px 6px;
+  border-radius: 8px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.leftTabActive .leftTabBadge {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.leftTabContent {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* 직접 입력 */
+.directDesc {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.5;
 }
 
 .directInput {
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border: 1px solid #86efac;
+  border-left: 4px solid #16a34a;
   border-radius: var(--radius-md);
-  font-size: 0.82rem;
-  font-family: inherit;
+  font-size: 0.85rem;
+  font-family: 'Consolas', 'Monaco', monospace;
   resize: vertical;
-  min-height: 56px;
+  min-height: 160px;
   box-sizing: border-box;
   background: #fff;
   color: #1e293b;
-  line-height: 1.5;
+  line-height: 1.7;
 }
 
 .directInput:focus {
@@ -670,9 +710,46 @@
   opacity: 0.6;
 }
 
-.directHint {
+.directStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  border-radius: var(--radius-sm);
+  border: 1px solid #bbf7d0;
+}
+
+.directStatusLabel {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.directStatusCount {
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.directStatusActive {
+  color: #16a34a;
+}
+
+.directPreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: var(--spacing-sm);
+}
+
+.directPhoneChip {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #fff;
+  border: 1px solid #86efac;
+  border-radius: var(--radius-round);
   font-size: 0.72rem;
-  color: #15803d;
-  margin-top: 4px;
   font-weight: 600;
+  color: #15803d;
 }

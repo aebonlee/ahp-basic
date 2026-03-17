@@ -69,7 +69,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
   const [page, setPage] = useState(1);
   const textareaRef = useRef(null);
   const [directPhones, setDirectPhones] = useState('');
-  const [directOpen, setDirectOpen] = useState(false);
+  const [leftTab, setLeftTab] = useState('list'); // 'list' | 'direct'
 
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/eval/invite/${projectId}`;
   const templates = useMemo(() => getTemplates(projectName), [projectName]);
@@ -262,153 +262,178 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
       ) : (
         <>
           <div className={styles.body}>
-            {/* 왼쪽: 수신자 선택 */}
+            {/* 왼쪽: 수신자 */}
             <div className={styles.panelLeft}>
               <label className={`${styles.sectionLabel} ${styles.sectionLabelGreen}`}>
-                수신자 선택
+                수신자
                 <span className={styles.selectedBadge}>{selectedCount}명 선택</span>
               </label>
 
-              {/* 필터 칩 */}
-              <div className={styles.filterChips}>
-                {visibleFilters.map((f) => (
-                  <button
-                    key={f.key}
-                    type="button"
-                    className={`${styles.filterChip} ${filter === f.key ? styles.filterChipActive : ''}`}
-                    onClick={() => handleFilterChange(f.key)}
-                    disabled={sending}
-                  >
-                    {f.label}
-                    <span className={styles.filterCount}>{filterCounts[f.key] ?? 0}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className={styles.recipientList}>
-                <label className={`${styles.recipientRow} ${styles.recipientRowAll}`}>
-                  <input
-                    type="checkbox"
-                    checked={allFiltered}
-                    onChange={handleToggleAll}
-                    disabled={sending || selectableEvaluators.length === 0}
-                  />
-                  <span className={styles.recipientNameAll}>
-                    전체 선택 ({selectableEvaluators.length}명)
-                  </span>
-                </label>
-                {pagedEvaluators.map((ev) => {
-                  const hasPhone = !!ev.phone_number;
-                  return (
-                    <label
-                      key={ev.id}
-                      className={`${styles.recipientRow} ${!hasPhone ? styles.disabled : ''}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selected.has(ev.id)}
-                        onChange={() => handleToggle(ev.id)}
-                        disabled={!hasPhone || sending}
-                      />
-                      <span className={styles.recipientName}>{ev.name}</span>
-                      <span className={styles.recipientPhone}>
-                        {hasPhone ? formatPhone(ev.phone_number) : '(번호 없음)'}
-                      </span>
-                    </label>
-                  );
-                })}
-                {filteredEvaluators.length === 0 && (
-                  <div className={styles.emptyFilter}>해당 조건의 평가자가 없습니다.</div>
-                )}
-              </div>
-
-              {/* 페이지네이션 */}
-              {totalPages > 1 && (
-                <div className={styles.pagination}>
-                  <button
-                    type="button"
-                    className={`${styles.pageBtn} ${styles.pageNav}`}
-                    onClick={() => setPage(1)}
-                    disabled={safePage <= 1}
-                    title="첫 페이지"
-                  >
-                    &laquo;
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.pageBtn} ${styles.pageNav}`}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={safePage <= 1}
-                    title="이전 페이지"
-                  >
-                    &lsaquo;
-                  </button>
-                  {getPageNumbers(totalPages, safePage).map((p, i) =>
-                    p === '...' ? (
-                      <span key={`e${i}`} className={styles.pageEllipsis}>...</span>
-                    ) : (
-                      <button
-                        key={p}
-                        type="button"
-                        className={`${styles.pageBtn} ${p === safePage ? styles.pageBtnActive : ''}`}
-                        onClick={() => setPage(p)}
-                      >
-                        {p}
-                      </button>
-                    )
-                  )}
-                  <button
-                    type="button"
-                    className={`${styles.pageBtn} ${styles.pageNav}`}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={safePage >= totalPages}
-                    title="다음 페이지"
-                  >
-                    &rsaquo;
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.pageBtn} ${styles.pageNav}`}
-                    onClick={() => setPage(totalPages)}
-                    disabled={safePage >= totalPages}
-                    title="마지막 페이지"
-                  >
-                    &raquo;
-                  </button>
-                </div>
-              )}
-              {/* 직접 번호 입력 */}
-              <div className={styles.directSection}>
+              {/* 좌측 탭: 수신자 선택 / 번호 입력 */}
+              <div className={styles.leftTabs}>
                 <button
                   type="button"
-                  className={styles.directToggle}
-                  onClick={() => setDirectOpen((v) => !v)}
+                  className={`${styles.leftTab} ${leftTab === 'list' ? styles.leftTabActive : ''}`}
+                  onClick={() => setLeftTab('list')}
                   disabled={sending}
                 >
-                  <span className={styles.directToggleIcon}>{directOpen ? '▾' : '▸'}</span>
-                  번호 직접 입력
-                  {parsedDirectPhones.length > 0 && (
-                    <span className={styles.selectedBadge}>{parsedDirectPhones.length}건</span>
-                  )}
+                  평가자 목록
+                  {selected.size > 0 && <span className={styles.leftTabBadge}>{selected.size}</span>}
                 </button>
-                {directOpen && (
-                  <div className={styles.directBody}>
-                    <textarea
-                      className={styles.directInput}
-                      value={directPhones}
-                      onChange={(e) => setDirectPhones(e.target.value)}
-                      placeholder="01012345678, 01098765432&#10;(쉼표 또는 줄바꿈으로 구분)"
-                      rows={3}
-                      disabled={sending}
-                    />
-                    <div className={styles.directHint}>
-                      {parsedDirectPhones.length > 0
-                        ? `유효한 번호 ${parsedDirectPhones.length}건`
-                        : '전화번호를 입력하세요'}
-                    </div>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  className={`${styles.leftTab} ${leftTab === 'direct' ? styles.leftTabActive : ''}`}
+                  onClick={() => setLeftTab('direct')}
+                  disabled={sending}
+                >
+                  번호 직접 입력
+                  {parsedDirectPhones.length > 0 && <span className={styles.leftTabBadge}>{parsedDirectPhones.length}</span>}
+                </button>
               </div>
+
+              {leftTab === 'list' ? (
+                <div className={styles.leftTabContent}>
+                  {/* 필터 칩 */}
+                  <div className={styles.filterChips}>
+                    {visibleFilters.map((f) => (
+                      <button
+                        key={f.key}
+                        type="button"
+                        className={`${styles.filterChip} ${filter === f.key ? styles.filterChipActive : ''}`}
+                        onClick={() => handleFilterChange(f.key)}
+                        disabled={sending}
+                      >
+                        {f.label}
+                        <span className={styles.filterCount}>{filterCounts[f.key] ?? 0}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className={styles.recipientList}>
+                    <label className={`${styles.recipientRow} ${styles.recipientRowAll}`}>
+                      <input
+                        type="checkbox"
+                        checked={allFiltered}
+                        onChange={handleToggleAll}
+                        disabled={sending || selectableEvaluators.length === 0}
+                      />
+                      <span className={styles.recipientNameAll}>
+                        전체 선택 ({selectableEvaluators.length}명)
+                      </span>
+                    </label>
+                    {pagedEvaluators.map((ev) => {
+                      const hasPhone = !!ev.phone_number;
+                      return (
+                        <label
+                          key={ev.id}
+                          className={`${styles.recipientRow} ${!hasPhone ? styles.disabled : ''}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selected.has(ev.id)}
+                            onChange={() => handleToggle(ev.id)}
+                            disabled={!hasPhone || sending}
+                          />
+                          <span className={styles.recipientName}>{ev.name}</span>
+                          <span className={styles.recipientPhone}>
+                            {hasPhone ? formatPhone(ev.phone_number) : '(번호 없음)'}
+                          </span>
+                        </label>
+                      );
+                    })}
+                    {filteredEvaluators.length === 0 && (
+                      <div className={styles.emptyFilter}>해당 조건의 평가자가 없습니다.</div>
+                    )}
+                  </div>
+
+                  {/* 페이지네이션 */}
+                  {totalPages > 1 && (
+                    <div className={styles.pagination}>
+                      <button
+                        type="button"
+                        className={`${styles.pageBtn} ${styles.pageNav}`}
+                        onClick={() => setPage(1)}
+                        disabled={safePage <= 1}
+                        title="첫 페이지"
+                      >
+                        &laquo;
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.pageBtn} ${styles.pageNav}`}
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={safePage <= 1}
+                        title="이전 페이지"
+                      >
+                        &lsaquo;
+                      </button>
+                      {getPageNumbers(totalPages, safePage).map((p, i) =>
+                        p === '...' ? (
+                          <span key={`e${i}`} className={styles.pageEllipsis}>...</span>
+                        ) : (
+                          <button
+                            key={p}
+                            type="button"
+                            className={`${styles.pageBtn} ${p === safePage ? styles.pageBtnActive : ''}`}
+                            onClick={() => setPage(p)}
+                          >
+                            {p}
+                          </button>
+                        )
+                      )}
+                      <button
+                        type="button"
+                        className={`${styles.pageBtn} ${styles.pageNav}`}
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={safePage >= totalPages}
+                        title="다음 페이지"
+                      >
+                        &rsaquo;
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.pageBtn} ${styles.pageNav}`}
+                        onClick={() => setPage(totalPages)}
+                        disabled={safePage >= totalPages}
+                        title="마지막 페이지"
+                      >
+                        &raquo;
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className={styles.leftTabContent}>
+                  <div className={styles.directDesc}>
+                    쉼표 또는 줄바꿈으로 여러 번호를 구분하세요. 하이픈은 자동 제거됩니다.
+                  </div>
+                  <textarea
+                    className={styles.directInput}
+                    value={directPhones}
+                    onChange={(e) => setDirectPhones(e.target.value)}
+                    placeholder={"01012345678\n010-9876-5432\n01055551234"}
+                    rows={10}
+                    disabled={sending}
+                  />
+                  <div className={styles.directStatus}>
+                    <span className={styles.directStatusLabel}>
+                      유효한 번호
+                    </span>
+                    <span className={`${styles.directStatusCount} ${parsedDirectPhones.length > 0 ? styles.directStatusActive : ''}`}>
+                      {parsedDirectPhones.length}건
+                    </span>
+                  </div>
+                  {parsedDirectPhones.length > 0 && (
+                    <div className={styles.directPreview}>
+                      {parsedDirectPhones.map((phone, i) => (
+                        <span key={i} className={styles.directPhoneChip}>
+                          {formatPhone(phone)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* 오른쪽: 메시지 입력 */}
