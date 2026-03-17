@@ -284,7 +284,7 @@ export default function SurveyResultPage() {
                   {qs.count}<span className={styles.dashSub}> / {qs.total}</span>
                   <span className={styles.dashSmPct}>{pct}%</span>
                 </div>
-                <div className={styles.dashBar}><div className={styles.dashBarFill} style={{ width: `${pct}%`, background: '#8b5cf6' }} /></div>
+                <div className={styles.dashBar}><div className={styles.dashBarFill} style={{ width: `${pct}%`, background: '#1e3a5f' }} /></div>
               </div>
             );
           })}

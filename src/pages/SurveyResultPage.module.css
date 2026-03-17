@@ -93,7 +93,7 @@
   background: var(--color-surface);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-light);
-  border-left: 3px solid #8b5cf6;
+  border-left: 3px solid #1e3a5f;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
   transition: box-shadow 0.15s, transform 0.15s;
 }
@@ -123,7 +123,7 @@
 .dashSmPct {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #8b5cf6;
+  color: #1e3a5f;
   font-family: var(--font-mono);
   margin-left: 4px;
 }
