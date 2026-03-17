@@ -68,6 +68,8 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(1);
   const textareaRef = useRef(null);
+  const [directPhones, setDirectPhones] = useState('');
+  const [directOpen, setDirectOpen] = useState(false);
 
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/eval/invite/${projectId}`;
   const templates = useMemo(() => getTemplates(projectName), [projectName]);
@@ -133,6 +135,14 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
 
   const byteInfo = useMemo(() => getByteInfo(message), [message]);
 
+  // 직접 입력 전화번호 파싱
+  const parsedDirectPhones = useMemo(() => {
+    return directPhones
+      .split(/[,\n]+/)
+      .map(s => s.replace(/[\s\-]/g, ''))
+      .filter(s => /^0\d{9,10}$/.test(s));
+  }, [directPhones]);
+
   const handleToggle = useCallback((id) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -183,12 +193,20 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
   }, [message, inviteUrl]);
 
   const handleSend = async () => {
-    if (selected.size === 0 || !message.trim()) return;
+    const totalCount = selected.size + parsedDirectPhones.length;
+    if (totalCount === 0 || !message.trim()) return;
     if (byteInfo.type === 'OVER') return;
 
-    const recipients = selectableEvaluators
+    const evalRecipients = selectableEvaluators
       .filter((ev) => selected.has(ev.id))
       .map((ev) => ({ name: ev.name, phone: ev.phone_number }));
+
+    const directRecipients = parsedDirectPhones.map((phone) => ({
+      name: '',
+      phone,
+    }));
+
+    const recipients = [...evalRecipients, ...directRecipients];
 
     setSending(true);
     setProgress({ current: 0, total: recipients.length });
@@ -212,7 +230,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
     onClose();
   };
 
-  const selectedCount = selected.size;
+  const selectedCount = selected.size + parsedDirectPhones.length;
   const allFiltered =
     selectableEvaluators.length > 0 &&
     selectableEvaluators.every((ev) => selected.has(ev.id));
@@ -225,8 +243,8 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
           <ul className={styles.resultsList}>
             {results.map((r, i) => (
               <li key={i} className={r.success ? styles.resultSuccess : styles.resultFail}>
-                <span>{r.name}</span>
-                <span>{formatPhone(r.phone)}</span>
+                <span>{r.name || formatPhone(r.phone)}</span>
+                {r.name && <span>{formatPhone(r.phone)}</span>}
                 <span className={r.success ? styles.badgeSuccess : styles.badgeFail}>
                   {r.success ? '성공' : '실패'}
                 </span>
@@ -359,6 +377,38 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
                   </button>
                 </div>
               )}
+              {/* 직접 번호 입력 */}
+              <div className={styles.directSection}>
+                <button
+                  type="button"
+                  className={styles.directToggle}
+                  onClick={() => setDirectOpen((v) => !v)}
+                  disabled={sending}
+                >
+                  <span className={styles.directToggleIcon}>{directOpen ? '▾' : '▸'}</span>
+                  번호 직접 입력
+                  {parsedDirectPhones.length > 0 && (
+                    <span className={styles.selectedBadge}>{parsedDirectPhones.length}건</span>
+                  )}
+                </button>
+                {directOpen && (
+                  <div className={styles.directBody}>
+                    <textarea
+                      className={styles.directInput}
+                      value={directPhones}
+                      onChange={(e) => setDirectPhones(e.target.value)}
+                      placeholder="01012345678, 01098765432&#10;(쉼표 또는 줄바꿈으로 구분)"
+                      rows={3}
+                      disabled={sending}
+                    />
+                    <div className={styles.directHint}>
+                      {parsedDirectPhones.length > 0
+                        ? `유효한 번호 ${parsedDirectPhones.length}건`
+                        : '전화번호를 입력하세요'}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 오른쪽: 메시지 입력 */}

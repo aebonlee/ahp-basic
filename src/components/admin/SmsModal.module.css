@@ -112,6 +112,8 @@
   border-radius: var(--radius-md);
   padding: var(--spacing-xs) 0;
   background: #fff;
+  max-height: 320px;
+  overflow-y: auto;
 }
 
 .recipientRow {
@@ -602,4 +604,70 @@
 
 .symbolBtn:active:not(:disabled) {
   transform: scale(0.95);
+}
+
+/* 직접 번호 입력 섹션 */
+.directSection {
+  margin-top: var(--spacing-sm);
+}
+
+.directToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px var(--spacing-sm);
+  border: 1px solid #86efac;
+  border-radius: var(--radius-md);
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.directToggle:hover:not(:disabled) {
+  background: #dcfce7;
+  border-color: #4ade80;
+}
+
+.directToggleIcon {
+  font-size: 0.7rem;
+}
+
+.directBody {
+  margin-top: 6px;
+}
+
+.directInput {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #86efac;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 56px;
+  box-sizing: border-box;
+  background: #fff;
+  color: #1e293b;
+  line-height: 1.5;
+}
+
+.directInput:focus {
+  outline: none;
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15);
+}
+
+.directInput:disabled {
+  opacity: 0.6;
+}
+
+.directHint {
+  font-size: 0.72rem;
+  color: #15803d;
+  margin-top: 4px;
+  font-weight: 600;
 }
