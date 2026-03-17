@@ -236,55 +236,187 @@ function ProjectsTab({ toast, confirm }) {
   );
 }
 
-function SmsTab() {
+function SmsTab({ toast }) {
   const { stats, loading } = useSuperAdminSmsStats();
+  const [directPhone, setDirectPhone] = useState('');
+  const [directMessage, setDirectMessage] = useState('');
+  const [directSending, setDirectSending] = useState(false);
+  const [directProgress, setDirectProgress] = useState({ current: 0, total: 0 });
+  const [directResults, setDirectResults] = useState(null);
 
-  if (loading) return <div className={styles.loading}>SMS 통계 로딩 중...</div>;
-  if (!stats.length) return <div className={styles.empty}>SMS 발송 이력이 없습니다.</div>;
+  const directByteInfo = getByteInfo(directMessage);
 
-  const totalCount = stats.reduce((s, r) => s + r.total_count, 0);
-  const totalSuccess = stats.reduce((s, r) => s + r.success_count, 0);
-  const totalFail = stats.reduce((s, r) => s + r.fail_count, 0);
+  const parsePhones = (input) => {
+    return input
+      .split(/[,\n]+/)
+      .map(s => s.replace(/[\s\-]/g, ''))
+      .filter(s => /^0\d{9,10}$/.test(s));
+  };
+
+  const phoneList = parsePhones(directPhone);
+
+  const handleDirectSend = async () => {
+    if (phoneList.length === 0 || !directMessage.trim()) return;
+    if (directByteInfo.type === 'OVER') {
+      toast.warning('메시지가 2000바이트를 초과합니다.');
+      return;
+    }
+
+    setDirectSending(true);
+    setDirectProgress({ current: 0, total: phoneList.length });
+    const results = [];
+
+    for (let i = 0; i < phoneList.length; i++) {
+      try {
+        await sendSms({ receiver: phoneList[i], message: directMessage });
+        results.push({ phone: phoneList[i], success: true });
+      } catch (err) {
+        results.push({ phone: phoneList[i], success: false, error: err.message });
+      }
+      setDirectProgress({ current: i + 1, total: phoneList.length });
+    }
+
+    setDirectResults(results);
+    setDirectSending(false);
+    const okCount = results.filter(r => r.success).length;
+    toast.success(`${okCount}/${results.length}건 발송 성공`);
+  };
+
+  const handleDirectReset = () => {
+    setDirectResults(null);
+    setDirectPhone('');
+    setDirectMessage('');
+  };
 
   return (
     <>
-      <div className={styles.stats}>
-        <div className={styles.stat}>
-          <strong>{totalCount}</strong>총 발송
+      {/* 직접 발송 패널 */}
+      <div className={styles.smsPanel}>
+        <div className={styles.smsPanelHeader}>
+          <h3 className={styles.smsPanelTitle}>직접 발송</h3>
         </div>
-        <div className={styles.stat}>
-          <strong className={styles.successText}>{totalSuccess}</strong>성공
-        </div>
-        <div className={styles.stat}>
-          <strong className={styles.failText}>{totalFail}</strong>실패
-        </div>
+
+        {directResults ? (
+          <div className={styles.smsResults}>
+            <div className={styles.smsResultsSummary}>
+              <span className={styles.successText}>성공 {directResults.filter(r => r.success).length}건</span>
+              {' / '}
+              <span className={styles.failText}>실패 {directResults.filter(r => !r.success).length}건</span>
+            </div>
+            <ul className={styles.smsResultsList}>
+              {directResults.map((r, i) => (
+                <li key={i}>
+                  <span>{r.phone}</span>
+                  <span className={r.success ? styles.successText : styles.failText}>
+                    {r.success ? '성공' : `실패: ${r.error || ''}`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <button className={styles.filterBtn} onClick={handleDirectReset} style={{ marginTop: 12 }}>
+              새로 작성
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className={styles.smsHint}>
+              전화번호를 입력하세요 (쉼표 또는 줄바꿈으로 여러 번호 구분, 예: 01012345678, 01098765432)
+            </div>
+            <textarea
+              className={styles.smsTextarea}
+              value={directPhone}
+              onChange={e => setDirectPhone(e.target.value)}
+              placeholder="01012345678, 01098765432"
+              rows={2}
+              disabled={directSending}
+              style={{ minHeight: 50, marginBottom: 8 }}
+            />
+            <div className={styles.smsByteBar}>
+              <span>
+                {phoneList.length > 0
+                  ? `유효한 번호: ${phoneList.length}건`
+                  : '전화번호를 입력하세요'}
+              </span>
+            </div>
+            <textarea
+              className={styles.smsTextarea}
+              value={directMessage}
+              onChange={e => setDirectMessage(e.target.value)}
+              placeholder="메시지를 입력하세요"
+              rows={6}
+              disabled={directSending}
+            />
+            <div className={styles.smsByteBar}>
+              <span>{directByteInfo.bytes}/{directByteInfo.max} bytes</span>
+              <span className={
+                directByteInfo.type === 'SMS' ? styles.successText
+                  : directByteInfo.type === 'LMS' ? '' : styles.failText
+              }>
+                {directByteInfo.type}
+              </span>
+            </div>
+            <div className={styles.smsActions}>
+              {directSending && (
+                <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                  발송 중... {directProgress.current}/{directProgress.total}
+                </span>
+              )}
+              <button
+                className={styles.smsBtn}
+                onClick={handleDirectSend}
+                disabled={directSending || phoneList.length === 0 || !directMessage.trim() || directByteInfo.type === 'OVER'}
+              >
+                {directSending ? '발송 중...' : `발송 (${phoneList.length}건)`}
+              </button>
+            </div>
+          </>
+        )}
       </div>
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>이메일</th>
-              <th>이름</th>
-              <th>발송 건수</th>
-              <th>성공</th>
-              <th>실패</th>
-              <th>마지막 발송일</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stats.map(r => (
-              <tr key={r.sender_id}>
-                <td>{r.sender_email}</td>
-                <td>{r.sender_name || '-'}</td>
-                <td>{r.total_count}</td>
-                <td><span className={styles.successText}>{r.success_count}</span></td>
-                <td><span className={styles.failText}>{r.fail_count}</span></td>
-                <td>{formatDate(r.last_sent_at)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+      {/* 통계 */}
+      {loading ? (
+        <div className={styles.loading}>SMS 통계 로딩 중...</div>
+      ) : stats.length > 0 && (
+        <>
+          <div className={styles.stats} style={{ marginTop: 'var(--spacing-lg)' }}>
+            <div className={styles.stat}>
+              <strong>{stats.reduce((s, r) => s + r.total_count, 0)}</strong>총 발송
+            </div>
+            <div className={styles.stat}>
+              <strong className={styles.successText}>{stats.reduce((s, r) => s + r.success_count, 0)}</strong>성공
+            </div>
+            <div className={styles.stat}>
+              <strong className={styles.failText}>{stats.reduce((s, r) => s + r.fail_count, 0)}</strong>실패
+            </div>
+          </div>
+          <div className={styles.tableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>이메일</th>
+                  <th>이름</th>
+                  <th>발송 건수</th>
+                  <th>성공</th>
+                  <th>실패</th>
+                  <th>마지막 발송일</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.map(r => (
+                  <tr key={r.sender_id}>
+                    <td>{r.sender_email}</td>
+                    <td>{r.sender_name || '-'}</td>
+                    <td>{r.total_count}</td>
+                    <td><span className={styles.successText}>{r.success_count}</span></td>
+                    <td><span className={styles.failText}>{r.fail_count}</span></td>
+                    <td>{formatDate(r.last_sent_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </>
   );
 }
@@ -1100,7 +1232,7 @@ export default function SuperAdminPage() {
         {activeTab === 'users' && <UsersTab toast={toast} />}
         {activeTab === 'projects' && <ProjectsTab toast={toast} confirm={confirm} />}
         {activeTab === 'withdrawals' && <WithdrawalsTab toast={toast} />}
-        {activeTab === 'sms' && <SmsTab />}
+        {activeTab === 'sms' && <SmsTab toast={toast} />}
         {activeTab === 'visitors' && <VisitorsTab />}
         {activeTab === 'lectures' && <LecturesTab toast={toast} />}
       </div>
