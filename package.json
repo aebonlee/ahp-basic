@@ -1,5 +1,7 @@
 {
   "name": "ahp-basic",
+  "description": "AHP 의사결정 분석 도구 - Multi-Layer AHP Decision Support Platform",
+  "homepage": "https://ahp-basic.dreamitbiz.com",
   "private": true,
   "version": "1.0.0",
   "type": "module",
