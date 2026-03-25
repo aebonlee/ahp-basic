@@ -23,6 +23,7 @@ const initialState = {
   mode: USER_MODE.ADMIN,
   loading: true,
   error: null,
+  accountBlock: null,
 };
 
 function authReducer(state, action) {
@@ -45,6 +46,8 @@ function authReducer(state, action) {
       return { ...state, loading: action.payload };
     case 'SET_ERROR':
       return { ...state, error: action.payload, loading: false };
+    case 'SET_ACCOUNT_BLOCK':
+      return { ...state, accountBlock: action.payload };
     case 'SIGN_OUT':
       return { ...initialState, loading: false };
     default:
@@ -55,12 +58,53 @@ function authReducer(state, action) {
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  const clearAccountBlock = useCallback(() => {
+    dispatch({ type: 'SET_ACCOUNT_BLOCK', payload: null });
+  }, []);
+
   // 프로필 로드
   const loadProfile = useCallback(async (userId) => {
     dispatch({ type: 'SET_PROFILE_LOADING' });
     try {
       const profile = await getProfile(userId);
       dispatch({ type: 'SET_PROFILE', payload: profile });
+
+      // signup_domain / visited_sites / check_user_status 자동 처리
+      if (profile) {
+        const currentDomain = window.location.hostname;
+        const updates = {};
+        if (!profile.signup_domain) updates.signup_domain = currentDomain;
+        const sites = Array.isArray(profile.visited_sites) ? profile.visited_sites : [];
+        if (!sites.includes(currentDomain)) {
+          updates.visited_sites = [...sites, currentDomain];
+        }
+        if (Object.keys(updates).length > 0) {
+          supabase.from('user_profiles').update(updates).eq('id', userId).then(() => {});
+        }
+
+        // 계정 상태 체크
+        try {
+          const { data: statusData } = await supabase.rpc('check_user_status', {
+            target_user_id: userId,
+            current_domain: currentDomain,
+          });
+          if (statusData && statusData.status && statusData.status !== 'active') {
+            dispatch({
+              type: 'SET_ACCOUNT_BLOCK',
+              payload: {
+                status: statusData.status,
+                reason: statusData.reason || '',
+                suspended_until: statusData.suspended_until || null,
+              },
+            });
+            await supabase.auth.signOut();
+            dispatch({ type: 'SIGN_OUT' });
+            return;
+          }
+        } catch {
+          // check_user_status 함수 미존재 시 무시
+        }
+      }
     } catch {
       dispatch({ type: 'SET_PROFILE', payload: null });
     }
@@ -73,10 +117,16 @@ export function AuthProvider({ children }) {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         dispatch({ type: 'SET_SESSION', payload: session });
         if (session?.user) {
           loadProfile(session.user.id);
+          if (event === 'SIGNED_IN') {
+            supabase.from('user_profiles')
+              .update({ last_sign_in_at: new Date().toISOString() })
+              .eq('id', session.user.id)
+              .then(() => {});
+          }
         } else {
           dispatch({ type: 'SET_PROFILE', payload: null });
         }
@@ -85,16 +135,6 @@ export function AuthProvider({ children }) {
 
     return () => subscription.unsubscribe();
   }, [loadProfile]);
-
-  // signup_domain + visited_sites 자동 설정 (onAuthStateChange 밖에서 실행)
-  useEffect(() => {
-    if (state.user?.id) {
-      supabase.rpc('check_user_status', {
-        target_user_id: state.user.id,
-        current_domain: window.location.hostname,
-      }).then(null, () => {});
-    }
-  }, [state.user?.id]);
 
   const setMode = useCallback((mode) => {
     dispatch({ type: 'SET_MODE', payload: mode });
@@ -180,6 +220,7 @@ export function AuthProvider({ children }) {
     isLoggedIn,
     isAdmin,
     isEvaluator,
+    clearAccountBlock,
     setMode,
     signIn,
     loginWithGoogle,
@@ -189,7 +230,7 @@ export function AuthProvider({ children }) {
     resetPassword,
     refreshProfile,
     updateProfile,
-  }), [state, isLoggedIn, isAdmin, isEvaluator, setMode, signIn, loginWithGoogle, loginWithKakao, signUp, signOut, resetPassword, refreshProfile, updateProfile]);
+  }), [state, isLoggedIn, isAdmin, isEvaluator, clearAccountBlock, setMode, signIn, loginWithGoogle, loginWithKakao, signUp, signOut, resetPassword, refreshProfile, updateProfile]);
 
   return (
     <AuthContext.Provider value={value}>
