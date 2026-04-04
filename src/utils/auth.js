@@ -61,6 +61,18 @@ export async function signUp(email, password, displayName, role = 'user') {
     },
   });
   if (error) throw error;
+
+  // user_profiles 테이블에 프로필 생성
+  if (data?.user) {
+    await supabase.from('user_profiles').upsert({
+      id: data.user.id,
+      email: data.user.email,
+      full_name: displayName || '',
+      signup_domain: window.location.hostname,
+      visited_sites: [window.location.hostname],
+    }, { onConflict: 'id' });
+  }
+
   return data;
 }
 

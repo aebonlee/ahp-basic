@@ -117,15 +117,35 @@ export function AuthProvider({ children }) {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         dispatch({ type: 'SET_SESSION', payload: session });
         if (session?.user) {
           loadProfile(session.user.id);
           if (event === 'SIGNED_IN') {
+            const hostname = window.location.hostname;
             supabase.from('user_profiles')
               .update({ last_sign_in_at: new Date().toISOString() })
               .eq('id', session.user.id)
               .then(() => {});
+
+            // visited_sites 도메인 트래킹
+            try {
+              const { data: profile } = await supabase
+                .from('user_profiles')
+                .select('visited_sites')
+                .eq('id', session.user.id)
+                .single();
+              if (profile) {
+                const sites = profile.visited_sites || [];
+                if (!sites.includes(hostname)) {
+                  await supabase.from('user_profiles')
+                    .update({ visited_sites: [...sites, hostname] })
+                    .eq('id', session.user.id);
+                }
+              }
+            } catch {
+              // user_profiles 조회 실패 시 무시
+            }
           }
         } else {
           dispatch({ type: 'SET_PROFILE', payload: null });
