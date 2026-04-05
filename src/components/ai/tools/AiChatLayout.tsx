@@ -16,7 +16,7 @@ export default function AiChatLayout({
   placeholder = '질문을 입력하세요...',
   emptyStateMessage = '평가를 완료한 후 AI 분석을 이용할 수 있습니다.',
   requireData = true,
-}) {
+}: any) {
   const { contextText, loading: ctxLoading, hasData } = useAhpContext(projectId);
   const systemPrompt = hasData
     ? `${systemPromptBase}\n\n${contextText}`

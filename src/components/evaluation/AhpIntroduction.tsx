@@ -3,7 +3,7 @@ import { PreviewContent } from '../model/ModelPreview';
 import { PAIRWISE_SCALE } from '../../lib/constants';
 import styles from './AhpIntroduction.module.css';
 
-export default function AhpIntroduction({ onStart, projectName, criteriaTree, alternatives }) {
+export default function AhpIntroduction({ onStart, projectName, criteriaTree, alternatives }: any) {
   return (
     <div className={styles.container}>
       <div className={styles.hero}>

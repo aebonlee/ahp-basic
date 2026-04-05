@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } f
 import { LEVEL_COLORS } from '../../lib/constants';
 import styles from './SensitivityChart.module.css';
 
-export default memo(function SensitivityChart({ data, alternatives, criterionName }) {
+export default memo(function SensitivityChart({ data, alternatives, criterionName }: any) {
   if (!data || !alternatives) return null;
 
   const chartData = data.map(d => {
@@ -22,10 +22,10 @@ export default memo(function SensitivityChart({ data, alternatives, criterionNam
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={chartData}>
           <XAxis dataKey="weight" interval={9} />
-          <YAxis tickFormatter={(v) => `${v.toFixed(0)}%`} />
-          <Tooltip formatter={(v) => `${v.toFixed(2)}%`} />
+          <YAxis tickFormatter={(v) => `${Number(v).toFixed(0)}%`} />
+          <Tooltip formatter={(v) => `${Number(v).toFixed(2)}%`} />
           <Legend />
-          {alternatives.map((alt, i) => (
+          {alternatives.map((alt: any, i: number) => (
             <Line
               key={alt.id}
               type="monotone"

@@ -22,7 +22,7 @@ const MESSAGES = {
   },
 };
 
-export default function PlanRequiredModal({ isOpen, onClose, reason, maxEvaluators }) {
+export default function PlanRequiredModal({ isOpen, onClose, reason, maxEvaluators }: any) {
   const navigate = useNavigate();
   const info = MESSAGES[reason] || MESSAGES.default;
 

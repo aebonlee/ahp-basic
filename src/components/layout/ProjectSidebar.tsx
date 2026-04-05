@@ -39,7 +39,7 @@ const AI_SUBS = [
   { key: 'researchEval', label: '연구 평가/조언' },
 ];
 
-export default function ProjectSidebar({ projectName, collapsed }) {
+export default function ProjectSidebar({ projectName, collapsed }: any) {
   const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();

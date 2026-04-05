@@ -2,7 +2,7 @@ import { memo, useMemo } from 'react';
 import { LEVEL_COLORS } from '../../lib/constants';
 import styles from '../../styles/results.module.css';
 
-export default memo(function ResultSummary({ criteria, alternatives, results }) {
+export default memo(function ResultSummary({ criteria, alternatives, results }: any) {
   const globalPriorityMap = useMemo(() => {
     const map = {};
     for (const c of criteria) {

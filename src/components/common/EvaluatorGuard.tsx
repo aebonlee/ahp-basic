@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 
-export default function EvaluatorGuard({ children }) {
+export default function EvaluatorGuard({ children }: any) {
   const { isLoggedIn, loading: authLoading, user } = useAuth();
   const { id } = useParams();
   const location = useLocation();

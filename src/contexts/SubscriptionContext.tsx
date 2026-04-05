@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabaseClient';
 import { PLAN_TYPES, isMultiPlan } from '../lib/subscriptionPlans';
 
-export const SubscriptionContext = createContext(null);
+export const SubscriptionContext = createContext<any>(null);
 
 export function SubscriptionProvider({ children }) {
   const { user, profile } = useAuth();

@@ -16,7 +16,7 @@ const ZONES = [
 
 const ZONE_KEYS = ZONES.map(z => z.key);
 
-export default function BrainstormingBoard({ projectId }) {
+export default function BrainstormingBoard({ projectId }: any) {
   const [items, setItems] = useState({ alternative: [], advantage: [], disadvantage: [], criterion: [] });
   const [dragItem, setDragItem] = useState(null);
   const { criteria, addCriterion } = useCriteria(projectId);

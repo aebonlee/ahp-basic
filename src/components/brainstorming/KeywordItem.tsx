@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styles from './KeywordItem.module.css';
 
-export default function KeywordItem({ item, color, onUpdate, onDelete, onDragStart, onDrop }) {
+export default function KeywordItem({ item, color, onUpdate, onDelete, onDragStart, onDrop }: any) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(item.text);
 

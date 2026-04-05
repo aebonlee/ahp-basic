@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import styles from './PriorityBarChart.module.css';
 
-export default memo(function PriorityBarChart({ items, priorities }) {
+export default memo(function PriorityBarChart({ items, priorities }: any) {
   if (!items || !priorities || items.length === 0) return null;
 
   return (

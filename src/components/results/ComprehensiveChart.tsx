@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 import { LEVEL_COLORS } from '../../lib/constants';
 import styles from '../../styles/results.module.css';
 
-export default memo(function ComprehensiveChart({ criteria, alternatives, results }) {
+export default memo(function ComprehensiveChart({ criteria, alternatives, results }: any) {
   const chartData = useMemo(() => {
     if (!alternatives || alternatives.length === 0) return [];
 
@@ -32,11 +32,11 @@ export default memo(function ComprehensiveChart({ criteria, alternatives, result
       <h3 className={styles.cardTitle}>대안 종합중요도</h3>
       <ResponsiveContainer width="100%" height={Math.max(200, chartData.length * 50)}>
         <BarChart data={chartData} layout="vertical" margin={{ left: 20, right: 20 }}>
-          <XAxis type="number" domain={[0, 'auto']} tickFormatter={v => `${v.toFixed(1)}%`} />
+          <XAxis type="number" domain={[0, 'auto']} tickFormatter={v => `${Number(v).toFixed(1)}%`} />
           <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 13 }} />
-          <Tooltip formatter={(v) => `${v.toFixed(3)}%`} />
+          <Tooltip formatter={(v) => `${Number(v).toFixed(3)}%`} />
           <Bar dataKey="score" fill="var(--color-priority-bar)" radius={[0, 4, 4, 0]}>
-            {chartData.map((_, i) => (
+            {chartData.map((_: any, i: number) => (
               <Cell key={i} fill={LEVEL_COLORS[i % LEVEL_COLORS.length]} />
             ))}
           </Bar>

@@ -24,7 +24,7 @@ function formatAnswer(question, response) {
   return String(val);
 }
 
-export default function SurveyResponseView({ questions, responses, evaluatorId }) {
+export default function SurveyResponseView({ questions, responses, evaluatorId }: any) {
   const myResponses = useMemo(() => {
     const map = {};
     for (const r of responses) {

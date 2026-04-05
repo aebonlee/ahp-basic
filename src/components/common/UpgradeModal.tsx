@@ -1,7 +1,7 @@
 // Backward compatibility wrapper → PlanRequiredModal
 import PlanRequiredModal from './PlanRequiredModal';
 
-export default function UpgradeModal({ isOpen, onClose, feature }) {
+export default function UpgradeModal({ isOpen, onClose, feature }: any) {
   return (
     <PlanRequiredModal
       isOpen={isOpen}

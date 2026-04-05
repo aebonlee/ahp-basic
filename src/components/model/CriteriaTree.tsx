@@ -1,7 +1,7 @@
 import CriteriaTreeNode from './CriteriaTreeNode';
 import styles from './CriteriaTree.module.css';
 
-export default function CriteriaTree({ tree, projectName, onNodeClick, onAddChild, onEdit, onDelete, selectedId }) {
+export default function CriteriaTree({ tree, projectName, onNodeClick, onAddChild, onEdit, onDelete, selectedId }: any) {
   return (
     <div className={styles.container}>
       <div className={styles.root} onClick={() => onAddChild(null)}>

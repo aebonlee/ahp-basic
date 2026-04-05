@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { LEVEL_COLORS } from '../../lib/constants';
 import styles from './CriteriaTreeNode.module.css';
 
-export default memo(function CriteriaTreeNode({ node, level, onNodeClick, onAddChild, onEdit, onDelete, selectedId }) {
+export default memo(function CriteriaTreeNode({ node, level, onNodeClick, onAddChild, onEdit, onDelete, selectedId }: any) {
   const color = LEVEL_COLORS[level % LEVEL_COLORS.length];
   const isSelected = node.id === selectedId;
 

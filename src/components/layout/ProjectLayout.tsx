@@ -14,7 +14,7 @@ const GUIDE_TABS = [
   { key: 'evaluator',  label: '평가자',  shortLabel: 'E', title: '평가자 가이드' },
 ];
 
-export default function ProjectLayout({ children, projectName }) {
+export default function ProjectLayout({ children, projectName }: any) {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('platform');

@@ -162,7 +162,7 @@ export default function OrderConfirmationPage() {
                   </tbody>
                   <tfoot>
                     <tr>
-                      <td colSpan="3">총 결제 금액</td>
+                      <td colSpan={3}>총 결제 금액</td>
                       <td className="order-total-cell">{formatPrice(order.total_amount)}</td>
                     </tr>
                   </tfoot>

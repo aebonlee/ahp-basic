@@ -7,7 +7,7 @@ const PROVIDERS = [
   { key: 'custom', label: '커스텀' },
 ];
 
-export default function AiProviderSelector({ provider, onChange, onSettingsClick }) {
+export default function AiProviderSelector({ provider, onChange, onSettingsClick }: any) {
   return (
     <div className={styles.container}>
       <div className={styles.tabs}>

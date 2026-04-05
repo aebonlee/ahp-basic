@@ -53,7 +53,7 @@ export default function PlanExpiryBanner() {
 
   // 남은 일수 계산
   const daysLeft = plan.expires_at
-    ? Math.max(0, Math.ceil((new Date(plan.expires_at) - new Date()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(0, Math.ceil((new Date(plan.expires_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
     : null;
 
   // 만료 3일 이하

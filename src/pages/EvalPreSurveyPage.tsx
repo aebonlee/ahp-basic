@@ -309,7 +309,7 @@ export default function EvalPreSurveyPage() {
   );
 }
 
-function QuestionInput({ question, value, onChange }) {
+function QuestionInput({ question, value, onChange }: any) {
   const { question_type, options = [] } = question;
 
   switch (question_type) {

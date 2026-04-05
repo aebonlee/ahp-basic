@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import LoadingSpinner from './LoadingSpinner';
 
-export default function SuperAdminGuard({ children }) {
+export default function SuperAdminGuard({ children }: any) {
   const { profile, isLoggedIn, loading, profileLoading } = useAuth();
   const location = useLocation();
 

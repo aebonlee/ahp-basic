@@ -3,7 +3,7 @@ import Modal from '../common/Modal';
 import Button from '../common/Button';
 import styles from './CriteriaForm.module.css';
 
-export default function CriteriaForm({ mode, criterion, parentName, onSubmit, onClose }) {
+export default function CriteriaForm({ mode, criterion, parentName, onSubmit, onClose }: any) {
   const [name, setName] = useState(criterion?.name || '');
   const [description, setDescription] = useState(criterion?.description || '');
   const [loading, setLoading] = useState(false);

@@ -1,7 +1,7 @@
 import { PROJECT_STATUS_LABELS, PROJECT_STATUS_COLORS } from '../../lib/constants';
 import styles from './ProjectCard.module.css';
 
-export default function ProjectCard({ project, selected, onSelect, onEdit, onDelete, onManage, onClone }) {
+export default function ProjectCard({ project, selected, onSelect, onEdit, onDelete, onManage, onClone }: any) {
   return (
     <div
       className={`${styles.card} ${selected ? styles.selected : ''}`}

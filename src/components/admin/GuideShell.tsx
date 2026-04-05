@@ -8,7 +8,7 @@ import styles from './GuideShell.module.css';
  *   Each card: { title, body, items?, scale? }
  * @param {string[]} [processFlow] — optional flow labels (e.g. ['초대 수락','로그인',...])
  */
-export default function GuideShell({ sections, processFlow }) {
+export default function GuideShell({ sections, processFlow }: any) {
   const [view, setView] = useState('overview');
 
   const currentSection = sections.find(s => s.id === view);

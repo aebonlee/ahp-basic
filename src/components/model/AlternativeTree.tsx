@@ -1,6 +1,6 @@
 import styles from './AlternativeTree.module.css';
 
-export default function AlternativeTree({ alternatives, onNodeClick, onAddSub, onEdit, onDelete, selectedId }) {
+export default function AlternativeTree({ alternatives, onNodeClick, onAddSub, onEdit, onDelete, selectedId }: any) {
   const mainAlts = alternatives.filter(a => !a.parent_id);
   const subAlts = (parentId) => alternatives.filter(a => a.parent_id === parentId);
 

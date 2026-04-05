@@ -2,7 +2,7 @@ import Modal from '../common/Modal';
 import { LEVEL_COLORS } from '../../lib/constants';
 import styles from './ModelPreview.module.css';
 
-function TreeDisplay({ nodes, level = 0 }) {
+function TreeDisplay({ nodes, level = 0 }: any) {
   return (
     <ul className={styles.tree}>
       {nodes.map(node => (
@@ -22,7 +22,7 @@ function TreeDisplay({ nodes, level = 0 }) {
   );
 }
 
-function PreviewContent({ projectName, criteriaTree, alternatives }) {
+function PreviewContent({ projectName, criteriaTree, alternatives }: any) {
   return (
     <div className={styles.preview}>
       <div className={styles.section}>
@@ -61,7 +61,7 @@ function PreviewContent({ projectName, criteriaTree, alternatives }) {
 
 export { PreviewContent };
 
-export default function ModelPreview({ projectName, criteriaTree, alternatives, onClose, inline }) {
+export default function ModelPreview({ projectName, criteriaTree, alternatives, onClose, inline }: any) {
   if (inline) {
     return <PreviewContent projectName={projectName} criteriaTree={criteriaTree} alternatives={alternatives} />;
   }

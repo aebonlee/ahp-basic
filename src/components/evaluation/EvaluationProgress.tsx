@@ -1,7 +1,7 @@
 import { memo, useMemo } from 'react';
 import styles from './EvaluationProgress.module.css';
 
-export default memo(function EvaluationProgress({ current, total, pageSequence, comparisons }) {
+export default memo(function EvaluationProgress({ current, total, pageSequence, comparisons }: any) {
   const { totalPairs, completedPairs, pairPercent } = useMemo(() => {
     let tp = 0;
     let cp = 0;

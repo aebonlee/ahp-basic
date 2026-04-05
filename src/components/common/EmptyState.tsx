@@ -11,7 +11,7 @@ const DefaultIcon = () => (
   </svg>
 );
 
-export default memo(function EmptyState({ icon, title, description, action }) {
+export default memo(function EmptyState({ icon, title, description, action }: any) {
   return (
     <div className={styles.container}>
       <div className={styles.icon}>

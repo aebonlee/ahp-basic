@@ -1,7 +1,7 @@
 import { createContext, useReducer, useCallback, useContext, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
-const ProjectContext = createContext(null);
+const ProjectContext = createContext<any>(null);
 
 const initialState = {
   projects: [],
@@ -211,7 +211,7 @@ export function ProjectProvider({ children }) {
         );
         if (qErr) throw new Error('설문 복제 실패: ' + qErr.message);
       }
-    } catch (cloneErr) {
+    } catch (cloneErr: any) {
       await rollback();
       throw cloneErr;
     }

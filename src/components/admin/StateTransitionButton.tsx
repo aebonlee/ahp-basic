@@ -13,7 +13,7 @@ const TRANSITIONS = {
   [PROJECT_STATUS.EVALUATING]: { next: PROJECT_STATUS.COMPLETED, label: '평가 완료', variant: 'primary' },
 };
 
-export default function StateTransitionButton({ project }) {
+export default function StateTransitionButton({ project }: any) {
   const navigate = useNavigate();
   const { updateProject } = useProjects();
   const toast = useToast();

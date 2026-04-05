@@ -13,7 +13,7 @@ function formatDateTime(date) {
   return `${y}-${m}-${d} ${h}:${min}`;
 }
 
-export default function Navbar({ projectName }) {
+export default function Navbar({ projectName }: any) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, mode, setMode, isAdmin, signOut } = useAuth();

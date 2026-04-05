@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import styles from '../../styles/results.module.css';
 
-export default memo(function AlternativeResultView({ criterionName, items, priorities }) {
+export default memo(function AlternativeResultView({ criterionName, items, priorities }: any) {
   return (
     <div className={styles.resultBlock}>
       <h4 className={styles.blockTitle}>{criterionName}</h4>

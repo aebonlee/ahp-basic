@@ -13,7 +13,7 @@ import {
 } from '../utils/auth';
 import { clearAllApiKeys } from '../lib/aiService';
 
-export const AuthContext = createContext(null);
+export const AuthContext = createContext<any>(null);
 
 const initialState = {
   user: null,
@@ -73,10 +73,10 @@ export function AuthProvider({ children }) {
       if (profile) {
         const currentDomain = window.location.hostname;
         const updates = {};
-        if (!profile.signup_domain) updates.signup_domain = currentDomain;
-        const sites = Array.isArray(profile.visited_sites) ? profile.visited_sites : [];
+        if (!(profile as any).signup_domain) (updates as any).signup_domain = currentDomain;
+        const sites = Array.isArray((profile as any).visited_sites) ? (profile as any).visited_sites : [];
         if (!sites.includes(currentDomain)) {
-          updates.visited_sites = [...sites, currentDomain];
+          (updates as any).visited_sites = [...sites, currentDomain];
         }
         if (Object.keys(updates).length > 0) {
           supabase.from('user_profiles').update(updates).eq('id', userId).then(() => {});
@@ -136,7 +136,7 @@ export function AuthProvider({ children }) {
                 .eq('id', session.user.id)
                 .single();
               if (profile) {
-                const sites = profile.visited_sites || [];
+                const sites = (profile as any).visited_sites || [];
                 if (!sites.includes(hostname)) {
                   await supabase.from('user_profiles')
                     .update({ visited_sites: [...sites, hostname] })

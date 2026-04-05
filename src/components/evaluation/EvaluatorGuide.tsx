@@ -205,7 +205,7 @@ const SECTIONS = [
   },
 ];
 
-function GuidePanel({ open, onClose }) {
+function GuidePanel({ open, onClose }: any) {
   const [view, setView] = useState('overview');
 
   if (!open) return null;

@@ -93,7 +93,7 @@ const ANALYSIS_CONFIG = {
 };
 
 /** 변수 요약 한 줄 표시 */
-function VarSummaryBadge({ summary }) {
+function VarSummaryBadge({ summary }: any) {
   if (!summary) return null;
   if (summary.type === 'numeric') {
     if (summary.count === 0) return <span className={styles.badgeWarn}>응답 없음</span>;
@@ -120,7 +120,7 @@ function VarSummaryBadge({ summary }) {
 }
 
 /** 변수 부족 안내 패널 */
-function InsufficientVarsNotice({ analysisType, variables, onBack }) {
+function InsufficientVarsNotice({ analysisType, variables, onBack }: any) {
   const config = ANALYSIS_CONFIG[analysisType];
   if (!config) return null;
 
@@ -220,7 +220,7 @@ function InsufficientVarsNotice({ analysisType, variables, onBack }) {
 }
 
 /** 선택 후 데이터 진단 패널 */
-function DataDiagnostic({ analysisType, selections, variableSummaries }) {
+function DataDiagnostic({ analysisType, selections, variableSummaries }: any) {
   const diagnostics = useMemo(() => {
     const msgs = [];
     const warns = [];
@@ -531,7 +531,7 @@ export default function VariableSelector({
 }
 
 /** 선택된 변수의 상세 미리보기 */
-function SelectedVarPreview({ varId, summary }) {
+function SelectedVarPreview({ varId, summary }: any) {
   if (!summary || !varId) return null;
 
   if (summary.type === 'categorical') {

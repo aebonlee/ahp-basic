@@ -202,7 +202,7 @@ export default function SurveyBuilderPage() {
 
       {/* ── 스텝 탭 ── */}
       <div className={styles.stepTabs}>
-        {STEPS.map((s, i) => (
+        {STEPS.map((s: any, i: number) => (
           <button
             key={s.key}
             className={`${styles.stepTab} ${i === step ? styles.stepTabActive : ''}`}
@@ -278,7 +278,7 @@ export default function SurveyBuilderPage() {
 /* ============================================
    STEP 1: 연구 소개
    ============================================ */
-function StepIntro({ config, savingField, onBlur, onLoadTemplate }) {
+function StepIntro({ config, savingField, onBlur, onLoadTemplate }: any) {
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
@@ -310,7 +310,7 @@ function StepIntro({ config, savingField, onBlur, onLoadTemplate }) {
 /* ============================================
    STEP 2: 개인정보 동의 안내
    ============================================ */
-function StepConsent({ config, savingField, onBlur, onLoadTemplate }) {
+function StepConsent({ config, savingField, onBlur, onLoadTemplate }: any) {
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
@@ -347,8 +347,8 @@ function StepQuestions({
   templateData, templateLabel, templateLoading,
   activeId, setActiveId,
   onUpdate, onDelete, onDuplicate, onMove, onAdd, onLoadTemplate,
-  onDeleteAll,
-}) {
+  onDeleteAll, ...rest
+}: any) {
   const stepNum = category === 'demographic' ? 3 : 4;
   return (
     <>
@@ -385,7 +385,7 @@ function StepQuestions({
 
       <div className={styles.gfLayout}>
         <div className={styles.gfCards}>
-          {filteredQs.map((q, idx) => (
+          {filteredQs.map((q: any, idx: number) => (
             <GFormCard key={q.id} question={q} index={idx} total={filteredQs.length}
               isActive={activeId === q.id} onActivate={() => setActiveId(q.id)}
               onUpdate={onUpdate} onDelete={onDelete} onDuplicate={onDuplicate}
@@ -482,7 +482,7 @@ function StepCustomGoogleForm({
       {/* 질문 카드 + 우측 사이드 툴바 레이아웃 */}
       <div className={styles.gfLayout}>
         <div className={styles.gfCards}>
-          {filteredQs.map((q, idx) => (
+          {filteredQs.map((q: any, idx: number) => (
             <GFormCard key={q.id} question={q} index={idx} total={filteredQs.length}
               isActive={activeId === q.id} onActivate={() => setActiveId(q.id)}
               onUpdate={onUpdate} onDelete={onDelete} onDuplicate={onDuplicate}
@@ -533,7 +533,7 @@ function StepCustomGoogleForm({
 /* ============================================
    Google Forms 스타일 질문 카드 (항상 펼침)
    ============================================ */
-function GFormCard({ question, index, total, isActive, onActivate, onUpdate, onDelete, onDuplicate, onMove }) {
+function GFormCard({ question, index, total, isActive, onActivate, onUpdate, onDelete, onDuplicate, onMove }: any) {
   const [text, setText] = useState(question.question_text);
   const [desc, setDesc] = useState(question.description || '');
   const [showDesc, setShowDesc] = useState(!!(question.description));
@@ -548,7 +548,7 @@ function GFormCard({ question, index, total, isActive, onActivate, onUpdate, onD
   };
   const handleTypeChange = (e) => {
     const newType = e.target.value;
-    const updates = { question_type: newType };
+    const updates: any = { question_type: newType };
     if (NEEDS_OPTIONS.includes(newType) && options.length === 0) {
       const defaultOpts = newType === 'likert'
         ? ['매우 그렇지 않다', '그렇지 않다', '보통이다', '그렇다', '매우 그렇다']
@@ -613,7 +613,7 @@ function GFormCard({ question, index, total, isActive, onActivate, onUpdate, onD
         <div className={styles.gfPreviewBody}>
           {needsOptions ? (
             <div className={styles.optionsEditor}>
-              {options.map((opt, optIdx) => (
+              {options.map((opt: any, optIdx: number) => (
                 <div key={optIdx} className={styles.optionRow}>
                   {question.question_type === 'radio' && <div className={styles.optionDot} />}
                   {question.question_type === 'checkbox' && <div className={styles.optionSquare} />}
@@ -676,7 +676,7 @@ function GFormCard({ question, index, total, isActive, onActivate, onUpdate, onD
 /* ============================================
    STEP 5: 공개 배포 설정
    ============================================ */
-function StepDistribute({ projectId, config, savingField, onSave, toast }) {
+function StepDistribute({ projectId, config, savingField, onSave, toast }: any) {
   const [code, setCode] = useState(config.access_code || '');
   const [enabled, setEnabled] = useState(config.public_access_enabled || false);
   const [saving, setSaving] = useState(false);
@@ -799,18 +799,18 @@ function StepDistribute({ projectId, config, savingField, onSave, toast }) {
 /* ============================================
    질문 미리보기 (읽기 전용)
    ============================================ */
-function QuestionPreview({ type, options = [] }) {
+function QuestionPreview({ type, options = [] }: any) {
   switch (type) {
     case 'short_text':  return <div className={styles.previewPlaceholderShort}>단답형 텍스트</div>;
     case 'long_text':   return <div className={styles.previewPlaceholderLong}>장문형 텍스트</div>;
     case 'number':      return <div className={styles.previewPlaceholderShort}>숫자 입력</div>;
     case 'radio':
-      return (<div className={styles.previewRadio}>{options.map((opt, i) => (<div key={i} className={styles.previewRadioItem}><div className={styles.previewDot} /><span>{opt}</span></div>))}</div>);
+      return (<div className={styles.previewRadio}>{options.map((opt: any, i: number) => (<div key={i} className={styles.previewRadioItem}><div className={styles.previewDot} /><span>{opt}</span></div>))}</div>);
     case 'checkbox':
-      return (<div className={styles.previewCheckbox}>{options.map((opt, i) => (<div key={i} className={styles.previewCheckboxItem}><div className={styles.previewSquare} /><span>{opt}</span></div>))}</div>);
+      return (<div className={styles.previewCheckbox}>{options.map((opt: any, i: number) => (<div key={i} className={styles.previewCheckboxItem}><div className={styles.previewSquare} /><span>{opt}</span></div>))}</div>);
     case 'dropdown':    return <div className={styles.previewDropdown}>선택하세요 ▾</div>;
     case 'likert':
-      return (<div className={styles.previewLikert}>{options.map((opt, i) => (<div key={i} className={styles.previewLikertItem}><div className={styles.previewLikertDot} /><span className={styles.previewLikertLabel}>{opt}</span></div>))}</div>);
+      return (<div className={styles.previewLikert}>{options.map((opt: any, i: number) => (<div key={i} className={styles.previewLikertItem}><div className={styles.previewLikertDot} /><span className={styles.previewLikertLabel}>{opt}</span></div>))}</div>);
     default:            return <div className={styles.previewPlaceholder}>텍스트 입력</div>;
   }
 }

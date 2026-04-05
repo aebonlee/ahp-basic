@@ -1,7 +1,7 @@
 import AiChatLayout from './AiChatLayout';
 import { AI_TOOL_TEMPLATES, AI_SYSTEM_PROMPTS } from '../../../lib/aiPromptTemplates';
 
-export default function AiReferenceTool({ projectId, onBack }) {
+export default function AiReferenceTool({ projectId, onBack }: any) {
   return (
     <AiChatLayout
       projectId={projectId}

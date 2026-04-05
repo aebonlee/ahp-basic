@@ -1,7 +1,7 @@
 import { useEffect, useRef, useId } from 'react';
 import styles from './Modal.module.css';
 
-export default function Modal({ isOpen, onClose, title, children, width }) {
+export default function Modal({ isOpen, onClose, title, children, width }: any) {
   const overlayRef = useRef(null);
   const modalRef = useRef(null);
   const previousActiveElementRef = useRef(null);

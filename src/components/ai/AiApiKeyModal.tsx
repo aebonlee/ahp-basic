@@ -8,7 +8,7 @@ const PROVIDERS = [
   { key: 'anthropic', label: 'Claude (Anthropic)', placeholder: 'sk-ant-...' },
 ];
 
-export default function AiApiKeyModal({ isOpen, onClose }) {
+export default function AiApiKeyModal({ isOpen, onClose }: any) {
   const [openaiKey, setOpenaiKey] = useState('');
   const [anthropicKey, setAnthropicKey] = useState('');
   const [customUrl, setCustomUrl] = useState('');

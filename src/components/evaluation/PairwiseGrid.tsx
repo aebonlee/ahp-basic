@@ -1,7 +1,7 @@
 import PairwiseRow from './PairwiseRow';
 import styles from '../../styles/pairwise.module.css';
 
-export default function PairwiseGrid({ pageData, projectId, evaluatorId }) {
+export default function PairwiseGrid({ pageData, projectId, evaluatorId }: any) {
   if (!pageData) return null;
 
   return (

@@ -5,7 +5,7 @@ import Button from '../common/Button';
 import HelpButton from '../common/HelpButton';
 import styles from './ProjectForm.module.css';
 
-export default function ProjectForm({ project, onClose }) {
+export default function ProjectForm({ project, onClose }: any) {
   const { createProject, updateProject } = useProjects();
   const [name, setName] = useState(project?.name || '');
   const [description, setDescription] = useState(project?.description || '');
@@ -64,7 +64,7 @@ export default function ProjectForm({ project, onClose }) {
       <label className={styles.field} htmlFor="evalMethod">
         <span>평가방법 <HelpButton helpKey="evalMethod" /></span>
         <select id="evalMethod" value={evalMethod} onChange={(e) => setEvalMethod(Number(e.target.value))}>
-          {Object.entries(EVAL_METHOD).map(([key, val]) => (
+          {Object.entries(EVAL_METHOD).map(([key, val]: [string, any]) => (
             <option key={val} value={val}>{EVAL_METHOD_LABELS[val]}</option>
           ))}
         </select>

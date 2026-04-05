@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useContext } from 'react';
 import { ToastProvider, useToast, ToastContext } from '../ToastContext';
 
-const wrapper = ({ children }) => <ToastProvider>{children}</ToastProvider>;
+const wrapper = ({ children }: any) => <ToastProvider>{children}</ToastProvider>;
 
 function useToastFull() {
   return useContext(ToastContext);

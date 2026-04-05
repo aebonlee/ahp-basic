@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import styles from './WeightSlider.module.css';
 
-export default memo(function WeightSlider({ criteria, selected, onChange }) {
+export default memo(function WeightSlider({ criteria, selected, onChange }: any) {
   return (
     <div className={styles.container}>
       <h3 className={styles.title} id="weight-slider-label">1차 기준 선택</h3>

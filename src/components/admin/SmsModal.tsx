@@ -57,7 +57,7 @@ const FILTERS = [
   { key: 'no_phone', label: '번호 없음' },
 ];
 
-export default function SmsModal({ isOpen, onClose, evaluators, projectId, respondedIds, projectName, projectPlan }) {
+export default function SmsModal({ isOpen, onClose, evaluators, projectId, respondedIds, projectName, projectPlan }: any) {
   const { user } = useAuth();
   const [message, setMessage] = useState('');
   const [selected, setSelected] = useState(new Set());
@@ -101,7 +101,7 @@ export default function SmsModal({ isOpen, onClose, evaluators, projectId, respo
 
   // 현재 필터 항목별 인원수
   const filterCounts = useMemo(() => {
-    const counts = { all: evaluators.length };
+    const counts: any = { all: evaluators.length };
     counts.eval_done = evaluators.filter((ev) => ev.completed).length;
     counts.eval_pending = evaluators.filter((ev) => !ev.completed).length;
     if (hasSurveyData) {

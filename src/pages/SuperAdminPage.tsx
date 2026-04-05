@@ -29,7 +29,7 @@ const DOMAIN_FILTERS = [
 
 const PAGE_SIZE = 10;
 
-function Pagination({ currentPage, totalPages, onPageChange }) {
+function Pagination({ currentPage, totalPages, onPageChange }: any) {
   if (totalPages <= 1) return null;
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   return (
@@ -61,7 +61,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   );
 }
 
-function UsersTab({ toast }) {
+function UsersTab({ toast }: any) {
   const { users, loading, updateRole } = useSuperAdminUsers();
   const [domainFilter, setDomainFilter] = useState('ahp-basic.dreamitbiz.com');
   const [currentPage, setCurrentPage] = useState(1);
@@ -160,7 +160,7 @@ function UsersTab({ toast }) {
   );
 }
 
-function ProjectsTab({ toast, confirm }) {
+function ProjectsTab({ toast, confirm }: any) {
   const { projects, loading, deleteProject } = useSuperAdminProjects();
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -236,7 +236,7 @@ function ProjectsTab({ toast, confirm }) {
   );
 }
 
-function SmsTab({ toast }) {
+function SmsTab({ toast }: any) {
   const { stats, loading } = useSuperAdminSmsStats();
   const [directPhone, setDirectPhone] = useState('');
   const [directMessage, setDirectMessage] = useState('');
@@ -575,7 +575,7 @@ function VisitorsTab() {
   );
 }
 
-function WithdrawalsTab({ toast }) {
+function WithdrawalsTab({ toast }: any) {
   const { withdrawals, loading, processWithdrawal } = useSuperAdminWithdrawals();
   const [currentPage, setCurrentPage] = useState(1);
   const [processingId, setProcessingId] = useState(null);
@@ -714,7 +714,7 @@ const STATUS_FILTERS = [
   { value: 'completed', label: '완료' },
 ];
 
-function LecturesTab({ toast }) {
+function LecturesTab({ toast }: any) {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);

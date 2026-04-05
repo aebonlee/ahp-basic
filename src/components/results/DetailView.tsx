@@ -2,7 +2,7 @@ import LevelResultView from './LevelResultView';
 import AlternativeResultView from './AlternativeResultView';
 import styles from '../../styles/results.module.css';
 
-export default function DetailView({ criteria, alternatives, results, onNavigateToPage }) {
+export default function DetailView({ criteria, alternatives, results, onNavigateToPage }: any) {
   const criteriaPages = results.pageSequence.filter(p => p.type === 'criteria');
   const altPages = results.pageSequence.filter(p => p.type === 'alternative');
 

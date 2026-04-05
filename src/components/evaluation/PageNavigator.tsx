@@ -2,7 +2,7 @@ import { memo } from 'react';
 import Button from '../common/Button';
 import styles from './PageNavigator.module.css';
 
-export default memo(function PageNavigator({ current, total, pageStatuses, onPrev, onNext, onGoTo }) {
+export default memo(function PageNavigator({ current, total, pageStatuses, onPrev, onNext, onGoTo }: any) {
   return (
     <div className={styles.container}>
       <Button

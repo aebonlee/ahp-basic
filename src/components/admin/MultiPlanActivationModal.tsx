@@ -5,7 +5,7 @@ import { useSubscription } from '../../hooks/useSubscription';
 import { PLAN_LIMITS } from '../../lib/subscriptionPlans';
 import styles from './PlanAssignmentModal.module.css';
 
-export default function MultiPlanActivationModal({ isOpen, onClose }) {
+export default function MultiPlanActivationModal({ isOpen, onClose }: any) {
   const { getUnassignedMultiPlans, activateMultiPlan } = useSubscription();
   const [activating, setActivating] = useState(null);
 

@@ -46,8 +46,8 @@ export default function SurveyResultPage() {
   const [smsModalOpen, setSmsModalOpen] = useState(false);
   const [smsForChecked, setSmsForChecked] = useState(false);
   const [selectedEval, setSelectedEval] = useState(null);
-  const [rawCompData, setRawCompData] = useState([]);
-  const [rawDirectData, setRawDirectData] = useState([]);
+  const [rawCompData, setRawCompData] = useState<any[]>([]);
+  const [rawDirectData, setRawDirectData] = useState<any[]>([]);
 
   // 체크박스 관련 state
   const [checkedIds, setCheckedIds] = useState(new Set());
@@ -275,7 +275,7 @@ export default function SurveyResultPage() {
       {/* 질문별 응답률 */}
       {questionStats.length > 0 && (
         <div className={styles.dashQGrid}>
-          {questionStats.map((qs, idx) => {
+          {questionStats.map((qs: any, idx: number) => {
             const pct = qs.total > 0 ? ((qs.count / qs.total) * 100).toFixed(0) : '0';
             return (
               <div key={qs.id} className={styles.dashCardSm}>
@@ -346,7 +346,7 @@ export default function SurveyResultPage() {
                       className={styles.groupDeleteBtn}
                       onClick={() => {
                         const sel = document.querySelector(`.${styles.groupSelect}`);
-                        if (sel?.value) handleDeleteGroup(sel.value);
+                        if ((sel as any)?.value) handleDeleteGroup((sel as any).value);
                       }}
                       title="선택된 그룹 삭제"
                     >
@@ -358,7 +358,7 @@ export default function SurveyResultPage() {
 
               {/* 평가자 목록 */}
               <div className={styles.masterList}>
-                {evaluators.map((ev, idx) => {
+                {evaluators.map((ev: any, idx: number) => {
                   const hasSurvey = respondedIds.has(ev.id);
                   const count = evalProgress[ev.id] || 0;
                   const isDone = totalRequired > 0 && count >= totalRequired;
@@ -471,7 +471,7 @@ export default function SurveyResultPage() {
       {questions.length === 0 ? (
         <div className={styles.emptyMsg}>설계된 설문 질문이 없습니다.</div>
       ) : (
-        questions.map((q, idx) => (
+        questions.map((q: any, idx: number) => (
           <QuestionResult key={q.id} question={q} index={idx} responses={getResponsesByQuestion(q.id)} />
         ))
       )}
@@ -480,7 +480,7 @@ export default function SurveyResultPage() {
 }
 
 /* ── 개인 상세 패널 ── */
-function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, totalRequired, isDone, hasSurvey, pageSequence, compMap, directMap, isDirectInput, criteria, alternatives, goalId }) {
+function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, totalRequired, isDone, hasSurvey, pageSequence, compMap, directMap, isDirectInput, criteria, alternatives, goalId }: any) {
   const myResponses = useMemo(
     () => getResponsesByEvaluator(evaluator.id),
     [getResponsesByEvaluator, evaluator.id],
@@ -587,9 +587,9 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10 }} unit="%" />
                 <YAxis type="category" dataKey="name" width={55} tick={{ fontSize: 11 }} />
-                <Tooltip formatter={(v) => [`${v.toFixed(1)}%`, '점수']} />
+                <Tooltip formatter={(v) => [`${Number(v).toFixed(1)}%`, '점수']} />
                 <Bar dataKey="score" radius={[0, 4, 4, 0]}>
-                  {individualResults.altScores.map((_, i) => (
+                  {individualResults.altScores.map((_: any, i: number) => (
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Bar>
@@ -604,18 +604,18 @@ function EvalDetail({ evaluator, questions, getResponsesByEvaluator, evalCount, 
         <div className={styles.detailSection}>
           <div className={styles.detailSectionTitle}>비교별 우선순위 &amp; CR</div>
           <div className={styles.crList}>
-            {individualResults.pageResults.map((pr, idx) => (
+            {individualResults.pageResults.map((pr: any, idx: number) => (
               <div key={idx} className={styles.crItem}>
                 <div className={styles.crHeader}>
                   <span className={styles.crName}>{pr.parentName}</span>
                   {!isDirectInput && (
                     <span className={pr.cr > CR_THRESHOLD ? styles.crFail : styles.crPass}>
-                      CR {pr.cr.toFixed(4)}
+                      CR {Number(pr.cr).toFixed(4)}
                     </span>
                   )}
                 </div>
                 <div className={styles.priBars}>
-                  {pr.items.map((item, ii) => (
+                  {pr.items.map((item: any, ii: number) => (
                     <div key={item.id} className={styles.priRow}>
                       <span className={styles.priName}>{item.name}</span>
                       <div className={styles.priBarWrap}>
@@ -686,8 +686,8 @@ function computeAltScores(pageResults, criteria, alternatives, goalId) {
     });
   }
 
-  const total = scores.reduce((a, b) => a + b, 0);
-  return alternatives.map((alt, i) => ({
+  const total = scores.reduce((a: number, b: number) => a + b, 0);
+  return alternatives.map((alt: any, i: number) => ({
     name: alt.name,
     score: total > 0 ? (scores[i] / total) * 100 : 0,
   }));
@@ -705,7 +705,7 @@ function formatAnswer(answer) {
 }
 
 /* ── 전체 집계 카드 ── */
-function QuestionResult({ question, index, responses }) {
+function QuestionResult({ question, index, responses }: any) {
   const { question_type } = question;
   return (
     <div className={styles.questionCard}>
@@ -725,11 +725,11 @@ function QuestionResult({ question, index, responses }) {
   );
 }
 
-function TextResults({ responses }) {
+function TextResults({ responses }: any) {
   if (responses.length === 0) return <p className={styles.emptyMsg}>응답 없음</p>;
 
   const cols = useMemo(() => {
-    const maxLen = responses.reduce((mx, r) => {
+    const maxLen = responses.reduce((mx: any, r: any) => {
       const txt = r.answer?.value ?? JSON.stringify(r.answer);
       return Math.max(mx, txt.length);
     }, 0);
@@ -753,12 +753,12 @@ function TextResults({ responses }) {
   );
 }
 
-function NumberResults({ responses }) {
+function NumberResults({ responses }: any) {
   const stats = useMemo(() => {
     const values = responses.map(r => Number(r.answer?.value ?? 0)).filter(v => !isNaN(v));
     if (values.length === 0) return null;
     const sorted = [...values].sort((a, b) => a - b);
-    const sum = values.reduce((a, b) => a + b, 0);
+    const sum = values.reduce((a: number, b: number) => a + b, 0);
     return {
       min: sorted[0], max: sorted[sorted.length - 1],
       avg: (sum / values.length).toFixed(1),
@@ -778,7 +778,7 @@ function NumberResults({ responses }) {
   );
 }
 
-function ChoiceResults({ question, responses }) {
+function ChoiceResults({ question, responses }: any) {
   const data = useMemo(() => {
     const options = question.options || [];
     const counts = {};
@@ -800,7 +800,7 @@ function ChoiceResults({ question, responses }) {
           <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 12 }} />
           <Tooltip formatter={(value, name, props) => [`${value}명 (${props.payload.pct}%)`, '응답 수']} />
           <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-            {data.map((_, i) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
+            {data.map((_: any, i: number) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>

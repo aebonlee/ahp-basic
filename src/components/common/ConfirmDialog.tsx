@@ -11,7 +11,7 @@ export default function ConfirmDialog({
   confirmLabel = '확인',
   cancelLabel = '취소',
   variant = 'warning',
-}) {
+}: any) {
   if (!isOpen) return null;
 
   return (

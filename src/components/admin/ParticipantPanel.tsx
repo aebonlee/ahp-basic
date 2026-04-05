@@ -10,7 +10,7 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import HelpButton from '../common/HelpButton';
 import styles from './ParticipantPanel.module.css';
 
-export default function ParticipantPanel({ project }) {
+export default function ParticipantPanel({ project }: any) {
   const { evaluators, loading, addEvaluator, updateEvaluator, deleteEvaluator } = useEvaluators(project.id);
   const toast = useToast();
   const { confirm, confirmDialogProps } = useConfirm();

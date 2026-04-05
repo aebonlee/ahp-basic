@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import styles from './ProgressBar.module.css';
 
-export default memo(function ProgressBar({ value = 0, max = 100, label, color }) {
+export default memo(function ProgressBar({ value = 0, max = 100, label, color }: any) {
   const percent = max > 0 ? Math.min((value / max) * 100, 100) : 0;
 
   return (

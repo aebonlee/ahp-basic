@@ -19,7 +19,7 @@ import HelpButton from '../common/HelpButton';
 import PlanRequiredModal from '../common/PlanRequiredModal';
 import styles from './ProjectPanel.module.css';
 
-export default function ProjectPanel({ projects, loading, selectedProjectId, onSelect }) {
+export default function ProjectPanel({ projects, loading, selectedProjectId, onSelect }: any) {
   const navigate = useNavigate();
   const { deleteProject, cloneProject } = useProjects();
   const toast = useToast();
@@ -31,7 +31,7 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
   const [planRequiredOpen, setPlanRequiredOpen] = useState(false);
   const [assignModal, setAssignModal] = useState({ open: false, projectId: null, projectName: '' });
   const [multiPlanModalOpen, setMultiPlanModalOpen] = useState(false);
-  const [projectPlans, setProjectPlans] = useState({});
+  const [projectPlans, setProjectPlans] = useState<any>({});
 
   const unassignedPlans = getUnassignedPlans();
   const unassignedMultiPlans = getUnassignedMultiPlans();
@@ -113,7 +113,7 @@ export default function ProjectPanel({ projects, loading, selectedProjectId, onS
       {/* 활성 다수 이용권 배너 */}
       {activeMultiPlan && (() => {
         const daysLeft = activeMultiPlan.expires_at
-          ? Math.max(0, Math.ceil((new Date(activeMultiPlan.expires_at) - new Date()) / (1000 * 60 * 60 * 24)))
+          ? Math.max(0, Math.ceil((new Date(activeMultiPlan.expires_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
           : null;
         return (
           <div className={styles.multiPlanBanner}>

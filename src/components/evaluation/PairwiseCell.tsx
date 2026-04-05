@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import styles from '../../styles/pairwise.module.css';
 
-export default memo(function PairwiseCell({ index, isLeft, isCenter, isRight, isSelected, fillPercent, onClick, ariaLabel }) {
+export default memo(function PairwiseCell({ index, isLeft, isCenter, isRight, isSelected, fillPercent, onClick, ariaLabel }: any) {
   const getBackground = () => {
     if (isSelected) return 'var(--color-pairwise-selected)';
     if (isCenter) return 'var(--color-pairwise-equal)';

@@ -11,7 +11,7 @@ export default memo(function Button({
   type = 'button',
   className = '',
   ...props
-}) {
+}: any) {
   return (
     <button
       type={type}

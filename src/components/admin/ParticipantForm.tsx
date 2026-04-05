@@ -3,7 +3,7 @@ import Button from '../common/Button';
 import { formatPhone } from '../../lib/evaluatorUtils';
 import styles from './ProjectForm.module.css';
 
-export default function ParticipantForm({ evaluator, onSave, onClose }) {
+export default function ParticipantForm({ evaluator, onSave, onClose }: any) {
   const [name, setName] = useState(evaluator?.name || '');
   const [email, setEmail] = useState(evaluator?.email || '');
   const [phoneNumber, setPhoneNumber] = useState(

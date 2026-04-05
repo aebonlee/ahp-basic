@@ -5,7 +5,7 @@ import styles from './LearnPage.module.css';
 
 /* ─── Content Block Renderers ─── */
 
-function TextBlock({ block }) {
+function TextBlock({ block }: any) {
   return (
     <>
       {block.title && <h3 className={styles.sectionTitle}>{block.title}</h3>}
@@ -14,7 +14,7 @@ function TextBlock({ block }) {
   );
 }
 
-function CardGridBlock({ block }) {
+function CardGridBlock({ block }: any) {
   const colClass =
     block.columns === 4
       ? styles.cardGrid4
@@ -51,7 +51,7 @@ function CardGridBlock({ block }) {
   );
 }
 
-function TableBlock({ block }) {
+function TableBlock({ block }: any) {
   return (
     <div className={styles.tableWrap}>
       {block.title && <h4 className={styles.tableTitle}>{block.title}</h4>}
@@ -77,7 +77,7 @@ function TableBlock({ block }) {
   );
 }
 
-function ListBlock({ block }) {
+function ListBlock({ block }: any) {
   return (
     <div className={styles.stepsList}>
       {block.items.map((item, i) => (
@@ -94,7 +94,7 @@ function ListBlock({ block }) {
   );
 }
 
-function TipBlock({ block }) {
+function TipBlock({ block }: any) {
   return (
     <div className={styles.tipBox}>
       <div className={styles.tipLabel}>Tip</div>
@@ -103,7 +103,7 @@ function TipBlock({ block }) {
   );
 }
 
-function WarningBlock({ block }) {
+function WarningBlock({ block }: any) {
   return (
     <div className={styles.warnBox}>
       <div className={styles.warnLabel}>주의</div>
@@ -119,7 +119,7 @@ function WarningBlock({ block }) {
   );
 }
 
-function ContentRenderer({ blocks }) {
+function ContentRenderer({ blocks }: any) {
   return blocks.map((block, i) => {
     switch (block.type) {
       case 'text':

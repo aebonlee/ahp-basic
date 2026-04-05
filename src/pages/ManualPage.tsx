@@ -103,7 +103,7 @@ const FAQ = [
   },
 ];
 
-function FaqItem({ item }) {
+function FaqItem({ item }: any) {
   const [open, setOpen] = useState(false);
   return (
     <div className={`${styles.faqItem} ${open ? styles.faqOpen : ''}`}>

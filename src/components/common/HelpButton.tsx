@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import helpData from '../../lib/helpData';
 import styles from './HelpButton.module.css';
 
-export default function HelpButton({ helpKey }) {
+export default function HelpButton({ helpKey }: any) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
   const data = helpData[helpKey];

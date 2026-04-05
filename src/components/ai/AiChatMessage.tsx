@@ -1,6 +1,6 @@
 import styles from './AiChatMessage.module.css';
 
-export default function AiChatMessage({ role, content, isStreaming }) {
+export default function AiChatMessage({ role, content, isStreaming }: any) {
   const isUser = role === 'user';
 
   return (
@@ -32,7 +32,7 @@ function renderMarkdown(text) {
       const Tag = listType === 'ol' ? 'ol' : 'ul';
       elements.push(
         <Tag key={`list-${elements.length}`}>
-          {listItems.map((item, i) => <li key={i}>{inlineFormat(item)}</li>)}
+          {listItems.map((item: any, i: number) => <li key={i}>{inlineFormat(item)}</li>)}
         </Tag>
       );
       listItems = [];
@@ -66,7 +66,7 @@ function renderMarkdown(text) {
     if (headingMatch) {
       flushList();
       const level = headingMatch[1].length;
-      const Tag = `h${Math.min(level + 2, 6)}`; // h3-h6 to avoid too large
+      const Tag = `h${Math.min(level + 2, 6)}` as any; // h3-h6 to avoid too large
       elements.push(<Tag key={`h-${i}`}>{inlineFormat(headingMatch[2])}</Tag>);
       continue;
     }

@@ -18,7 +18,7 @@ export default function HierarchyCanvas({
   onDropNode,
   onRenameCriterion,
   onRenameAlternative,
-}) {
+}: any) {
   const [selectedId, setSelectedId] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
   const wrapperRef = useRef(null);

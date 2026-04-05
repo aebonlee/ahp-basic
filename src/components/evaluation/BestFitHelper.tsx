@@ -1,7 +1,7 @@
 import { valueToDescription } from '../../lib/pairwiseUtils';
 import styles from './BestFitHelper.module.css';
 
-export default function BestFitHelper({ recommendations, items }) {
+export default function BestFitHelper({ recommendations, items }: any) {
   if (!recommendations || recommendations.length === 0) return null;
 
   const findName = (id) => items.find(i => i.id === id)?.name || id;

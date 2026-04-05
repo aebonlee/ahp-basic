@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
-const CartContext = createContext();
+const CartContext = createContext<any>(null);
 
 const STORAGE_KEY = 'ahp_basic_cart';
 

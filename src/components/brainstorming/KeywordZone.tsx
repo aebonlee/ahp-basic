@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import KeywordItem from './KeywordItem';
 import styles from './KeywordZone.module.css';
 
-export default function KeywordZone({ zone, items, onAdd, onUpdate, onDelete, onDragStart, onDrop, isDragging }) {
+export default function KeywordZone({ zone, items, onAdd, onUpdate, onDelete, onDragStart, onDrop, isDragging }: any) {
   const [input, setInput] = useState('');
   const [showInput, setShowInput] = useState(false);
   const isComposing = useRef(false);

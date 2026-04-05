@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { CartProvider, useCart } from '../CartContext';
 
-const wrapper = ({ children }) => <CartProvider>{children}</CartProvider>;
+const wrapper = ({ children }: any) => <CartProvider>{children}</CartProvider>;
 
 const product1 = { id: 'p1', name: 'Plan A', price: 30000 };
 const product2 = { id: 'p2', name: 'Plan B', price: 50000 };

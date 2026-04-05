@@ -6,7 +6,7 @@ import Button from '../common/Button';
 import ConfirmDialog from '../common/ConfirmDialog';
 import styles from '../../styles/results.module.css';
 
-export default function SignaturePanel({ projectId, evaluatorId, allComplete, allConsistent, completedCells, totalCells, hasSurveyResponses }) {
+export default function SignaturePanel({ projectId, evaluatorId, allComplete, allConsistent, completedCells, totalCells, hasSurveyResponses }: any) {
   const [signed, setSigned] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useToast();

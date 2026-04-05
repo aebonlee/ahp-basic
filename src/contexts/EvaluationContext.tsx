@@ -1,7 +1,7 @@
 import { createContext, useReducer, useContext, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
-const EvaluationContext = createContext(null);
+const EvaluationContext = createContext<any>(null);
 
 const initialState = {
   criteria: [],

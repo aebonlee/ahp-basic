@@ -6,7 +6,7 @@ import { useSubscription } from '../../hooks/useSubscription';
 import { PLAN_LIMITS, isMultiPlan } from '../../lib/subscriptionPlans';
 import styles from './PlanAssignmentModal.module.css';
 
-export default function PlanAssignmentModal({ isOpen, onClose, projectId, projectName }) {
+export default function PlanAssignmentModal({ isOpen, onClose, projectId, projectName }: any) {
   const navigate = useNavigate();
   const { getUnassignedPlans, assignPlan } = useSubscription();
   const [assigning, setAssigning] = useState(null);

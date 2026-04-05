@@ -3,8 +3,8 @@ import { supabase } from '../../lib/supabaseClient';
 import Button from '../common/Button';
 import styles from './DirectInputPanel.module.css';
 
-export default function DirectInputPanel({ projectId, evaluatorId, criterionId, items, onValidationChange }) {
-  const [values, setValues] = useState({});
+export default function DirectInputPanel({ projectId, evaluatorId, criterionId, items, onValidationChange }: any) {
+  const [values, setValues] = useState<any>({});
   const [saving, setSaving] = useState(false);
 
   const loadValues = useCallback(async () => {
@@ -58,8 +58,8 @@ export default function DirectInputPanel({ projectId, evaluatorId, criterionId, 
   };
 
   // Normalize values to percentages
-  const total = Object.values(values).reduce((sum, v) => sum + (v || 0), 0);
-  const filledCount = items.filter(item => values[item.id] > 0).length;
+  const total = Object.values(values).reduce((sum: any, v: any) => sum + (v || 0), 0) as number;
+  const filledCount = items.filter((item: any) => values[item.id] > 0).length;
 
   return (
     <div className={styles.container}>
@@ -72,8 +72,8 @@ export default function DirectInputPanel({ projectId, evaluatorId, criterionId, 
       </p>
 
       <div className={styles.items}>
-        {items.map(item => {
-          const val = values[item.id] || 0;
+        {items.map((item: any) => {
+          const val: number = values[item.id] || 0;
           const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
           const isEmpty = !values[item.id] || values[item.id] <= 0;
           return (

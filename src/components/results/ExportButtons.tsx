@@ -1,7 +1,7 @@
 import Button from '../common/Button';
 import { exportToExcel } from '../../lib/exportUtils';
 
-export default function ExportButtons({ criteria, alternatives, results, projectName }) {
+export default function ExportButtons({ criteria, alternatives, results, projectName }: any) {
   const handleExcel = async () => {
     await exportToExcel(criteria, alternatives, results, projectName);
   };

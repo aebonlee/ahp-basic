@@ -19,7 +19,7 @@ export default function CanvasNode({
   onRename,
   paperMode,
   orientation,
-}) {
+}: any) {
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef(null);

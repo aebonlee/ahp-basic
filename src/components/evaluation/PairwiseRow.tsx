@@ -29,7 +29,7 @@ function getCellAriaLabel(cellIndex, leftName, rightName) {
   return `${rightName}이(가) ${scale}배 중요`;
 }
 
-export default memo(function PairwiseRow({ pair, parentId, projectId, evaluatorId }) {
+export default memo(function PairwiseRow({ pair, parentId, projectId, evaluatorId }: any) {
   const { comparisons, saveComparison } = useEvaluation();
 
   const compKey = `${parentId}:${pair.left.id}:${pair.right.id}`;

@@ -20,8 +20,8 @@ const STATUS_ICONS = {
 
 export default function EvaluatorMainPage() {
   const navigate = useNavigate();
-  const { user, isAdmin, isEvaluator, mode, setMode, profile } = useAuth();
-  const [projects, setProjects] = useState([]);
+  const { user, isAdmin, isEvaluator, mode, setMode, profile  }: any = useAuth();
+  const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toast = useToast();
@@ -74,8 +74,8 @@ export default function EvaluatorMainPage() {
       for (const p of assignedProjects) allMap[p.id] = p;
       for (const p of (ownedProjects || [])) allMap[p.id] = p;
 
-      const enriched = Object.values(allMap).map(p => {
-        const ev = (evaluators || []).find(e => e.project_id === p.id);
+      const enriched = Object.values(allMap).map((p: any) => {
+        const ev = (evaluators || []).find((e: any) => e.project_id === p.id);
         return { ...p, completed: ev?.completed || false, hasEvaluator: !!ev };
       });
 

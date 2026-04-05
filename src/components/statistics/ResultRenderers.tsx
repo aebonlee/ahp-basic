@@ -14,7 +14,7 @@ const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6'
    ══════════════════════════════════════ */
 
 /* ── 공통 테이블 ── */
-function StatsTable({ data, title }) {
+function StatsTable({ data, title }: any) {
   if (!data || data.length === 0) return null;
   const keys = Object.keys(data[0]);
   return (
@@ -41,7 +41,7 @@ function StatsTable({ data, title }) {
 }
 
 /* ── 분석 안내 박스 (접이식) ── */
-function AnalysisGuideBox({ purpose, when, assumptions, tips }) {
+function AnalysisGuideBox({ purpose, when, assumptions, tips }: any) {
   return (
     <details className={styles.guideBox}>
       <summary>이 분석은?</summary>
@@ -59,7 +59,7 @@ function AnalysisGuideBox({ purpose, when, assumptions, tips }) {
 }
 
 /* ── 구조화된 해석 섹션 ── */
-function InterpretSection({ title, items }) {
+function InterpretSection({ title, items }: any) {
   if (!items || items.length === 0) return null;
   return (
     <div className={styles.interpretSection}>
@@ -77,13 +77,13 @@ function InterpretSection({ title, items }) {
 }
 
 /* ── 기존 단순 해석 박스 (하위 호환) ── */
-function InterpretBox({ text }) {
+function InterpretBox({ text }: any) {
   if (!text) return null;
   return <div className={styles.interpretBox}>{text}</div>;
 }
 
 /* ── 표본 크기 경고 ── */
-function SampleSizeWarning({ n }) {
+function SampleSizeWarning({ n }: any) {
   if (!n || n >= 30) return null;
   return (
     <div className={styles.sampleWarn}>
@@ -97,7 +97,7 @@ function SampleSizeWarning({ n }) {
 }
 
 /* ── 요약 카드 ── */
-function SummaryCards({ summary }) {
+function SummaryCards({ summary }: any) {
   if (!summary || summary.error) {
     const errMsg = typeof summary?.error === 'string' ? summary.error : '결과 없음';
     return <div className={styles.error}>{errMsg}</div>;
@@ -838,7 +838,7 @@ const RENDERERS = {
   spearman: SpearmanResult,
 };
 
-export default function ResultRenderer({ analysisType, result }) {
+export default function ResultRenderer({ analysisType, result }: any) {
   const Comp = RENDERERS[analysisType];
   if (!Comp) return <div>알 수 없는 분석 유형</div>;
   return <Comp result={result} />;

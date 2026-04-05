@@ -333,7 +333,7 @@ const GUIDE_SECTIONS = [
   },
 ];
 
-function MethodGuideBox({ analysisType, onOpenGuide }) {
+function MethodGuideBox({ analysisType, onOpenGuide }: any) {
   const guide = METHOD_GUIDE[analysisType];
   if (!guide) return null;
 
@@ -395,7 +395,7 @@ function MethodGuideBox({ analysisType, onOpenGuide }) {
   );
 }
 
-function StatsGuide({ onBack, onSelect }) {
+function StatsGuide({ onBack, onSelect }: any) {
   return (
     <div className={styles.guideWrap}>
       <div className={styles.guideHeader}>

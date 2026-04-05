@@ -252,7 +252,7 @@ export default function HomePage() {
           <p className={styles.sectionSub}>AHP 평가에 참여하여 포인트를 적립하고, 출금하거나 연구자로 전환하세요.</p>
           <div className={styles.evalBenefitGrid}>
             {EVAL_BENEFITS.map((b, i) => (
-              <div key={i} className={styles.evalCard} style={{ '--eval-color': b.color, '--eval-bg': b.bg }}>
+              <div key={i} className={styles.evalCard} style={{ '--eval-color': b.color, '--eval-bg': b.bg } as React.CSSProperties}>
                 <div className={styles.evalCardIcon}>{b.icon}</div>
                 <h3 className={styles.evalCardTitle}>{b.title}</h3>
                 <p className={styles.evalCardDesc}>{b.desc}</p>
