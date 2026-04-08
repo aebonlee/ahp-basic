@@ -19,7 +19,7 @@ const initialState = {
   user: null,
   session: null,
   profile: null,
-  profileLoading: false,
+  profileLoading: true,
   mode: USER_MODE.ADMIN,
   loading: true,
   error: null,
@@ -34,6 +34,7 @@ function authReducer(state, action) {
         user: action.payload?.user || null,
         session: action.payload,
         loading: false,
+        profileLoading: action.payload?.user ? state.profileLoading : false,
         error: null,
       };
     case 'SET_PROFILE':
