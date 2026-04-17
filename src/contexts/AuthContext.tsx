@@ -233,7 +233,15 @@ export function AuthProvider({ children }) {
   }, [state.user]);
 
   const isLoggedIn = !!state.user;
-  const isAdmin = isLoggedIn && ['admin', 'superadmin'].includes(state.profile?.role);
+  const ADMIN_EMAILS = ['aebonlee@gmail.com'];
+  const adminEmails = [
+    state.user?.email,
+    state.user?.user_metadata?.email,
+  ].filter((e): e is string => Boolean(e)).map(e => e.toLowerCase());
+  const isAdminByEmail = adminEmails.some(e => ADMIN_EMAILS.includes(e));
+  const isAdmin = isLoggedIn && (
+    ['admin', 'superadmin'].includes(state.profile?.role) || isAdminByEmail
+  );
   const isEvaluator = isLoggedIn && state.profile?.role === 'evaluator';
 
   const value = useMemo(() => ({
