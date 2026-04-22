@@ -15,6 +15,7 @@ import { clearAllApiKeys } from '../lib/aiService';
 import { useIdleTimeout } from '../hooks/useIdleTimeout';
 import ProfileCompleteModal from '../components/ProfileCompleteModal';
 
+import PaymentNudgePopup from '../components/PaymentNudgePopup';
 export const AuthContext = createContext<any>(null);
 
 const initialState = {
@@ -333,6 +334,9 @@ export function AuthProvider({ children }) {
       {needsProfileCompletion && state.user && (
         <ProfileCompleteModal user={state.user} onComplete={refreshProfile} onDismiss={dismissProfileModal} />
       )}
+    {isLoggedIn && user && !needsProfileCompletion && (
+      <PaymentNudgePopup user={user} siteSlug="ahp-basic" />
+    )}
     </AuthContext.Provider>
   );
 }
