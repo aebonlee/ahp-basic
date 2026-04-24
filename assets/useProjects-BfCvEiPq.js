@@ -1,1 +1,0 @@
-import{r as o}from"./vendor-react-DhqbHMty.js";import{b as r}from"./index-TEO5xH66.js";function n(){const t=r(),{fetchProjects:c}=t;return o.useEffect(()=>{c()},[c]),t}function u(t){const c=r(),{fetchProject:e}=c;return o.useEffect(()=>{t&&e(t)},[t,e]),c}export{u as a,n as u};
