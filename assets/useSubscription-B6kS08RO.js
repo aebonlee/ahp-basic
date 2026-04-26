@@ -1,0 +1,1 @@
+import{r}from"./vendor-react-DhqbHMty.js";import{S as o}from"./index-lsEpnQAX.js";function e(){const t=r.useContext(o);if(!t)throw new Error("useSubscription must be used within SubscriptionProvider");return t}export{e as u};
