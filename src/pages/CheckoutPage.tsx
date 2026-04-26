@@ -131,7 +131,9 @@ export default function CheckoutPage() {
           await verifyPayment(paymentResult.paymentId, orderId);
         } catch {
           // 재시도도 실패 시 주문 상태만 업데이트 (결제 자체는 PortOne에서 성공)
-          await updateOrderStatus(orderId, 'paid', paymentResult.paymentId);
+          try {
+            await updateOrderStatus(orderId, 'paid', paymentResult.paymentId);
+          } catch { /* 상태 업데이트 실패해도 결제 진행 */ }
         }
       }
 
