@@ -140,6 +140,10 @@ describe('signUp', () => {
   it('returns data on successful sign-up', async () => {
     const fakeData = { user: { id: 'new-user' }, session: null };
     mockSignUp.mockResolvedValue({ data: fakeData, error: null });
+    // signUp 이후 user_profiles.upsert 호출됨
+    mockFrom.mockReturnValue({
+      upsert: vi.fn().mockResolvedValue({ data: null, error: null }),
+    });
 
     const result = await signUp('new@test.com', 'Pass1234', 'Test User');
     expect(result).toEqual(fakeData);

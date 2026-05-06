@@ -29,13 +29,9 @@ beforeEach(() => {
 
 describe('createOrder', () => {
   it('creates an order and returns the inserted row', async () => {
-    const createdOrder = { id: 'ord-1', order_number: 'AHP-260314-ABC123' };
+    // bare INSERT — .select() 없이
     mockFrom.mockReturnValue({
-      insert: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({ data: createdOrder, error: null }),
-        }),
-      }),
+      insert: vi.fn().mockResolvedValue({ error: null }),
     });
 
     const result = await createOrder({
@@ -47,24 +43,20 @@ describe('createOrder', () => {
       payment_method: 'CARD',
     });
 
-    expect(result).toEqual(createdOrder);
+    expect(result).toEqual({ id: 'AHP-260314-ABC123', order_number: 'AHP-260314-ABC123' });
     expect(mockFrom).toHaveBeenCalledWith('orders');
   });
 
   it('creates order with items when items array is provided', async () => {
-    const createdOrder = { id: 'ord-2', order_number: 'AHP-260314-XYZ789' };
     const mockInsertItems = vi.fn().mockResolvedValue({ error: null });
 
-    // First call: orders table insert
-    // Second call: order_items table insert
-    let callCount = 0;
     mockFrom.mockImplementation((table) => {
-      callCount++;
       if (table === 'orders') {
         return {
-          insert: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({ data: createdOrder, error: null }),
+          insert: vi.fn().mockResolvedValue({ error: null }),
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: { id: 'ord-2' }, error: null }),
             }),
           }),
         };
@@ -87,7 +79,7 @@ describe('createOrder', () => {
       ],
     });
 
-    expect(result).toEqual(createdOrder);
+    expect(result).toEqual({ id: 'AHP-260314-XYZ789', order_number: 'AHP-260314-XYZ789' });
     expect(mockFrom).toHaveBeenCalledWith('order_items');
     expect(mockInsertItems).toHaveBeenCalledTimes(1);
 
@@ -101,11 +93,7 @@ describe('createOrder', () => {
   it('throws error when order insert fails', async () => {
     const insertError = new Error('Insert failed');
     mockFrom.mockReturnValue({
-      insert: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({ data: null, error: insertError }),
-        }),
-      }),
+      insert: vi.fn().mockResolvedValue({ error: insertError }),
     });
 
     await expect(
@@ -120,44 +108,41 @@ describe('createOrder', () => {
     ).rejects.toThrow('Insert failed');
   });
 
-  it('throws error when order_items insert fails', async () => {
-    const createdOrder = { id: 'ord-3', order_number: 'AHP-260314-ITM' };
+  it('continues when order_items insert fails (silently caught)', async () => {
     mockFrom.mockImplementation((table) => {
       if (table === 'orders') {
         return {
-          insert: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({ data: createdOrder, error: null }),
+          insert: vi.fn().mockResolvedValue({ error: null }),
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: { id: 'ord-3' }, error: null }),
             }),
           }),
         };
       }
       if (table === 'order_items') {
         return {
-          insert: vi.fn().mockResolvedValue({ error: new Error('Items insert failed') }),
+          insert: vi.fn().mockRejectedValue(new Error('Items insert failed')),
         };
       }
     });
 
-    await expect(
-      createOrder({
-        order_number: 'AHP-260314-ITM',
-        user_email: 'x@x.com',
-        user_name: 'X',
-        user_phone: '010',
-        total_amount: 1000,
-        payment_method: 'CARD',
-        items: [{ product_title: 'P', quantity: 1, unit_price: 1000, subtotal: 1000 }],
-      })
-    ).rejects.toThrow('Items insert failed');
+    // order_items 실패해도 결제 플로우는 계속 진행 — 에러를 throw하지 않음
+    const result = await createOrder({
+      order_number: 'AHP-260314-ITM',
+      user_email: 'x@x.com',
+      user_name: 'X',
+      user_phone: '010',
+      total_amount: 1000,
+      payment_method: 'CARD',
+      items: [{ product_title: 'P', quantity: 1, unit_price: 1000, subtotal: 1000 }],
+    });
+
+    expect(result).toEqual({ id: 'AHP-260314-ITM', order_number: 'AHP-260314-ITM' });
   });
 
-  it('includes user_id in payload when provided', async () => {
-    const mockInsert = vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        single: vi.fn().mockResolvedValue({ data: { id: 'ord-4' }, error: null }),
-      }),
-    });
+  it('excludes user_id from payload even when provided (FK fix)', async () => {
+    const mockInsert = vi.fn().mockResolvedValue({ error: null });
     mockFrom.mockReturnValue({ insert: mockInsert });
 
     await createOrder({
@@ -170,15 +155,12 @@ describe('createOrder', () => {
       user_id: 'uid-123',
     });
 
-    expect(mockInsert.mock.calls[0][0]).toHaveProperty('user_id', 'uid-123');
+    // user_id는 DB DEFAULT auth.uid() 사용 — 클라이언트에서 전송하지 않음
+    expect(mockInsert.mock.calls[0][0]).not.toHaveProperty('user_id');
   });
 
   it('does not include user_id in payload when not provided', async () => {
-    const mockInsert = vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        single: vi.fn().mockResolvedValue({ data: { id: 'ord-5' }, error: null }),
-      }),
-    });
+    const mockInsert = vi.fn().mockResolvedValue({ error: null });
     mockFrom.mockReturnValue({ insert: mockInsert });
 
     await createOrder({
@@ -302,7 +284,7 @@ describe('updateOrderStatus', () => {
     expect(updatePayload).toHaveProperty('cancel_reason', 'User requested');
   });
 
-  it('throws UPDATE_NO_ROWS error when no rows are updated', async () => {
+  it('returns null when no rows are updated', async () => {
     const mockUpdate = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         select: vi.fn().mockResolvedValue({ data: [], error: null }),
@@ -310,7 +292,8 @@ describe('updateOrderStatus', () => {
     });
     mockFrom.mockReturnValue({ update: mockUpdate });
 
-    await expect(updateOrderStatus('nonexistent', 'paid')).rejects.toThrow('UPDATE_NO_ROWS');
+    const result = await updateOrderStatus('nonexistent', 'paid');
+    expect(result).toBeNull();
   });
 
   it('falls back to update without extras when first update throws', async () => {
@@ -343,7 +326,7 @@ describe('updateOrderStatus', () => {
     expect(mockFrom).toHaveBeenCalledTimes(2);
   });
 
-  it('throws when both update attempts fail', async () => {
+  it('returns null when both update attempts fail', async () => {
     mockFrom.mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
@@ -352,7 +335,9 @@ describe('updateOrderStatus', () => {
       }),
     });
 
-    await expect(updateOrderStatus('ord-fail', 'paid')).rejects.toThrow('DB failure');
+    // 업데이트 완전 실패 시에도 결제 자체는 성공이므로 null 반환
+    const result = await updateOrderStatus('ord-fail', 'paid');
+    expect(result).toBeNull();
   });
 
   it('does not set cancel_reason when status is cancelled but cancelReason is not given', async () => {
