@@ -16,6 +16,11 @@ export default function ProjectCard({ project, selected, onSelect, onEdit, onDel
           {PROJECT_STATUS_LABELS[project.status] || '알수없음'}
         </span>
       </div>
+      {project._owner && (
+        <span className={styles.owner}>
+          {project._owner.display_name || project._owner.email}
+        </span>
+      )}
       {project.description && (
         <p className={styles.desc}>{project.description}</p>
       )}

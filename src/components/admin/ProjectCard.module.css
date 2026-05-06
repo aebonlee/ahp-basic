@@ -38,6 +38,13 @@
   font-weight: 600;
 }
 
+.owner {
+  display: inline-block;
+  font-size: 0.78rem;
+  color: var(--color-text-light);
+  margin-bottom: 2px;
+}
+
 .desc {
   font-size: 0.9rem;
   color: var(--color-text-light);

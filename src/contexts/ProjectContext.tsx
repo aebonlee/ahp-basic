@@ -46,7 +46,7 @@ function projectReducer(state, action) {
 export function ProjectProvider({ children }) {
   const [state, dispatch] = useReducer(projectReducer, initialState);
 
-  const fetchProjects = useCallback(async () => {
+  const fetchProjects = useCallback(async (options?: { isSuperAdmin?: boolean }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     const { data, error } = await supabase
       .from('projects')
@@ -55,6 +55,17 @@ export function ProjectProvider({ children }) {
     if (error) {
       dispatch({ type: 'SET_ERROR', payload: error.message });
     } else {
+      if (options?.isSuperAdmin && data?.length) {
+        const ownerIds = [...new Set(data.map((p: any) => p.owner_id).filter(Boolean))];
+        const { data: profiles } = await supabase
+          .from('user_profiles')
+          .select('id, email, display_name')
+          .in('id', ownerIds);
+        if (profiles) {
+          const map = Object.fromEntries(profiles.map((p: any) => [p.id, p]));
+          data.forEach((p: any) => { p._owner = map[p.owner_id] || null; });
+        }
+      }
       dispatch({ type: 'SET_PROJECTS', payload: data });
     }
   }, []);
