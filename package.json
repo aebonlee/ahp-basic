@@ -7,11 +7,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "og-image": "node scripts/generate-og-image.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
@@ -30,6 +31,7 @@
     "@vitejs/plugin-react": "^4.4.1",
     "gh-pages": "^6.3.0",
     "jsdom": "^25.0.0",
+    "sharp": "^0.34.5",
     "typescript": "^6.0.2",
     "vite": "^7.3.1",
     "vitest": "^3.1.0"

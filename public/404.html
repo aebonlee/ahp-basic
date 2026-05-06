@@ -1,25 +1,20 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8">
     <title>AHP Basic</title>
-    <script>
-      // GitHub Pages SPA redirect
-      // Converts path-based URLs to hash-based URLs for HashRouter
-      (function () {
-        var path = window.location.pathname;
-        var hash = window.location.hash;
-        var search = window.location.search;
-        // If already at root or has a hash, just go to root
-        if (path === '/' || path === '/index.html') {
-          window.location.replace('/' + search + hash);
-        } else {
-          // Convert /some/path to /#/some/path
-          window.location.replace('/#' + path + search);
-        }
-      })();
+    <script type="text/javascript">
+      // GitHub Pages SPA redirect for HashRouter
+      var l = window.location;
+      var path = l.pathname;
+      var search = l.search;
+      var hash = l.hash;
+      if (path === '/' || path === '/index.html') {
+        l.replace('/' + search + hash);
+      } else {
+        l.replace('/#' + path + (search ? '?' + search.slice(1) : ''));
+      }
     </script>
   </head>
-  <body>
-  </body>
+  <body></body>
 </html>
