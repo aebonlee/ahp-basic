@@ -129,7 +129,7 @@ export async function updateOrderStatus(orderId, status, paymentId, cancelReason
  * 결제 검증 (Edge Function)
  */
 export async function verifyPayment(paymentId, orderId) {
-  const { data, error } = await supabase.functions.invoke('verify-payment', {
+  const { data, error } = await supabase.functions.invoke('ahp-verify-payment', {
     body: { paymentId, orderId },
   });
 
